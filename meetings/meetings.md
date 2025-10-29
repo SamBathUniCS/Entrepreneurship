@@ -47,6 +47,7 @@ Action Points:
  - I upload then I’ll get pictures
  - Curation (”Highlights”)
  - Monetization for uploaders
+   
 Additional Features:
  - Automatic photo albums for groups of friends (??)
  - Event highlights, Montage or Recap reels
