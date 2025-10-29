@@ -49,7 +49,7 @@ Action Points:
  - Monetization for uploaders
    
 Additional Features:
- - Automatic photo albums for groups of friends (??)
+ - Automatic photo albums for groups of friends(??)
  - Event highlights, Montage or Recap reels
  - Integration with 3rd party social media
 
