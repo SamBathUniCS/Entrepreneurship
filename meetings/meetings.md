@@ -26,7 +26,7 @@ Discussed:
  - Choose project idea and discuss high level implementation, and marketing
    
 ## 29-10-2025
-<img width="1096" height="139" alt="image" src="https://github.com/user-attachments/assets/3ac747fb-b7d9-4cd2-9591-424899be8125" />
+<img width="895" height="120" alt="image" src="https://github.com/user-attachments/assets/fc4c9322-2865-4b59-8bba-f45ca4c7d2c0" />
 
 
 Overall Discussion:
