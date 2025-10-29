@@ -40,3 +40,6 @@ Action Points:
  - Solution: Gabriel
  - Prototype and Feedback: Sushil, Sam and Nick
  - Research Analysis: Kit
+
+ Problem:
+ - Sharing and finding photos is a messy, time-consuming process
