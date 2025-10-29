@@ -26,8 +26,6 @@ Discussed:
  - Choose project idea and discuss high level implementation, and marketing
    
 ## 29-10-2025
-Attendees: Kit, Saniya, Gabriel, Nick, Sushil, Sam
-
 <img width="463" height="60" alt="image" src="https://github.com/user-attachments/assets/7e433bcc-8960-4d1c-90d6-27372092a067" />
 
 
