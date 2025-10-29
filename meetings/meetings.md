@@ -26,3 +26,17 @@ Action Points:
  - Sam - setup Github repo
  - Nick and Saniya - write up meeting notes 
  - Kit - Template for latek document
+
+## 29-10-2025
+Attendees: Kit, Saniya, Gabriel, Nick, Sushil, Sam
+
+Discussed:
+ - Identified problem statement
+ - Thought about proposed solution
+ - Free and Paid tiers - how to monetise
+
+Action Points:
+ - Saniya: Problem statement
+ - Solution: Gabriel
+ - Prototype and Feedback: Sushil, Sam and Nick
+ - Research Analysis: Kit
