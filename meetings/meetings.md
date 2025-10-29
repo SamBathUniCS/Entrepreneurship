@@ -25,16 +25,10 @@ Discussed:
 ## 29-10-2025
 Attendees: Kit, Saniya, Gabriel, Nick, Sushil, Sam
 
-Discussed:
+Overall Discussion:
  - Identified problem statement
  - Thought about proposed solution
  - Free and Paid tiers - how to monetise
-
-Action Points:
- - Saniya: Problem statement
- - Solution: Gabriel
- - Prototype and Feedback: Sushil, Sam and Nick
- - Research Analysis: Kit
 
  Problem:
  - Sharing and finding photos is a messy, time-consuming process
@@ -93,7 +87,8 @@ Additional Features:
             1. Gamification - it motivates the users to upload their camera roll
           
 Action Points:
- - Sam - setup Github repo
- - Nick and Saniya - write up meeting notes 
- - Kit - Template for latek document
+ - Saniya: Problem statement
+ - Solution: Gabriel
+ - Prototype and Feedback: Sushil, Sam and Nick
+ - Research Analysis: Kit
 
