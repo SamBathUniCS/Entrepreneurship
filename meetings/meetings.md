@@ -21,12 +21,7 @@ Attendees: Kit, Saniya, Gabriel, Nick, Sushil, Sam
 
 Discussed:
  - Choose project idea and discuss high level implementation, and marketing
-
-Action Points:
- - Sam - setup Github repo
- - Nick and Saniya - write up meeting notes 
- - Kit - Template for latek document
-
+   
 ## 29-10-2025
 Attendees: Kit, Saniya, Gabriel, Nick, Sushil, Sam
 
@@ -96,4 +91,9 @@ Additional Features:
     4. Boost usage:
         1. Tiered rewards: upload 100 + good photos → get 1 month premium free
             1. Gamification - it motivates the users to upload their camera roll
+          
+Action Points:
+ - Sam - setup Github repo
+ - Nick and Saniya - write up meeting notes 
+ - Kit - Template for latek document
 
