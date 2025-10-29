@@ -1,5 +1,5 @@
 ## 08-10-2025
-Attendees: <span style="color:green">Kit</span>, <span style="color:green">Saniya</span>, <span style="color:green">Gabriel</span>, <span style="color:green">Nick</span>, <span style="color:green">Sushil</span>, <span style="color:green">Sam</span>
+Attendees: <span style="color:#2e7d32">Kit</span>, <span style="color:#2e7d32">Saniya</span>, <span style="color:#2e7d32">Gabriel</span>, <span style="color:#2e7d32">Nick</span>, <span style="color:#2e7d32">Sushil</span>, <span style="color:#2e7d32">Sam</span>
 
 Discussed:
  - Meet the team and discuss ideas
