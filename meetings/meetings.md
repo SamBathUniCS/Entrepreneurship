@@ -43,3 +43,6 @@ Action Points:
 
  Problem:
  - Sharing and finding photos is a messy, time-consuming process
+
+Features:
+- 
