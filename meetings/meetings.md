@@ -9,7 +9,8 @@ Action Points:
  - n/a
 
 ## 16-10-2025
-Attendees: Kit, Saniya, Gabriel, Nick, Sushil, Sam
+<img width="561" height="86" alt="Screenshot 2025-10-29 at 19 05 19" src="https://github.com/user-attachments/assets/9c0d5624-6ec8-49e2-a6ea-84494d7801cf" />
+
 
 Discussed:
  - Discuss everyone’s project ideas and nail down to best 3
@@ -18,7 +19,8 @@ Action Points:
  - n/a
 
 ## 22-10-2025
-Attendees: Kit, Saniya, Gabriel, Nick, Sushil, Sam
+<img width="562" height="84" alt="Screenshot 2025-10-29 at 19 06 01" src="https://github.com/user-attachments/assets/0c637f69-09f5-4966-b047-566f22f4fe1e" />
+
 
 Discussed:
  - Choose project idea and discuss high level implementation, and marketing
