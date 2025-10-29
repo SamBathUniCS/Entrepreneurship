@@ -1,10 +1,11 @@
 ## 08-10-2025
-Attendees: <span style="color:#2e7d32">Kit</span>, <span style="color:#2e7d32">Saniya</span>, <span style="color:#2e7d32">Gabriel</span>, <span style="color:#2e7d32">Nick</span>, <span style="color:#2e7d32">Sushil</span>, <span style="color:#2e7d32">Sam</span>
+<img width="563" height="82" alt="Screenshot 2025-10-29 at 19 04 34" src="https://github.com/user-attachments/assets/4fd22309-cc88-4aae-8be7-5e00ffbf2d7e" />
 
 Discussed:
  - Meet the team and discuss ideas
 
 Action Points:
+
  - n/a
 
 ## 16-10-2025
