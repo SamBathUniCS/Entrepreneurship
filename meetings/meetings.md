@@ -96,3 +96,23 @@ Action Points:
  - Prototype and Feedback: Sushil, Sam and Nick
  - Research Analysis: Kit
 
+## 05-11-2025
+
+
+Overall Discussion:
+ - have a read through the report so far for any changes
+
+Discussion points:
+- focus on user incentives rather than events focused by using gamification
+- permission to have photos of me in it to be used in promotional purposes
+- for free, you get one high res download per event unless u pay
+- the host of the event can change the time frame for photos - basic model is 5 days and premium is 1 month
+- business model canva example? - <get from chat>
+
+Action Points:
+ - Saniya: talk more about the young people problem + uk based apps + add references
+ - Gabriel: add the point about having to upload photos to be able to see other photos + they are able to see how many other photos there are + some points in the discussion points above + add justification to the design ideas
+ - All: ask tutors about how detailed th eproposed section should be
+ - Nick: find users x2 (one as friendgroup and one scoiety)
+ - Kithmini: finish her section and try to take table neater
+ - Sam + Sushil: add incentives like streaks, see photos once uploaded, discovery + need justification how protoype meets requirements 
