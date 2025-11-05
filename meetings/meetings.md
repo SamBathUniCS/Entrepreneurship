@@ -107,7 +107,7 @@ Discussion points:
 - permission to have photos of me in it to be used in promotional purposes
 - for free, you get one high res download per event unless u pay
 - the host of the event can change the time frame for photos - basic model is 5 days and premium is 1 month
-- business model canva example? - <get from chat>
+- business model canva example? - (https://en.wikipedia.org/wiki/Business_model_canvas)
 
 Action Points:
  - Saniya: talk more about the young people problem + uk based apps + add references
