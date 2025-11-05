@@ -97,7 +97,7 @@ Action Points:
  - Research Analysis: Kit
 
 ## 05-11-2025
-
+<img width="594" height="90" alt="Screenshot 2025-11-05 at 13 45 58" src="https://github.com/user-attachments/assets/cc02b822-99d3-437e-9be6-85455019302f" />
 
 Overall Discussion:
  - have a read through the report so far for any changes
