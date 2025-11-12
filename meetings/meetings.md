@@ -115,4 +115,7 @@ Action Points:
  - All: ask tutors about how detailed th eproposed section should be
  - Nick: find users x2 (one as friendgroup and one scoiety)
  - Kithmini: finish her section and try to take table neater
- - Sam + Sushil: add incentives like streaks, see photos once uploaded, discovery + need justification how protoype meets requirements 
+ - Sam + Sushil: add incentives like streaks, see photos once uploaded, discovery + need justification how protoype meets requirements
+
+## 12-11-2025
+
