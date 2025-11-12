@@ -118,6 +118,7 @@ Action Points:
  - Sam + Sushil: add incentives like streaks, see photos once uploaded, discovery + need justification how protoype meets requirements
 
 ## 12-11-2025
+<img width="435" height="66" alt="Screenshot 2025-11-12 at 13 55 34" src="https://github.com/user-attachments/assets/7acca804-36a4-40d6-b39a-ed71ca60afd3" />
 
 Overall Discussion:
  - The meeting focused on refining the feedback section
