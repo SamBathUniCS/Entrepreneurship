@@ -119,3 +119,26 @@ Action Points:
 
 ## 12-11-2025
 
+Overall Discussion:
+ - The meeting focused on refining the feedback section
+
+Discussion points:
+ - Avoid focusing too much on smaller mark section. The status of the protoype sections is in good state.
+ - Feedback section:
+   - Discussed the number of participants to inteview ("it's a piece of string", meaning its flexible, and we should aim for quality over quantity)
+   - Target at least 12 participants, there should be a mix of society members and friendship groups
+ - Feedback Form updates to include:
+   - Particpant age range
+   - Opinions on privacy
+   - Perceptions of upload incentives and the gamification features
+  
+ - App features:
+   - Businesses can create their own events
+   - Free tier users can only join or search events, but they can't create them
+
+Action Points:
+   - Nick: Finalise the google form and interview questions
+   - Saniya/Gabriel : Add references to their sections
+   - Others: continue working on their section
+
+     
