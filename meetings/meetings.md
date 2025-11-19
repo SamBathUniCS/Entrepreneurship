@@ -142,4 +142,21 @@ Action Points:
    - Saniya/Gabriel : Add references to their sections
    - Others: continue working on their section
 
+## 19-11-2025
+
+Overall Discussion:
+- proof read report
+- discuss feedback
+
+Discussion Points:
+- price for premium is said to be too high for users
+- free tier has ads but they can create events with friends only 
+- pro tier does not have ads but they can create events with non-friends but cap at 50 + reels, montages are given 
+- business tier - no cap on people who can join and users can pay the photographers for their photos that the photographers can set 
+
+Action Points:
+- Saniya and Nick: Key Partners, key Activities, and Key Resources
+- Sam: Value Propositions
+- Sushil aand Gabriel: Customer Relationships, Channels and Customer Segments
+- Kithmini: Cost structure and Revenue Streams
      
