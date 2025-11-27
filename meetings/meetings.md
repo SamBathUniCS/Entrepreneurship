@@ -159,4 +159,43 @@ Action Points:
 - Sam: Value Propositions
 - Sushil aand Gabriel: Customer Relationships, Channels and Customer Segments
 - Kithmini: Cost structure and Revenue Streams
-     
+
+
+## 16-11-2025
+
+Overall Discussion:
+ - Refined pricing tiers, reward systems, and remaining Business Model Canvas sections. Clarified how facial recognition opt-in affects features and discussed how rewards/leaderboards will work.
+Discussion points:
+  - Facial recognition: Users must opt in; opting out removes core functionality.
+  - Free vs Pro vs Business tiers:
+    - Basic (free): watermarked photos, cannot create events, limited access to reels unless they win leaderboard.
+    - Pro: no ads, can create events (cap 50), access to reels/montages.
+    - Business: analytics, advanced management, cap ~500 attendees.
+
+  Rewards & Leaderboard:
+   - Removed “app currency”
+   - Monthly leaderboard resets; rewards include badges and feature boosts.
+   - Points based on uploads.
+  Pricing Updates:
+  - Pro tier ~£2.99
+  - Business tier ~£14.99.
+
+ Payment Partner Considerations: 
+   - Transaction fees may need including in cost structure.
+
+ - Report & Feedback Section:
+     - Use graphs for survey data.
+   
+  - Deadlines:
+    - Proofreading on 4th December.
+    - Final submission 9th December, 11am.
+    - Ethics forms must be uploaded to Overleaf.
+
+Action Points:
+
+  - Nick & Saniya: Complete Key Partners, Key Activities, Key Resources.
+  - Sam: Finalise Value Proposition.
+  - Sushil & Gabriel: Customer Relationships, Channels, Customer Segments.
+  - Kithmini: Cost Structure and Revenue Streams.
+  - All: Finalise sections, fix headings, prepare for proofreading.
+
