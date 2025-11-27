@@ -161,7 +161,7 @@ Action Points:
 - Kithmini: Cost structure and Revenue Streams
 
 
-## 16-11-2025
+## 26-11-2025
 
 Overall Discussion:
  - Refined pricing tiers, reward systems, and remaining Business Model Canvas sections. Clarified how facial recognition opt-in affects features and discussed how rewards/leaderboards will work.
