@@ -199,3 +199,14 @@ Action Points:
   - Kithmini: Cost Structure and Revenue Streams.
   - All: Finalise sections, fix headings, prepare for proofreading.
 
+## 04-12-2025
+
+Overall Discussion:
+- apps used: google forms, gemini for bar chats, google sheets
+- mention some examples of partners in the key partners section
+- chatbot will be a a ticket-based system where dev will look into it, resolve and reply
+- include cap of 50 per event in the proposed solution 
+- update cost infrastructure to include 2 business rather than 10 and remove customer support team cost and reduce number of developers + include AWS facial recognition cost + include revenue from ads
+- professional photos are only available for pro + few thousand free users
+
+
