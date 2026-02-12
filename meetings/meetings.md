@@ -210,3 +210,30 @@ Overall Discussion:
 - professional photos are only available for pro + few thousand free users
 
 
+## 12-02-2026
+
+Overall Discussion:
+- discussed the priorities sections of the app to focus our development on
+Discussion points:
+  - In our presentation we will simulate the event creation and taking photos
+  - we must show that the photos will be visible across 2 different phones rather than your own phone
+Prototyping:
+Backend (Python):
+  - Sushil: Backend (he has experience with facial recognition)
+  - Gabriel: Database schema setup for storing event data
+  - Sam: Provide database credentials
+Frontend (Expo):
+  - Saniya - Leaderboard page
+  - Kit - Search page
+  - Nick - Main page
+  - Gabriel - will do frontend after setting up the database schema
+
+Storage:
+  - Plan to use AWS Free Tier for image storage
+Face recognition:
+  - Plan to use Amazon Rekognition
+Timeline
+  - Development phase : 3 weeks (5th March)
+  - Marketing phase : 2 weeks (19th march)
+    
+ 
