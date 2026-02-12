@@ -214,6 +214,7 @@ Overall Discussion:
 
 Overall Discussion:
 - discussed the priorities sections of the app to focus our development on
+  
 Discussion points:
   - In our presentation we will simulate the event creation and taking photos
   - we must show that the photos will be visible across 2 different phones rather than your own phone
