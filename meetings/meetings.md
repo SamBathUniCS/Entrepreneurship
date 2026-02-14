@@ -159,9 +159,6 @@ Action Points:
 - Sam: Value Propositions
 - Sushil aand Gabriel: Customer Relationships, Channels and Customer Segments
 - Kithmini: Cost structure and Revenue Streams
-<<<<<<< HEAD
-     
-=======
 
 
 ## 26-11-2025
