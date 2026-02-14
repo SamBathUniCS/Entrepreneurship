@@ -32,7 +32,7 @@ services:
   # https://github.com/serengil/deepface
   # deep face api, could save implementing it
   deepface:
-    image: serengil/deepface:latest
+    image: docker.io/serengil/deepface:latest
     container_name: deepface
     ports:
       - "5000:5000"
