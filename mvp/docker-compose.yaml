@@ -1,0 +1,55 @@
+
+services:
+  postgres:
+    image: docker.io/library/postgres:18-alpine
+    container_name: local-postgres
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - localnet
+
+  minio:
+    image: docker.io/minio/minio:latest
+    container_name: local-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web Console
+    volumes:
+      - miniodata:/data
+    networks:
+      - localnet
+
+  # https://github.com/serengil/deepface
+  # deep face api, could save implementing it
+  deepface:
+    image: docker.io/serengil/deepface:latest
+    container_name: deepface
+    ports:
+      - "5000:5000"
+
+  # backend-server:
+  #   image: myserver:latest
+  #   environment:
+  #     DATABASE_URL: postgres://myuser:mypassword@postgres:5432/mydb
+  #     S3_ENDPOINT: http://minio:9000
+  #     FACE_SERVICE_URL: http://face-service:8000
+  #     S3_ACCESS_KEY: minioadmin
+  #     S3_SECRET_KEY: minioadmin
+
+volumes:
+  pgdata:
+  miniodata:
+
+networks:
+  localnet:
+    driver: bridge

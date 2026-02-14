@@ -237,4 +237,3 @@ Timeline
   - Development phase : 3 weeks (5th March)
   - Marketing phase : 2 weeks (19th march)
     
- 
