@@ -159,4 +159,84 @@ Action Points:
 - Sam: Value Propositions
 - Sushil aand Gabriel: Customer Relationships, Channels and Customer Segments
 - Kithmini: Cost structure and Revenue Streams
+<<<<<<< HEAD
      
+=======
+
+
+## 26-11-2025
+
+Overall Discussion:
+ - Refined pricing tiers, reward systems, and remaining Business Model Canvas sections. Clarified how facial recognition opt-in affects features and discussed how rewards/leaderboards will work.
+Discussion points:
+  - Facial recognition: Users must opt in; opting out removes core functionality.
+  - Free vs Pro vs Business tiers:
+    - Basic (free): watermarked photos, cannot create events, limited access to reels unless they win leaderboard.
+    - Pro: no ads, can create events (cap 50), access to reels/montages.
+    - Business: analytics, advanced management, cap ~500 attendees.
+
+  Rewards & Leaderboard:
+   - Removed “app currency”
+   - Monthly leaderboard resets; rewards include badges and feature boosts.
+   - Points based on uploads.
+  Pricing Updates:
+  - Pro tier ~£2.99
+  - Business tier ~£14.99.
+
+ Payment Partner Considerations: 
+   - Transaction fees may need including in cost structure.
+
+ - Report & Feedback Section:
+     - Use graphs for survey data.
+   
+  - Deadlines:
+    - Proofreading on 4th December.
+    - Final submission 9th December, 11am.
+    - Ethics forms must be uploaded to Overleaf.
+
+Action Points:
+
+  - Nick & Saniya: Complete Key Partners, Key Activities, Key Resources.
+  - Sam: Finalise Value Proposition.
+  - Sushil & Gabriel: Customer Relationships, Channels, Customer Segments.
+  - Kithmini: Cost Structure and Revenue Streams.
+  - All: Finalise sections, fix headings, prepare for proofreading.
+
+## 04-12-2025
+
+Overall Discussion:
+- apps used: google forms, gemini for bar chats, google sheets
+- mention some examples of partners in the key partners section
+- chatbot will be a a ticket-based system where dev will look into it, resolve and reply
+- include cap of 50 per event in the proposed solution 
+- update cost infrastructure to include 2 business rather than 10 and remove customer support team cost and reduce number of developers + include AWS facial recognition cost + include revenue from ads
+- professional photos are only available for pro + few thousand free users
+
+
+## 12-02-2026
+
+Overall Discussion:
+- discussed the priorities sections of the app to focus our development on
+  
+Discussion points:
+  - In our presentation we will simulate the event creation and taking photos
+  - we must show that the photos will be visible across 2 different phones rather than your own phone
+Prototyping:
+Backend (Python):
+  - Sushil: Backend (he has experience with facial recognition)
+  - Gabriel: Database schema setup for storing event data
+  - Sam: Provide database credentials
+Frontend (Expo):
+  - Saniya - Leaderboard page
+  - Kit - Search page
+  - Nick - Main page
+  - Gabriel - will do frontend after setting up the database schema
+
+Storage:
+  - Plan to use AWS Free Tier for image storage
+Face recognition:
+  - Plan to use Amazon Rekognition
+Timeline
+  - Development phase : 3 weeks (5th March)
+  - Marketing phase : 2 weeks (19th march)
+    
