@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PhotoMe — Dev Tester</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+:root{--bg:#0a0a0f;--surface:#111118;--border:#1e1e2e;--accent:#7c6af7;--accent2:#4af7b0;--accent3:#f7a24a;--danger:#f74a6a;--text:#e2e2f0;--muted:#6b6b88;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;z-index:10}
+.logo{font-family:var(--mono);font-size:17px;font-weight:600;color:var(--accent)}.logo span{color:var(--accent2)}
+.apidisplay{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:3px 10px}
+.pill{font-family:var(--mono);font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid var(--muted);color:var(--muted);display:flex;align-items:center;gap:6px;transition:all .3s;margin-left:auto}
+.pill.online{border-color:var(--accent2);color:var(--accent2)}.pill.offline{border-color:var(--danger);color:var(--danger)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor}.pill.online .dot{animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.layout{display:grid;grid-template-columns:215px 1fr 340px;flex:1;min-height:0;overflow:hidden}
+.sidebar{border-right:1px solid var(--border);overflow-y:auto;padding:10px 0}
+.slabel{padding:10px 16px 3px;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.nb{display:flex;align-items:center;gap:8px;width:100%;padding:9px 16px;background:none;border:none;border-left:2px solid transparent;cursor:pointer;color:var(--muted);font-family:var(--sans);font-size:13px;text-align:left;transition:all .15s}
+.nb:hover{color:var(--text);background:rgba(124,106,247,.06)}.nb.active{color:var(--accent);border-left-color:var(--accent);background:rgba(124,106,247,.1)}
+.nb.done{color:var(--accent2)}.nb.done .nn{background:var(--accent2);color:var(--bg)}
+.nb:disabled{opacity:.3;cursor:not-allowed;pointer-events:none}
+.nn{width:20px;height:20px;border-radius:50%;background:var(--border);color:var(--muted);font-family:var(--mono);font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.nb.active .nn{background:var(--accent);color:#fff}
+.main{overflow-y:auto;padding:26px 28px;min-height:0}
+.panel{display:none;animation:fi .18s ease}.panel.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+h2{font-size:20px;font-weight:600;margin-bottom:4px}
+.sub{color:var(--muted);font-size:13px;margin-bottom:20px;line-height:1.5}
+.field{margin-bottom:13px}
+label{display:block;font-size:11px;font-family:var(--mono);color:var(--muted);margin-bottom:5px;letter-spacing:.4px}
+input[type=text],input[type=email],input[type=password],input[type=file],select{width:100%;padding:9px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:var(--mono);font-size:13px;outline:none;transition:border-color .15s}
+input:focus,select:focus{border-color:var(--accent)}
+input[type=file]{cursor:pointer;padding:7px 12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn{padding:9px 16px;border-radius:6px;border:none;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:7px}
+.bp{background:var(--accent);color:#fff}.bp:hover{background:#9380ff}
+.bs{background:rgba(74,247,176,.12);color:var(--accent2);border:1px solid rgba(74,247,176,.25)}.bs:hover{background:rgba(74,247,176,.2)}
+.bo{background:none;border:1px solid var(--border);color:var(--text)}.bo:hover{border-color:var(--accent);color:var(--accent)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.brow{display:flex;gap:9px;flex-wrap:wrap;margin-top:2px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px}
+.ctitle{font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:9px}
+.kv{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.kv:last-child{border-bottom:none}
+.k{color:var(--muted);font-family:var(--mono)}.v{color:var(--text);font-family:var(--mono);word-break:break-all;max-width:60%;text-align:right;font-size:11px}
+.va{color:var(--accent)}.vg{color:var(--accent2)}.vw{color:var(--accent3)}
+.toggle{display:flex;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.topt{flex:1;padding:9px;background:none;border:none;cursor:pointer;color:var(--muted);font-family:var(--sans);font-size:13px;transition:all .15s}
+.topt.on{background:var(--accent);color:#fff}
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px}
+.tc{padding:12px 10px;border-radius:7px;border:2px solid var(--border);cursor:pointer;transition:all .2s;background:var(--surface);text-align:center}
+.tc:hover{border-color:var(--muted)}.tc.sel{border-color:var(--accent);background:rgba(124,106,247,.1)}
+.tc-name{font-weight:600;font-size:13px;margin-bottom:3px}.tc-desc{font-size:10px;color:var(--muted);font-family:var(--mono)}
+.alert{padding:9px 13px;border-radius:6px;font-size:13px;margin-bottom:12px;display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.aok{background:rgba(74,247,176,.1);border:1px solid rgba(74,247,176,.2);color:var(--accent2)}
+.aerr{background:rgba(247,74,106,.1);border:1px solid rgba(247,74,106,.2);color:var(--danger)}
+.ainfo{background:rgba(124,106,247,.1);border:1px solid rgba(124,106,247,.2);color:var(--accent)}
+.spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.2);border-top-color:currentColor;border-radius:50%;animation:rot .7s linear infinite;display:inline-block;flex-shrink:0}
+@keyframes rot{to{transform:rotate(360deg)}}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:7px;margin-top:10px}
+.pthumb{aspect-ratio:1;border-radius:6px;overflow:hidden;border:1px solid var(--border);position:relative;cursor:pointer;transition:transform .15s}
+.pthumb:hover{transform:scale(1.04);border-color:var(--accent)}
+.pthumb img{width:100%;height:100%;object-fit:cover}
+.tbadge{position:absolute;bottom:4px;right:4px;background:var(--accent2);color:var(--bg);font-family:var(--mono);font-size:9px;padding:2px 5px;border-radius:3px;font-weight:700}
+.fcnt{position:absolute;top:4px;left:4px;background:rgba(0,0,0,.75);color:var(--text);font-family:var(--mono);font-size:9px;padding:2px 5px;border-radius:3px}
+.rrow{display:flex;align-items:flex-start;gap:10px;padding:10px;border-radius:6px;background:var(--surface);border:1px solid var(--border);margin-bottom:7px}
+.rrow.match{border-color:rgba(74,247,176,.3)}.rrow.nomatch{border-color:rgba(247,74,106,.15)}
+.rico{font-size:22px;flex-shrink:0;margin-top:1px}
+.rname{font-weight:600;font-size:13px;margin-bottom:2px}
+.rdet{font-family:var(--mono);font-size:11px;color:var(--muted);line-height:1.6}
+.dtable{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono)}
+.dtable th{text-align:left;padding:7px 9px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:500;font-size:10px;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap}
+.dtable td{padding:7px 9px;border-bottom:1px solid rgba(30,30,46,.5);vertical-align:middle;max-width:160px;word-break:break-all}
+.dtable tr:hover td{background:rgba(124,106,247,.04)}
+.dthumb{width:36px;height:36px;border-radius:4px;object-fit:cover;border:1px solid var(--border);cursor:pointer;display:block}
+.chip{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600}
+.cpro{background:rgba(124,106,247,.2);color:var(--accent)}.cbasic{background:rgba(107,107,136,.2);color:var(--muted)}.cbiz{background:rgba(247,162,74,.2);color:var(--accent3)}
+.cg{background:rgba(74,247,176,.2);color:var(--accent2)}.cr{background:rgba(247,74,106,.2);color:var(--danger)}
+.empty{text-align:center;padding:36px;color:var(--muted);font-size:13px;line-height:2}
+hr{border:none;border-top:1px solid var(--border);margin:18px 0}
+/* LOG — scrolls internally, never affects page scroll */
+.logpanel{border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.loghdr{padding:11px 14px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.logclr{background:none;border:none;color:var(--muted);cursor:pointer;font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:3px;transition:color .15s}
+.logclr:hover{color:var(--danger)}
+.logscroll{flex:1;overflow-y:auto;padding:8px;font-family:var(--mono);font-size:11px;line-height:1.6;min-height:0}
+.le{padding:5px 8px;border-radius:4px;margin-bottom:3px;border-left:2px solid transparent}
+.le.req{border-left-color:var(--accent);background:rgba(124,106,247,.05)}
+.le.ok{border-left-color:var(--accent2);background:rgba(74,247,176,.05)}
+.le.er{border-left-color:var(--danger);background:rgba(247,74,106,.05)}
+.le.inf{border-left-color:var(--accent3);background:rgba(247,162,74,.05)}
+.lt{color:var(--muted);margin-right:5px;font-size:10px}
+.lm{font-weight:600;margin-right:4px}
+.lm.GET{color:var(--accent2)}.lm.POST{color:var(--accent)}.lm.DELETE{color:var(--danger)}.lm.PATCH{color:var(--accent3)}
+.ls{float:right}.ls.ok{color:var(--accent2)}.ls.er{color:var(--danger)}
+.lb{margin-top:3px;color:var(--muted);white-space:pre-wrap;word-break:break-all;font-size:10px;max-height:80px;overflow-y:auto;border-top:1px solid rgba(255,255,255,.05);padding-top:3px}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+select option{background:#1a1a2e}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Photo<span>Me</span></div>
+  <div class="apidisplay" id="apidisplay">localhost:8000</div>
+  <div class="pill" id="pill"><div class="dot"></div><span id="pilltxt">checking…</span></div>
+</header>
+
+<div class="layout">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="slabel">Setup</div>
+  <button class="nb active" id="btn-health" onclick="show('health')"><div class="nn">1</div>Health Check</button>
+  <button class="nb" id="btn-auth" onclick="show('auth')"><div class="nn">2</div>Register / Login</button>
+  <div class="slabel" style="margin-top:6px">Flow</div>
+  <button class="nb" id="btn-event" onclick="show('event')" disabled><div class="nn">3</div>Create Event</button>
+  <button class="nb" id="btn-selfie" onclick="show('selfie')" disabled><div class="nn">4</div>Register Face</button>
+  <button class="nb" id="btn-upload" onclick="show('upload')" disabled><div class="nn">5</div>Upload Photos</button>
+  <div class="slabel" style="margin-top:6px">Results</div>
+  <button class="nb" id="btn-gallery" onclick="show('gallery')" disabled><div class="nn">6</div>Gallery</button>
+  <button class="nb" id="btn-myphotos" onclick="show('myphotos')" disabled><div class="nn">7</div>My Face Matches</button>
+  <div class="slabel" style="margin-top:6px">Developer</div>
+  <button class="nb" id="btn-dev" onclick="show('dev')" disabled><div class="nn">⚙</div>Inspect All Data</button>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- 1: Health -->
+<div class="panel active" id="panel-health">
+  <h2>Health Check</h2>
+  <p class="sub">Confirm all Docker services are reachable. Do this first.</p>
+  <div class="field">
+    <label>API Base URL</label>
+    <input type="text" id="base-url" value="http://localhost:8000" placeholder="http://localhost:8000">
+  </div>
+  <div class="brow"><button class="btn bp" onclick="checkHealth()">▶ Check All Services</button></div>
+  <div id="health-out" style="margin-top:18px"></div>
+</div>
+
+<!-- 2: Auth -->
+<div class="panel" id="panel-auth">
+  <h2>Register / Login</h2>
+  <p class="sub">Create a new account or log in. Token is saved automatically for all requests.</p>
+  <div class="toggle">
+    <button class="topt on" id="tog-reg" onclick="switchAuth('register')">Register new user</button>
+    <button class="topt" id="tog-log" onclick="switchAuth('login')">Login existing user</button>
+  </div>
+
+  <div id="form-reg">
+    <div class="row2">
+      <div class="field"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com"></div>
+      <div class="field"><label>Username</label><input type="text" id="reg-user" placeholder="yourname"></div>
+    </div>
+    <div class="field"><label>Password</label><input type="password" id="reg-pw" placeholder="minimum 8 characters"></div>
+    <div class="field"><label>Full Name (optional)</label><input type="text" id="reg-name" placeholder="Your Name"></div>
+
+    <label style="margin-bottom:8px;display:block">Account Tier — choose now, can be changed later</label>
+    <div class="tier-grid">
+      <div class="tc" id="tc-basic" onclick="selTier('basic')">
+        <div class="tc-name" style="color:var(--muted)">Basic</div>
+        <div class="tc-desc">Free<br>Can't create events</div>
+      </div>
+      <div class="tc sel" id="tc-pro" onclick="selTier('pro')">
+        <div class="tc-name" style="color:var(--accent)">Pro ✓</div>
+        <div class="tc-desc">£2.99/mo<br>Create events (50 cap)</div>
+      </div>
+      <div class="tc" id="tc-biz" onclick="selTier('business')">
+        <div class="tc-name" style="color:var(--accent3)">Business</div>
+        <div class="tc-desc">£15.99/mo<br>500 attendees</div>
+      </div>
+    </div>
+    <div class="alert ainfo" style="font-size:12px;margin-top:8px;margin-bottom:14px">
+      💡 <strong>Pro</strong> selected by default — you need at least Pro to create events and upload photos.
+    </div>
+    <div class="brow"><button class="btn bp" onclick="doRegister()">Create Account →</button></div>
+  </div>
+
+  <div id="form-log" style="display:none">
+    <div class="field"><label>Email</label><input type="email" id="log-email" placeholder="you@example.com"></div>
+    <div class="field"><label>Password</label><input type="password" id="log-pw" placeholder="your password"></div>
+    <div class="brow"><button class="btn bp" onclick="doLogin()">Login →</button></div>
+  </div>
+
+  <div id="auth-out" style="margin-top:16px"></div>
+</div>
+
+<!-- 3: Event -->
+<div class="panel" id="panel-event">
+  <h2>Create / Select Event</h2>
+  <p class="sub">Events hold your photos. Pick an existing one or create a new one.</p>
+  <div id="existing-events"></div>
+  <hr>
+  <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.5px;margin-bottom:12px">CREATE NEW EVENT</div>
+  <div class="field"><label>Title</label><input type="text" id="ev-title" placeholder="e.g. Summer Party 2026"></div>
+  <div class="field"><label>Description (optional)</label><input type="text" id="ev-desc" placeholder="Short description"></div>
+  <div class="field"><label>Visibility</label>
+    <select id="ev-vis"><option value="public">Public</option><option value="private">Private</option></select>
+  </div>
+  <div class="brow"><button class="btn bp" onclick="createNewEvent()">Create Event →</button></div>
+  <div id="event-out" style="margin-top:14px"></div>
+</div>
+
+<!-- 4: Selfie -->
+<div class="panel" id="panel-selfie">
+  <h2>Register Your Face</h2>
+  <p class="sub">Upload a clear front-facing photo. This creates your embedding — what the system matches against in uploaded photos.</p>
+  <div class="alert ainfo">💡 Well-lit, front-facing, face takes up most of the frame = best accuracy.</div>
+  <div class="field"><label>Select Selfie Photo</label><input type="file" id="selfie-file" accept="image/*"></div>
+  <div id="selfie-prev" style="display:none;margin:10px 0"><img id="selfie-img" style="max-width:160px;max-height:160px;border-radius:8px;border:1px solid var(--border)"></div>
+  <div class="brow">
+    <button class="btn bp" onclick="registerSelfie()">Register Face →</button>
+    <button class="btn bo" onclick="skipSelfie()">Skip (uploads work, no matching)</button>
+  </div>
+  <div id="selfie-out" style="margin-top:14px"></div>
+</div>
+
+<!-- 5: Upload -->
+<div class="panel" id="panel-upload">
+  <h2>Upload Photos</h2>
+  <p class="sub">Each photo is scanned for faces and matched against all registered users.</p>
+  <div class="card">
+    <div class="ctitle">Active Event</div>
+    <div class="kv"><span class="k">title</span><span class="v va" id="up-ev-title">—</span></div>
+    <div class="kv"><span class="k">id</span><span class="v" id="up-ev-id" style="font-size:10px">—</span></div>
+  </div>
+  <div class="field"><label>Select Photos (multi-select OK)</label><input type="file" id="up-files" accept="image/*" multiple></div>
+  <div class="brow"><button class="btn bp" id="up-btn" onclick="uploadPhotos()">Upload & Analyse →</button></div>
+  <div id="upload-out" style="margin-top:14px"></div>
+</div>
+
+<!-- 6: Gallery -->
+<div class="panel" id="panel-gallery">
+  <h2>Event Gallery</h2>
+  <p class="sub">All photos in the current event. Click any to open full-size.</p>
+  <div class="brow" style="margin-bottom:12px"><button class="btn bo" onclick="loadGallery()">↺ Refresh</button></div>
+  <div id="gallery-out"><div class="empty">🖼️<br>No photos yet</div></div>
+</div>
+
+<!-- 7: My Photos -->
+<div class="panel" id="panel-myphotos">
+  <h2>My Face Matches</h2>
+  <p class="sub">Photos where your face was detected and matched to your selfie embedding.</p>
+  <div class="alert ainfo" id="rescan-info">
+    💡 If you registered your selfie <strong>after</strong> uploading photos, those photos won't have been scanned yet.
+    Use <strong>Re-scan All Photos</strong> to run face matching on everything already uploaded.
+  </div>
+  <div class="brow" style="margin-bottom:12px">
+    <button class="btn bo" onclick="loadMyPhotos()">↺ Refresh</button>
+    <button class="btn bp" id="rescan-btn" onclick="rescanPhotos()">🔍 Re-scan All Photos</button>
+  </div>
+  <div id="rescan-out"></div>
+  <div id="myphotos-out"><div class="empty">🔍<br>No matches yet<br><small>Register your face first, then upload a photo containing your face</small></div></div>
+</div>
+
+<!-- Dev -->
+<div class="panel" id="panel-dev">
+  <h2>Developer Inspector</h2>
+  <p class="sub">Inspect everything stored in the system. All data is live from the API.</p>
+  <div class="brow" style="margin-bottom:18px">
+    <button class="btn bo" onclick="devLoad('summary')">📊 Summary</button>
+    <button class="btn bo" onclick="devLoad('users')">👥 All Users</button>
+    <button class="btn bo" onclick="devLoad('events')">📅 All Events</button>
+    <button class="btn bo" onclick="devLoad('photos')">🖼 All Photos</button>
+  </div>
+  <div id="dev-out"><div class="empty">👆 Click a button above to inspect data</div></div>
+</div>
+
+</main>
+
+<!-- LOG PANEL — scrolls internally, page never scrolls -->
+<aside class="logpanel">
+  <div class="loghdr">
+    API Log
+    <button class="logclr" onclick="document.getElementById('logscroll').innerHTML=''">clear</button>
+  </div>
+  <div class="logscroll" id="logscroll"></div>
+</aside>
+
+</div>
+
+<script>
+const S = { token:null, user:null, eventId:null, eventTitle:null };
+
+const bu = () => document.getElementById('base-url').value.replace(/\/$/,'');
+const ts = () => new Date().toTimeString().slice(0,8);
+
+function appendLog(html) {
+  const el = document.getElementById('logscroll');
+  const d = document.createElement('div');
+  d.innerHTML = html;
+  el.appendChild(d);
+  el.scrollTop = el.scrollHeight;
+}
+
+function logReq(method, path, status, body) {
+  const ok = status >= 200 && status < 300;
+  const cls = ok ? 'ok' : 'er';
+  const bodyStr = body ? (typeof body === 'string' ? body : JSON.stringify(body, null, 2)) : '';
+  const bodyHtml = bodyStr ? `<div class="lb">${bodyStr.slice(0,800)}</div>` : '';
+  appendLog(`<div class="le ${cls}">
+    <span class="lt">${ts()}</span><span class="lm ${method}">${method}</span><span>${path}</span>
+    <span class="ls ${cls}">${status||'ERR'}</span>${bodyHtml}
+  </div>`);
+}
+
+function logInfo(msg) {
+  appendLog(`<div class="le inf"><span class="lt">${ts()}</span>${msg}</div>`);
+}
+
+async function api(method, path, body, isForm) {
+  const url = bu() + path;
+  const h = {};
+  if (S.token) h['Authorization'] = 'Bearer ' + S.token;
+  if (!isForm && body) h['Content-Type'] = 'application/json';
+  const opts = { method, headers: h };
+  if (body) opts.body = isForm ? body : JSON.stringify(body);
+  try {
+    const r = await fetch(url, opts);
+    let data; try { data = await r.json(); } catch { data = null; }
+    logReq(method, path, r.status, data);
+    return { ok: r.ok, status: r.status, data };
+  } catch(e) {
+    logReq(method, path, 0, e.message);
+    return { ok: false, status: 0, data: { detail: e.message } };
+  }
+}
+
+function show(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  document.getElementById('btn-' + id).classList.add('active');
+  if (id === 'gallery') loadGallery();
+  if (id === 'myphotos') loadMyPhotos();
+  if (id === 'event') loadExistingEvents();
+}
+
+function unlock(id) { const b = document.getElementById('btn-'+id); if(b) b.disabled = false; }
+function markDone(id) { const b = document.getElementById('btn-'+id); if(b) b.classList.add('done'); }
+function out(id, html) { document.getElementById(id).innerHTML = html; }
+
+function alertHtml(type, msg) { return `<div class="alert ${type}">${msg}</div>`; }
+
+function cardHtml(title, rows) {
+  return `<div class="card"><div class="ctitle">${title}</div>${rows.map(([k,v,cls]) =>
+    `<div class="kv"><span class="k">${k}</span><span class="v ${cls||''}">${v}</span></div>`
+  ).join('')}</div>`;
+}
+
+// ── 1: Health ──
+async function checkHealth() {
+  out('health-out', '<div style="color:var(--muted);font-size:13px;display:flex;align-items:center;gap:8px"><span class="spin"></span> Checking…</div>');
+  document.getElementById('apidisplay').textContent = bu().replace('http://','').replace('https://','');
+
+  const [apiR, dfR] = await Promise.all([
+    api('GET', '/api/v1/admin/health'),
+    api('GET', '/api/v1/admin/deepface/health'),
+  ]);
+
+  const apiOk = apiR.ok;
+  const dfReady = dfR.ok && dfR.data?.deepface_reachable;
+  const dfLoading = dfR.ok && !dfR.data?.deepface_reachable;
+
+  const pill = document.getElementById('pill');
+  const pt = document.getElementById('pilltxt');
+
+  if (apiOk) { pill.className = 'pill online'; pt.textContent = 'online'; }
+  else { pill.className = 'pill offline'; pt.textContent = 'offline'; }
+
+  out('health-out',
+    cardHtml('Service Status', [
+      ['PhotoMe API', apiOk ? '✓ running' : '✗ unreachable', apiOk ? 'vg' : ''],
+      ['PostgreSQL', apiOk ? '✓ connected' : '—', apiOk ? 'vg' : ''],
+      ['MinIO (S3)', apiOk ? '✓ reachable' : '—', apiOk ? 'vg' : ''],
+      ['DeepFace', dfReady ? '✓ model ready' : dfLoading ? '⚠ loading model (~60s)' : '✗ unreachable', dfReady ? 'vg' : dfLoading ? 'vw' : ''],
+    ]) +
+    (apiOk
+      ? alertHtml('aok', '✓ API is up — proceed to Register / Login')
+      : alertHtml('aerr', '⚠ Cannot reach the API. Make sure <code>docker compose up</code> is running and the URL above is correct.'))
+  );
+
+  if (apiOk) { unlock('auth'); markDone('health'); }
+}
+
+// ── 2: Auth ──
+let chosenTier = 'pro';
+
+function selTier(t) {
+  chosenTier = t;
+  document.getElementById('tc-basic').classList.toggle('sel', t === 'basic');
+  document.getElementById('tc-pro').classList.toggle('sel', t === 'pro');
+  document.getElementById('tc-biz').classList.toggle('sel', t === 'business');
+}
+
+function switchAuth(mode) {
+  document.getElementById('form-reg').style.display = mode === 'register' ? 'block' : 'none';
+  document.getElementById('form-log').style.display = mode === 'login' ? 'block' : 'none';
+  document.getElementById('tog-reg').className = 'topt' + (mode === 'register' ? ' on' : '');
+  document.getElementById('tog-log').className = 'topt' + (mode === 'login' ? ' on' : '');
+  out('auth-out', '');
+}
+
+async function doRegister() {
+  const email    = document.getElementById('reg-email').value.trim();
+  const username = document.getElementById('reg-user').value.trim();
+  const password = document.getElementById('reg-pw').value;
+  const full_name= document.getElementById('reg-name').value.trim();
+  if (!email || !username || !password) { out('auth-out', alertHtml('aerr', 'Email, username and password are required.')); return; }
+
+  const r = await api('POST', '/api/v1/auth/register', { email, username, password, full_name: full_name || undefined });
+  if (!r.ok) { out('auth-out', alertHtml('aerr', '❌ ' + (r.data?.detail || 'Registration failed'))); return; }
+  logInfo('Account created — logging in…');
+  await _login(email, password, chosenTier);
+}
+
+async function doLogin() {
+  const email    = document.getElementById('log-email').value.trim();
+  const password = document.getElementById('log-pw').value;
+  if (!email || !password) { out('auth-out', alertHtml('aerr', 'Email and password required.')); return; }
+  await _login(email, password, null);
+}
+
+async function _login(email, password, applyTier) {
+  const r = await api('POST', '/api/v1/auth/login/json', { email, password });
+  if (!r.ok) { out('auth-out', alertHtml('aerr', '❌ ' + (r.data?.detail || 'Login failed'))); return; }
+  S.token = r.data.access_token;
+
+  // apply tier immediately after login
+  if (applyTier) {
+    logInfo(`Applying tier: ${applyTier}…`);
+    const tr = await api('POST', `/api/v1/admin/users/me/tier?tier=${applyTier}`);
+    if (!tr.ok) logInfo(`⚠ Tier upgrade failed: ${tr.data?.detail}`);
+  }
+
+  const me = await api('GET', '/api/v1/users/me');
+  if (me.ok) S.user = me.data;
+  const tier = S.user?.tier || 'basic';
+  const tChip = tier === 'pro' ? 'cpro' : tier === 'business' ? 'cbiz' : 'cbasic';
+
+  out('auth-out',
+    alertHtml('aok', `✓ Logged in as <strong>@${S.user?.username}</strong>`) +
+    cardHtml('Session', [
+      ['username', '@' + (S.user?.username || '—'), 'vg'],
+      ['email',    S.user?.email || '—', ''],
+      ['tier',     `<span class="chip ${tChip}">${tier}</span>`, ''],
+      ['token',    '✓ stored in memory', 'vg'],
+    ])
+  );
+
+  saveSession();
+  markDone('auth');
+  unlock('event'); unlock('selfie'); unlock('dev');
+  logInfo(`✓ Authenticated as @${S.user?.username} [${tier}]`);
+  show('event');
+}
+
+// ── 3: Event ──
+async function loadExistingEvents() {
+  const r = await api('GET', '/api/v1/events/');
+  const wrap = document.getElementById('existing-events');
+  if (!r.ok || !r.data?.length) { wrap.innerHTML = ''; return; }
+
+  wrap.innerHTML =
+    `<div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.5px;margin-bottom:8px">YOUR EXISTING EVENTS</div>` +
+    r.data.map(e => `
+      <div class="rrow" style="cursor:pointer;margin-bottom:6px" onclick="selectEvent('${e.id}','${e.title.replace(/'/g,"\\'")}')">
+        <div class="rico">📅</div>
+        <div style="flex:1">
+          <div class="rname">${e.title}</div>
+          <div class="rdet">${e.photo_count} photos · ${e.member_count} members · ${e.status}</div>
+        </div>
+        <button class="btn bo" style="font-size:12px;padding:5px 11px;flex-shrink:0">Use →</button>
+      </div>`
+    ).join('') + '<hr>';
+}
+
+function selectEvent(id, title) {
+  S.eventId = id; S.eventTitle = title;
+  document.getElementById('up-ev-title').textContent = title;
+  document.getElementById('up-ev-id').textContent = id;
+  markDone('event'); unlock('upload'); unlock('gallery'); unlock('myphotos');
+  out('event-out', alertHtml('aok', `✓ Selected: <strong>${title}</strong>`));
+  logInfo('✓ Using event: ' + title);
+  show('selfie');
+}
+
+async function createNewEvent() {
+  const title = document.getElementById('ev-title').value.trim();
+  if (!title) { out('event-out', alertHtml('aerr', 'Title is required.')); return; }
+
+  // Always send all fields with explicit defaults to avoid 422 validation errors
+  const body = {
+    title,
+    description:       document.getElementById('ev-desc').value.trim() || null,
+    visibility:        document.getElementById('ev-vis').value,
+    upload_threshold:  5,
+    photo_expiry_days: 0,
+    event_date:        null,
+  };
+
+  const r = await api('POST', '/api/v1/events/', body);
+
+  if (!r.ok) {
+    const detail = Array.isArray(r.data?.detail)
+      ? r.data.detail.map(e => (e.loc?.join('.') || '') + ': ' + e.msg).join('<br>')
+      : (r.data?.detail || 'Event creation failed — see API log on the right for details');
+    out('event-out', alertHtml('aerr', '&#10060; ' + detail));
+    return;
+  }
+
+  S.eventId = r.data.id; S.eventTitle = r.data.title;
+  document.getElementById('up-ev-title').textContent = r.data.title;
+  document.getElementById('up-ev-id').textContent    = r.data.id;
+
+  out('event-out',
+    alertHtml('aok', '✓ Event created!') +
+    cardHtml('Event', [
+      ['title',        r.data.title,         'va'],
+      ['id',           r.data.id,             ''],
+      ['visibility',   r.data.visibility,     ''],
+      ['max attendees',r.data.max_attendees,  ''],
+    ])
+  );
+  markDone('event'); unlock('upload'); unlock('gallery'); unlock('myphotos');
+  logInfo('✓ Event created: ' + title);
+  show('selfie');
+}
+
+// ── 4: Selfie ──
+document.getElementById('selfie-file').addEventListener('change', function() {
+  const f = this.files[0]; if (!f) return;
+  const rd = new FileReader();
+  rd.onload = e => { document.getElementById('selfie-img').src = e.target.result; document.getElementById('selfie-prev').style.display = 'block'; };
+  rd.readAsDataURL(f);
+});
+
+async function registerSelfie() {
+  const f = document.getElementById('selfie-file').files[0];
+  if (!f) { out('selfie-out', alertHtml('aerr', 'Select a photo first.')); return; }
+  const form = new FormData(); form.append('file', f);
+  const r = await api('POST', '/api/v1/users/me/selfie', form, true);
+  if (r.ok) {
+    out('selfie-out', alertHtml('aok', '✓ Face registered! Your embedding is stored and will be matched against all future uploads.'));
+    markDone('selfie'); logInfo('✓ Face embedding saved');
+    show('upload');
+  } else {
+    out('selfie-out', alertHtml('aerr', '❌ ' + (r.data?.detail || 'Failed') + '<br><small style="font-size:11px">Try a clearer, more front-facing photo where your face is large in the frame.</small>'));
+  }
+}
+
+function skipSelfie() {
+  logInfo('Selfie skipped — uploads will work but no face matching');
+  markDone('selfie'); show('upload');
+}
+
+// ── 5: Upload ──
+async function uploadPhotos() {
+  const files = document.getElementById('up-files').files;
+  if (!files.length) { out('upload-out', alertHtml('aerr', 'Select at least one photo.')); return; }
+  if (!S.eventId)    { out('upload-out', alertHtml('aerr', 'No event selected — go to step 3.')); return; }
+
+  const btn = document.getElementById('up-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span> Uploading…';
+  out('upload-out', '');
+
+  let html = '';
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    const form = new FormData(); form.append('file', f);
+    logInfo(`Uploading ${f.name} (${(f.size/1024).toFixed(0)} KB)…`);
+    const r = await api('POST', `/api/v1/events/${S.eventId}/photos/`, form, true);
+    if (r.ok) {
+      const d = r.data;
+      const matched = d.tagged_users?.length > 0;
+      const tags = matched
+        ? d.tagged_users.map(u => `<span style="color:var(--accent2)">@${u}</span>`).join(', ')
+        : '<span style="color:var(--muted)">none</span>';
+      html += `<div class="rrow ${matched ? 'match' : 'nomatch'}">
+        <div class="rico">${matched ? '✅' : '📷'}</div>
+        <div style="flex:1">
+          <div class="rname">${f.name}</div>
+          <div class="rdet">Faces detected: <strong style="color:var(--text)">${d.faces_detected}</strong> &nbsp;·&nbsp; Matched: ${tags} &nbsp;·&nbsp; Upload #${d.upload_count}</div>
+        </div>
+      </div>`;
+    } else {
+      html += `<div class="rrow nomatch">
+        <div class="rico">❌</div>
+        <div><div class="rname">${f.name}</div><div class="rdet" style="color:var(--danger)">${r.data?.detail || 'Upload failed'}</div></div>
+      </div>`;
+    }
+  }
+
+  out('upload-out', html);
+  btn.disabled = false; btn.innerHTML = 'Upload & Analyse →';
+  markDone('upload'); logInfo(`✓ Finished ${files.length} upload(s)`);
+}
+
+// ── Image fetching with auth (proxy URLs need Bearer token) ──
+async function fetchImageBlob(url) {
+  try {
+    const fullUrl = url.startsWith('http') ? url : bu() + url;
+    const r = await fetch(fullUrl, { headers: { 'Authorization': 'Bearer ' + S.token } });
+    if (!r.ok) return null;
+    const blob = await r.blob();
+    return URL.createObjectURL(blob);
+  } catch { return null; }
+}
+
+// Lightbox viewer — shows full image inside the page, no new tab needed
+async function openLightbox(photoUrl, thumbBlobUrl, caption) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightbox-img');
+  const cap = document.getElementById('lightbox-caption');
+  // Show immediately with thumbnail if we have it
+  img.src = thumbBlobUrl || '';
+  cap.textContent = caption || '';
+  lb.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  // Then load full res in background
+  if (photoUrl) {
+    const fullBlob = await fetchImageBlob(photoUrl);
+    if (fullBlob) img.src = fullBlob;
+    cap.textContent = (caption || '') + ' — click anywhere to close';
+  }
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+function makeThumb(p, thumbBlobSrc) {
+  const fc = p.detected_faces?.[0]?.count || 0;
+  const tc = p.tags?.length || 0;
+  const div = document.createElement('div');
+  div.className = 'pthumb';
+  div.title = (p.original_filename || '') + ' — click to view';
+  div.style.cursor = 'pointer';
+
+  div.innerHTML = `<div style="background:var(--border);width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:24px">⏳</div>
+    ${fc ? `<div class="fcnt">👤${fc}</div>` : ''}
+    ${tc ? `<div class="tbadge">${tc} tag${tc>1?'s':''}</div>` : ''}`;
+
+  // Load thumbnail
+  const thumbUrl = p.thumbnail_url || p.url;
+  let cachedThumbBlob = null;
+  if (thumbUrl) {
+    fetchImageBlob(thumbUrl).then(blobUrl => {
+      if (blobUrl) {
+        cachedThumbBlob = blobUrl;
+        const img = document.createElement('img');
+        img.src = blobUrl;
+        img.loading = 'lazy';
+        const placeholder = div.querySelector('div');
+        if (placeholder) placeholder.replaceWith(img);
+      }
+    });
+  }
+
+  // Click opens lightbox with full image
+  div.onclick = () => openLightbox(p.url, cachedThumbBlob, p.original_filename);
+  return div;
+}
+
+// ── 6: Gallery ──
+async function loadGallery() {
+  if (!S.eventId) return;
+  const r = await api('GET', `/api/v1/events/${S.eventId}/photos/`);
+  if (!r.ok || !r.data?.length) { out('gallery-out', '<div class="empty">🖼️<br>No photos yet</div>'); return; }
+
+  const grid = document.createElement('div');
+  grid.className = 'pgrid';
+
+  for (const p of r.data) {
+    grid.appendChild(makeThumb(p));
+  }
+
+  document.getElementById('gallery-out').innerHTML = '';
+  document.getElementById('gallery-out').appendChild(grid);
+  markDone('gallery');
+}
+
+// ── 7: My Photos ──
+async function loadMyPhotos() {
+  if (!S.eventId) return;
+  const r = await api('GET', `/api/v1/events/${S.eventId}/photos/my`);
+  if (!r.ok || !r.data?.length) {
+    out('myphotos-out', '<div class="empty">🔍<br>No matches found<br><small>Make sure you registered a selfie (step 4) and uploaded a photo with your face (step 5)</small></div>');
+    return;
+  }
+
+  const grid = document.createElement('div');
+  grid.className = 'pgrid';
+
+  for (const p of r.data) {
+    const thumb = makeThumb(p);
+    // Add "you" badge on top
+    const badge = document.createElement('div');
+    badge.className = 'tbadge';
+    badge.textContent = 'you';
+    badge.style.bottom = '24px'; // offset above any existing badge
+    thumb.appendChild(badge);
+    grid.appendChild(thumb);
+  }
+
+  document.getElementById('myphotos-out').innerHTML = alertHtml('aok', `✓ Found ${r.data.length} photo(s) containing your face!`);
+  document.getElementById('myphotos-out').appendChild(grid);
+  markDone('myphotos');
+}
+
+// ── Re-scan: re-upload all photos to trigger face matching ──
+async function rescanPhotos() {
+  if (!S.eventId) { out('rescan-out', alertHtml('aerr', 'No event selected.')); return; }
+
+  const btn = document.getElementById('rescan-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Re-scanning…';
+  out('rescan-out', '');
+
+  // Get all photos in the event
+  const r = await api('GET', `/api/v1/events/${S.eventId}/photos/`);
+  if (!r.ok || !r.data?.length) {
+    out('rescan-out', alertHtml('aerr', 'No photos found in this event.'));
+    btn.disabled = false; btn.innerHTML = '🔍 Re-scan All Photos';
+    return;
+  }
+
+  logInfo(`Re-scanning ${r.data.length} photos for face matches…`);
+
+  // Use the dev endpoint to get photos with their s3 keys, then
+  // call a dedicated rescan endpoint for each photo
+  const scanR = await api('POST', `/api/v1/events/${S.eventId}/photos/rescan`);
+
+  if (scanR.ok) {
+    const d = scanR.data;
+    out('rescan-out', alertHtml('aok',
+      `✓ Re-scan complete! Processed ${d.processed} photos — found ${d.new_tags} new face matches.`
+    ));
+    logInfo(`✓ Rescan: ${d.processed} photos, ${d.new_tags} new tags`);
+    await loadMyPhotos();
+  } else {
+    // Fallback: show instructions if endpoint doesn't exist yet
+    out('rescan-out', alertHtml('aerr',
+      `The rescan endpoint isn't available yet. To match your face to existing photos:<br><br>
+      1. Delete the existing photos from the gallery<br>
+      2. Re-upload them now that your selfie is registered<br><br>
+      <strong>Or:</strong> check the Docker log — face matching only runs at upload time.`
+    ));
+  }
+
+  btn.disabled = false; btn.innerHTML = '🔍 Re-scan All Photos';
+}
+
+// ── Dev ──
+async function devLoad(section) {
+  out('dev-out', '<div class="empty"><span class="spin"></span> Loading…</div>');
+  const r = await api('GET', `/api/v1/admin/dev/${section}`);
+  if (!r.ok) { out('dev-out', alertHtml('aerr', '❌ ' + (r.data?.detail || 'Request failed'))); return; }
+  const d = r.data;
+
+  if (section === 'summary') {
+    out('dev-out', cardHtml('System Summary', [
+      ['Total Users',           d.users,         ''],
+      ['Users with Face',       d.users_with_face,'vg'],
+      ['Total Events',          d.events,         ''],
+      ['Active Events',         d.active_events,  'vg'],
+      ['Total Photos',          d.photos,         ''],
+      ['Face Match Tags',       d.photo_tags,     'vg'],
+      ['Event Memberships',     d.event_members,  ''],
+    ])); return;
+  }
+
+  if (section === 'users') {
+    const rows = d.users.map(u => `<tr>
+      <td style="color:var(--accent2)">@${u.username}</td>
+      <td>${u.email}</td>
+      <td><span class="chip ${u.tier==='pro'?'cpro':u.tier==='business'?'cbiz':'cbasic'}">${u.tier}</span></td>
+      <td><span class="chip ${u.has_face_embedding?'cg':'cr'}">${u.has_face_embedding?'yes':'no'}</span></td>
+      <td style="text-align:center">${u.total_uploads}</td>
+      <td>${u.selfie_url ? `<img class="dthumb" src="${u.selfie_url}" onclick="window.open('${u.selfie_url}','_blank')" title="Click to open">` : '—'}</td>
+      <td style="color:var(--muted)">${u.created_at.slice(0,16)}</td>
+    </tr>`).join('');
+    out('dev-out', `<div style="overflow-x:auto"><table class="dtable">
+      <thead><tr><th>Username</th><th>Email</th><th>Tier</th><th>Face?</th><th>Uploads</th><th>Selfie</th><th>Created</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan=7 class="empty">No users</td></tr>'}</tbody>
+    </table></div>`); return;
+  }
+
+  if (section === 'events') {
+    const rows = d.events.map(e => `<tr>
+      <td style="color:var(--accent)">${e.title}</td>
+      <td><span class="chip ${e.status==='active'?'cg':'cbasic'}">${e.status}</span></td>
+      <td>${e.creator || '—'}</td>
+      <td>${e.member_count} / ${e.max_attendees}</td>
+      <td style="color:var(--accent2);text-align:center">${e.photo_count}</td>
+      <td style="color:var(--muted);font-size:10px">${e.id.slice(0,8)}…</td>
+    </tr>`).join('');
+    out('dev-out', `<div style="overflow-x:auto"><table class="dtable">
+      <thead><tr><th>Title</th><th>Status</th><th>Creator</th><th>Members</th><th>Photos</th><th>ID</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan=6 class="empty">No events</td></tr>'}</tbody>
+    </table></div>`); return;
+  }
+
+  if (section === 'photos') {
+    const rows = d.photos.map(p => `<tr>
+      <td>${(p.thumbnail_url||p.url) ? `<img class="dthumb" src="${p.thumbnail_url||p.url}" onclick="window.open('${p.url}','_blank')" title="${p.filename||''}">` : '—'}</td>
+      <td style="color:var(--muted)">${p.filename || '—'}</td>
+      <td>${p.event_title || '—'}</td>
+      <td>${p.uploader || '—'}</td>
+      <td style="text-align:center">${p.faces_detected}</td>
+      <td>${p.tagged_users.map(t => `<span class="chip cg">${t.username}</span> <span style="color:var(--muted);font-size:10px">${t.confidence ? Math.round(t.confidence*100)+'%' : ''}</span>`).join(' ') || '—'}</td>
+      <td style="color:var(--muted)">${p.width&&p.height ? p.width+'×'+p.height : '—'}</td>
+      <td style="color:var(--muted)">${p.created_at.slice(0,16)}</td>
+    </tr>`).join('');
+    out('dev-out', `<div style="overflow-x:auto"><table class="dtable">
+      <thead><tr><th>Preview</th><th>Filename</th><th>Event</th><th>Uploader</th><th>Faces</th><th>Matched</th><th>Size</th><th>Uploaded</th></tr></thead>
+      <tbody>${rows || '<tr><td colspan=8 class="empty">No photos</td></tr>'}</tbody>
+    </table></div>`); return;
+  }
+}
+
+// ── Session persistence across page refreshes ──
+function saveSession() {
+  try {
+    sessionStorage.setItem('pm_token', S.token || '');
+    sessionStorage.setItem('pm_user', JSON.stringify(S.user || null));
+    sessionStorage.setItem('pm_eventId', S.eventId || '');
+    sessionStorage.setItem('pm_eventTitle', S.eventTitle || '');
+  } catch(e) {}
+}
+
+function loadSession() {
+  try {
+    const token = sessionStorage.getItem('pm_token');
+    const user  = sessionStorage.getItem('pm_user');
+    const eventId = sessionStorage.getItem('pm_eventId');
+    const eventTitle = sessionStorage.getItem('pm_eventTitle');
+    if (token && user) {
+      S.token = token;
+      S.user  = JSON.parse(user);
+      if (eventId) { S.eventId = eventId; S.eventTitle = eventTitle; }
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+
+// ── Boot ──
+window.addEventListener('load', () => {
+  logInfo('PhotoMe Dev Tester ready');
+
+  // Restore session from previous page load
+  if (loadSession()) {
+    const tier = S.user?.tier || 'basic';
+    const tChip = tier === 'pro' ? 'cpro' : tier === 'business' ? 'cbiz' : 'cbasic';
+    out('auth-out',
+      alertHtml('aok', `✓ Session restored — logged in as <strong>@${S.user?.username}</strong>`) +
+      cardHtml('Session', [
+        ['username', '@' + (S.user?.username || '—'), 'vg'],
+        ['email',    S.user?.email || '—', ''],
+        ['tier',     '<span class="chip ' + tChip + '">' + tier + '</span>', ''],
+        ['token',    '✓ restored from session', 'vg'],
+      ])
+    );
+    markDone('auth');
+    unlock('event'); unlock('selfie'); unlock('dev');
+    if (S.eventId) {
+      document.getElementById('up-ev-title').textContent = S.eventTitle;
+      document.getElementById('up-ev-id').textContent    = S.eventId;
+      markDone('event'); unlock('upload'); unlock('gallery'); unlock('myphotos');
+    }
+    logInfo(`✓ Session restored as @${S.user?.username} [${tier}]`);
+    // Pre-fill login form in case they want to switch accounts
+    document.getElementById('log-email').value = S.user?.email || '';
+  }
+
+  logInfo('Starting health check…');
+  checkHealth();
+});
+</script>
+
+<!-- Lightbox -->
+<div id="lightbox" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;align-items:center;justify-content:center;flex-direction:column;gap:16px" onclick="closeLightbox()">
+  <div style="position:absolute;top:16px;right:24px;color:var(--muted);font-size:28px;cursor:pointer;user-select:none" onclick="closeLightbox()">✕</div>
+  <img id="lightbox-img" style="max-width:90vw;max-height:85vh;border-radius:8px;object-fit:contain;box-shadow:0 0 60px rgba(0,0,0,.8)">
+  <div id="lightbox-caption" style="color:var(--muted);font-family:var(--mono);font-size:12px"></div>
+</div>
+</body>
+</html>
