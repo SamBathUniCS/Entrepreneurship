@@ -1,0 +1,124 @@
+import io
+import logging
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from sqlalchemy.orm import Session
+
+from app.api.deps import get_current_user, get_db
+from app.models.friendship import FaceEmbedding
+from app.models.user import User
+from app.schemas.user import UserPublic, UserUpdate
+from app.services import deepface as df, storage
+
+router = APIRouter(prefix="/users", tags=["users"])
+logger = logging.getLogger(__name__)
+
+
+@router.get("/me", response_model=UserPublic)
+def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
+
+
+@router.patch("/me", response_model=UserPublic)
+def update_me(
+    payload: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    for field, value in payload.model_dump(exclude_none=True).items():
+        setattr(current_user, field, value)
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@router.post("/me/selfie", status_code=200)
+async def upload_selfie(
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+
+    image_bytes = await file.read()
+    if len(image_bytes) > 15 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Image must be under 15 MB")
+
+    # Always save the selfie to MinIO first — regardless of face detection
+    selfie_key = storage.build_selfie_key(str(current_user.id))
+    storage.upload_file(io.BytesIO(image_bytes), selfie_key, file.content_type or "image/jpeg")
+    logger.info(f"Selfie uploaded to MinIO: {selfie_key} ({len(image_bytes)//1024}KB)")
+
+    # Try to extract face embedding from DeepFace
+    embedding = None
+    face_detected = False
+    error_detail = None
+
+    try:
+        embedding = await df.extract_embedding(image_bytes)
+        face_detected = embedding is not None
+        logger.info(f"DeepFace result: face_detected={face_detected}, embedding_dims={len(embedding) if embedding else 0}")
+    except Exception as e:
+        error_detail = str(e)
+        logger.error(f"DeepFace call failed entirely: {e}")
+
+    # Save or update the embedding record (even if None — selfie is still stored)
+    if embedding is not None:
+        existing = db.query(FaceEmbedding).filter(FaceEmbedding.user_id == current_user.id).first()
+        if existing:
+            existing.embedding = embedding
+            existing.selfie_s3_key = selfie_key
+            logger.info("Updated existing face embedding")
+        else:
+            db.add(FaceEmbedding(
+                user_id=current_user.id,
+                embedding=embedding,
+                selfie_s3_key=selfie_key,
+                model_name=df.settings.DEEPFACE_MODEL,
+            ))
+            logger.info("Created new face embedding")
+        db.commit()
+
+    if face_detected:
+        return {
+            "message": "Face registered successfully — you will be matched in uploaded photos.",
+            "face_detected": True,
+            "selfie_saved": True,
+        }
+    else:
+        # Don't fail — return a warning so the user knows matching won't work
+        return {
+            "message": "Selfie saved, but no face was detected. Face matching will not work until a face is registered. Try a clearer, well-lit front-facing photo.",
+            "face_detected": False,
+            "selfie_saved": True,
+            "debug": error_detail,
+        }
+
+
+@router.get("/me/selfie")
+def get_selfie(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    emb = db.query(FaceEmbedding).filter(FaceEmbedding.user_id == current_user.id).first()
+    if not emb:
+        raise HTTPException(status_code=404, detail="No selfie registered")
+    return {
+        "has_embedding": emb.embedding is not None,
+        "model": emb.model_name,
+        "selfie_url": f"/api/v1/photos/selfie/{current_user.id}/file",
+    }
+
+
+@router.get("/{user_id}", response_model=UserPublic)
+def get_user(
+    user_id: UUID,
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
