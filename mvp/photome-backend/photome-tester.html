@@ -547,11 +547,23 @@ async function registerSelfie() {
   const form = new FormData(); form.append('file', f);
   const r = await api('POST', '/api/v1/users/me/selfie', form, true);
   if (r.ok) {
-    out('selfie-out', alertHtml('aok', '✓ Face registered! Your embedding is stored and will be matched against all future uploads.'));
-    markDone('selfie'); logInfo('✓ Face embedding saved');
-    show('upload');
+    if (r.data?.face_detected === false) {
+      // Saved but no face found — warn but allow continuing
+      out('selfie-out',
+        alertHtml('aerr', '⚠️ Selfie saved but <strong>no face was detected</strong> by DeepFace. Face matching will not work.<br><br>' +
+          'Check <code>docker compose logs deepface</code> to see if the model is running.<br>' +
+          (r.data?.debug ? `<small>Error: ${r.data.debug}</small>` : ''))
+      );
+      logInfo('⚠ Selfie saved but no face detected — face matching disabled');
+      // Still mark done and allow continuing
+      markDone('selfie');
+    } else {
+      out('selfie-out', alertHtml('aok', '✓ Face registered! Your embedding is stored and you will be matched in uploaded photos.'));
+      logInfo('✓ Face embedding saved'); markDone('selfie');
+      show('upload');
+    }
   } else {
-    out('selfie-out', alertHtml('aerr', '❌ ' + (r.data?.detail || 'Failed') + '<br><small style="font-size:11px">Try a clearer, more front-facing photo where your face is large in the frame.</small>'));
+    out('selfie-out', alertHtml('aerr', '❌ ' + (r.data?.detail || 'Upload failed')));
   }
 }
 
