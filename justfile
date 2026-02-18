@@ -1,13 +1,15 @@
+compose := if command -v podman-compose >/dev/null 2>&1; then echo podman-compose; else echo docker-compose; fi
+
 up:
-    podman-compose -f mvp/docker-compose.yaml up -d
+    {{compose}} -f mvp/docker-compose.yaml up -d --build
 
 down:
-    podman-compose -f mvp/docker-compose.yaml down
+    {{compose}} -f mvp/docker-compose.yaml down
 
 logs:
-    podman-compose -f mvp/docker-compose.yaml logs -f
+    {{compose}} -f mvp/docker-compose.yaml logs -f
 
 restart:
-    podman-compose -f mvp/docker-compose.yaml down
-    podman-compose -f mvp/docker-compose.yaml up -d
+    {{compose}} -f mvp/docker-compose.yaml down
+    {{compose}} -f mvp/docker-compose.yaml up -d
 
