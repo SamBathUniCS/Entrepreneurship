@@ -100,6 +100,28 @@ services:
     command: >
       sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
+  # ── Expo Frontend ───────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./photome-frontend
+      dockerfile: Dockerfile
+    container_name: photome-frontend
+    ports:
+      - "8081:8081"
+      - "19000:19000"
+      - "19001:19001"
+      - "19002:19002"
+    environment:
+      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
+      - CHOKIDAR_USEPOLLING=true
+    tty: true
+    networks:
+      - localnet
+    depends_on:
+      - backend
+    command: >
+      npx expo start --tunnel -c
+
 volumes:
   pgdata:
   miniodata:
