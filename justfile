@@ -25,3 +25,6 @@ logs:
 restart:
     {{compose}} -f mvp/docker-compose.yaml down
     {{compose}} -f mvp/docker-compose.yaml up -d
+
+logs-frontend:
+    {{compose}} -f mvp/docker-compose.yaml logs -f frontend
