@@ -25,7 +25,7 @@ export default function Signup() {
     }
     try {
       await signup(email, username, password);
-      router.replace("/(tabs)");
+      router.replace("/home");
     } catch (err: any) {
       alert(err.message);
     }

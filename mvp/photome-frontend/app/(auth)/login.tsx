@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,18 +10,23 @@ import {
   ScrollView,
 } from "react-native";
 import { router } from "expo-router";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../context/_AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { login } = useContext(AuthContext);
+  const { token, login } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (token) {
+      router.replace("/home");
+    }
+  }, [token]);
 
   async function handleLogin() {
     try {
       await login(email, password);
-      router.replace("/(tabs)");
+      router.replace("/home");
     } catch (err: any) {
       alert(err.message);
     }
@@ -45,14 +50,6 @@ export default function Login() {
             onChangeText={setEmail}
             style={styles.input}
             keyboardType="email-address"
-            autoCapitalize="none"
-          />
-
-          <TextInput
-            placeholder="Username"
-            value={username}
-            onChangeText={setUsername}
-            style={styles.input}
             autoCapitalize="none"
           />
 

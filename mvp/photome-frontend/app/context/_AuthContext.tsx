@@ -1,7 +1,8 @@
-import React, { createContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useState, useEffect, ReactNode, useContext } from "react";
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import { API_BASE_URL } from "../../config";
+import { router } from "expo-router";
 
 // Cross-platform storage wrapper
 const Storage = {
@@ -30,6 +31,7 @@ const Storage = {
 
 interface AuthContextType {
   token: string | null;
+  loggedIn: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -37,6 +39,7 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType>({
   token: null,
+  loggedIn: false,
   login: async () => {},
   signup: async () => {},
   logout: async () => {},
@@ -78,7 +81,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = await res.json();
       throw new Error(data.detail || "Signup failed");
     }
-    // Auto-login after signup
     await login(email, password);
   };
 
@@ -87,9 +89,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await Storage.removeItem("token");
   };
 
+  const loggedIn = !!token;
+
   return (
-    <AuthContext.Provider value={{ token, login, signup, logout }}>
+    <AuthContext.Provider value={{ token, loggedIn, login, signup, logout }}>
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { token } = useContext(AuthContext);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !token) {
+      router.replace("/login"); // safe to redirect now
+    }
+  }, [mounted, token]);
+
+  if (!token) {
+    return null; // hide protected content until redirect
+  }
+
+  return <>{children}</>;
 };
