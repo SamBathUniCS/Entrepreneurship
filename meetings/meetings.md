@@ -224,7 +224,7 @@ Backend (Python):
   - Gabriel: Database schema setup for storing event data
   - Sam: Provide database credentials
 Frontend (Expo):
-  - Saniya - Leaderboard page
+  - Saniya - Leaderboard page + settings page 
   - Kit - Search page
   - Nick - Main page
   - Gabriel - will do frontend after setting up the database schema
@@ -237,3 +237,26 @@ Timeline
   - Development phase : 3 weeks (5th March)
   - Marketing phase : 2 weeks (19th march)
     
+## 26-02-2026
+
+Overall Discussion:
+- Dicuss the progress made in development and any issues faced
+- Assign the rest of the work 
+
+Discussion Points:
+- justfile (info on how to run front and backend)
+- aws s3 is free, recognition is £103 and rbs is only for a month
+- aws students doesnt allow u to create buckets so docker was used instead
+- deepface api used for face recognition
+- backend functionality is almost done - log in, uplaod pics, events etc
+
+Action Points:
+- Sushil to update read me for info on the api endpoints + testing
+- connect end points to frontend
+- QR scan page - Kithmini 
+- tier selection on accounts page - Saniya 
+- gallery page per event page (c-d,f) - Nick
+- e - Saniya 
+- reels page - Kithmini/ Gabriel
+- montage creation and highlights - kithmini
+- log in (username asked which later used ot add friends) - Sam
