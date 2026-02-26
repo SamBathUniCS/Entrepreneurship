@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -10,21 +10,25 @@ import {
   ScrollView,
 } from "react-native";
 import { router } from "expo-router";
+import { AuthContext } from "../context/_AuthContext";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { signup } = useContext(AuthContext);
 
-  function handleSignup() {
+  async function handleSignup() {
     if (!email || !username || !password) {
       alert("Please fill in all fields");
       return;
     }
-
-    console.log({ email, username, password });
-
-    router.replace("/(tabs)"); // go to main app after signup
+    try {
+      await signup(email, username, password);
+      router.replace("/(tabs)");
+    } catch (err: any) {
+      alert(err.message);
+    }
   }
 
   return (

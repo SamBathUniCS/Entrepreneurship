@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   View,
   Text,
@@ -10,21 +10,21 @@ import {
   ScrollView,
 } from "react-native";
 import { router } from "expo-router";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { login } = useContext(AuthContext);
 
-  function handleLogin() {
-    if (!email || !username || !password) {
-      alert("Please fill in all fields");
-      return;
+  async function handleLogin() {
+    try {
+      await login(email, password);
+      router.replace("/(tabs)");
+    } catch (err: any) {
+      alert(err.message);
     }
-
-    console.log({ email, username, password });
-
-    router.replace("/(tabs)");
   }
 
   return (
