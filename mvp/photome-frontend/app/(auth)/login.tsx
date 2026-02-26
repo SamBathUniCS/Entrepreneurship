@@ -28,7 +28,7 @@ export default function Login() {
       await login(email, password);
       router.replace("/home");
     } catch (err: any) {
-      alert(err.message);
+      alert(err.message || "Login failed");
     }
   }
 

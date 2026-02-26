@@ -62,13 +62,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
+
     const data = await res.json();
-    if (res.ok) {
-      setToken(data.access_token);
-      await Storage.setItem("token", data.access_token);
-    } else {
+
+    if (!res.ok) {
+      if (Array.isArray(data.detail)) {
+        const message = data.detail
+          .map((e: any) => {
+            const parts = e.msg.split(": ");
+            return parts.length > 1 ? parts[1] : e.msg;
+          })
+          .join("\n");
+
+        throw new Error(message);
+      }
+
       throw new Error(data.detail || "Login failed");
     }
+
+    setToken(data.access_token);
+    await Storage.setItem("token", data.access_token);
   };
 
   const signup = async (email: string, username: string, password: string) => {
@@ -77,10 +90,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, username, password }),
     });
+
+    const data = await res.json();
+
     if (!res.ok) {
-      const data = await res.json();
+      if (Array.isArray(data.detail)) {
+        const message = data.detail
+          .map((e: any) => {
+            const parts = e.msg.split(": ");
+            return parts.length > 1 ? parts[1] : e.msg;
+          })
+          .join("\n");
+        throw new Error(message);
+      }
+
       throw new Error(data.detail || "Signup failed");
     }
+
     await login(email, password);
   };
 

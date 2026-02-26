@@ -27,7 +27,7 @@ export default function Signup() {
       await signup(email, username, password);
       router.replace("/home");
     } catch (err: any) {
-      alert(err.message);
+      alert(err.message || "Sign Up failed");
     }
   }
 
