@@ -1,4 +1,5 @@
 from uuid import UUID
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from fastapi.responses import StreamingResponse
@@ -14,6 +15,7 @@ from app.models.user import User
 from app.services import deepface as df, photo_service, storage
 
 router = APIRouter(prefix="/events/{event_id}/photos", tags=["photos"])
+logger = logging.getLogger(__name__)
 
 ALLOWED_TYPES = {"image/jpeg", "image/png", "image/webp", "image/heic"}
 
@@ -81,11 +83,13 @@ async def rescan_photos(
     ).all()
 
     all_embeddings = db.query(FaceEmbedding).all()
+    logger.info(f"Rescan: found {len(all_embeddings)} face embeddings in DB")
     if not all_embeddings:
         return {"processed": 0, "new_tags": 0, "message": "No face embeddings registered — upload a selfie first"}
 
     processed = 0
     new_tags = 0
+    logger.info(f"Rescan: processing {len(photos)} photos in event {event_id}")
 
     for photo in photos:
         try:
@@ -95,6 +99,7 @@ async def rescan_photos(
 
         face_results = await df.detect_faces(file_bytes)
         processed += 1
+        logger.info(f"Photo {photo.id}: DeepFace found {len(face_results)} faces")
 
         for face in face_results:
             detected_emb = face.get("embedding")
@@ -120,6 +125,7 @@ async def rescan_photos(
                     tag_source="auto",
                 ))
                 new_tags += 1
+                logger.info(f"Tagged user {tagged_user.username} in photo {photo.id} (confidence={round(1.0 - distance, 4)})")
 
     db.commit()
     return {

@@ -9,6 +9,7 @@ Photo upload pipeline:
 7. Update EventMember upload_count and check access threshold
 """
 import io
+import logging
 import uuid
 from datetime import datetime, timezone
 
@@ -24,6 +25,7 @@ from app.models.user import User
 from app.services import storage, deepface as df
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 THUMBNAIL_SIZE = (400, 400)
 MAX_IMAGE_BYTES = 20 * 1024 * 1024  # 20 MB
@@ -78,10 +80,12 @@ async def handle_photo_upload(
     # --- Run face recognition ---
     tagged_users: list[tuple[User, float]] = []
     face_results = await df.detect_faces(file_bytes)
+    logger.info(f"Photo upload: DeepFace found {len(face_results)} faces in image")
 
     if face_results:
         # Load all registered embeddings for comparison
         all_embeddings = db.query(FaceEmbedding).all()
+        logger.info(f"Photo upload: comparing against {len(all_embeddings)} registered face embeddings")
 
         for face in face_results:
             detected_emb = face.get("embedding")
@@ -102,6 +106,7 @@ async def handle_photo_upload(
                             )
                             db.add(tag)
                             tagged_users.append((tagged_user, round(1.0 - distance, 4)))
+                            logger.info(f"Photo upload: tagged {tagged_user.username} (confidence={round(1.0 - distance, 4)}, distance={distance:.4f})")
 
     # Store detected face count on photo
     photo.detected_faces = [{"count": len(face_results)}]

@@ -113,6 +113,26 @@ def dev_list_events(db: Session = Depends(get_db), _: User = Depends(get_current
     return {"count": len(result), "events": result}
 
 
+
+@router.get("/dev/embeddings")
+def debug_embeddings(
+    db: Session = Depends(get_db),
+    _: User = Depends(get_current_user),
+):
+    """Debug: show all face embeddings in the system."""
+    from app.models.friendship import FaceEmbedding
+    embeddings = db.query(FaceEmbedding).all()
+    return [
+        {
+            "user_id": str(e.user_id),
+            "has_embedding": e.embedding is not None,
+            "embedding_dims": len(e.embedding) if e.embedding else 0,
+            "model": e.model_name,
+            "selfie_key": e.selfie_s3_key,
+        }
+        for e in embeddings
+    ]
+
 @router.get("/dev/photos")
 def dev_list_photos(db: Session = Depends(get_db), _: User = Depends(get_current_user)):
     """All photos with presigned URLs and face tag details."""
