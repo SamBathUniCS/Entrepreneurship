@@ -1,136 +1,44 @@
 import React, { useMemo, useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  FlatList,
-  Image,
-  Pressable,
-} from "react-native";
+import { View, TextInput, FlatList } from "react-native";
+import { router } from "expo-router";
+import EventCard from "../../components/EventCard";
+import styles from "../../styles/searchStyles";
+import { mockEvents } from "../../data/mockEvents";
 
-const PLACEHOLDER_EVENTS = [
-  {
-    id: "1",
-    title: "Summer Party",
-    date: "2026-03-01",
-    description: "Outdoor drinks and music all night",
-    image: "https://picsum.photos/seed/party/120/120",
-  },
-  {
-    id: "2",
-    title: "Society Formal",
-    date: "2026-03-12",
-    description: "Black tie ONLY event",
-    image: "https://picsum.photos/seed/formal/120/120",
-  },
-  {
-    id: "3",
-    title: "Football Tournament",
-    date: "2026-03-20",
-    description: "Game highlights gallery.",
-    image: "https://picsum.photos/seed/football/120/120",
-  },
-];
+export default function SearchPage() {
+  const [query, setQuery] = useState("");
 
-function formatDate(iso: string) {
-  try {
-    const d = new Date(iso);
-    return d.toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" });
-  } catch {
-    return iso;
-  }
-}
-
-export default function Search() {
-  const [q, setQ] = useState("");
-  const [events, setEvents] = useState(PLACEHOLDER_EVENTS);
-
-  const filtered = useMemo(() => {
-    const s = q.trim().toLowerCase();
-    if (!s) return events;
-    return events.filter(
+  const filteredEvents = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return mockEvents;
+    return mockEvents.filter(
       (e) =>
-        e.title.toLowerCase().includes(s) ||
-        (e.description || "").toLowerCase().includes(s)
+        e.title.toLowerCase().includes(q) ||
+        e.description.toLowerCase().includes(q) ||
+        e.location.toLowerCase().includes(q)
     );
-  }, [q, events]);
+  }, [query]);
 
   return (
-    <View style={{ flex: 1, padding: 16, gap: 12 }}>
-      <View
-        style={{
-          flexDirection: "row",
-          gap: 10,
-          alignItems: "center",
-        }}
-      >
+    <View style={styles.screen}>
+      <View style={styles.searchRow}>
         <TextInput
-          value={q}
-          onChangeText={setQ}
-          placeholder="Search events…"
-          autoCapitalize="none"
-          style={{
-            flex: 1,
-            borderWidth: 1,
-            borderColor: "#ddd",
-            borderRadius: 12,
-            paddingHorizontal: 12,
-            paddingVertical: 12,
-            backgroundColor: "#fff",
-          }}
+          value={query}
+          onChangeText={setQuery}
+          placeholder="Search events..."
+          style={styles.input}
         />
-        <Pressable
-          onPress={() => setQ("")}
-          style={{
-            paddingHorizontal: 12,
-            paddingVertical: 12,
-            borderRadius: 12,
-            borderWidth: 1,
-            borderColor: "#ddd",
-            backgroundColor: "#fff",
-          }}
-        >
-          <Text style={{ fontWeight: "700" }}>Clear</Text>
-        </Pressable>
       </View>
 
       <FlatList
-        data={filtered}
+        data={filteredEvents}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 20 }}
-        ListEmptyComponent={
-          <Text style={{ opacity: 0.7 }}>No matching events.</Text>
-        }
+        contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
-          <View
-            style={{
-              flexDirection: "row",
-              gap: 12,
-              borderWidth: 1,
-              borderColor: "#eee",
-              backgroundColor: "#fff",
-              borderRadius: 14,
-              padding: 12,
-              marginBottom: 12,
-            }}
-          >
-            <Image
-              source={{ uri: item.image }}
-              style={{ width: 64, height: 64, borderRadius: 12 }}
-            />
-
-            <View style={{ flex: 1, gap: 4 }}>
-              <Text style={{ fontSize: 12, opacity: 0.7 }}>
-                {formatDate(item.date)}
-              </Text>
-              <Text style={{ fontSize: 16, fontWeight: "800" }}>
-                {item.title}
-              </Text>
-              <Text numberOfLines={2} style={{ opacity: 0.75 }}>
-                {item.description}
-              </Text>
-            </View>
-          </View>
+          <EventCard
+            event={item}
+            onPress={() => router.push(`/event/${item.id}`)}
+          />
         )}
       />
     </View>
