@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, View, Text } from "react-native";
 import { Image } from "expo-image";
-import MutualFriendsRow from "./MutualFriendsRow";
+import MutualFriendsRow from "./MutualFriends";
 
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString(undefined, {

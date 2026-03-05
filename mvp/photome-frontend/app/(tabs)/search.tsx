@@ -37,7 +37,12 @@ export default function SearchPage() {
         renderItem={({ item }) => (
           <EventCard
             event={item}
-            onPress={() => router.push(`/event/${item.id}`)}
+            onPress={() =>
+              router.push({
+                pathname: "/event/[eventId]",
+                params: { eventId: item.id },
+              })
+            }
           />
         )}
       />

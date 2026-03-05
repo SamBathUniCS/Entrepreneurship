@@ -25,7 +25,7 @@ export default function Signup() {
     }
     try {
       await signup(email, username, password);
-      router.replace("/home");
+      router.replace("/(tabs)/home");
     } catch (err: any) {
       alert(err.message || "Sign Up failed");
     }
@@ -72,7 +72,7 @@ export default function Signup() {
             <Text style={styles.buttonText}>Sign Up</Text>
           </Pressable>
 
-          <Pressable onPress={() => router.push("/login")}>
+          <Pressable onPress={() => router.push("/(auth)/login")}>
             <Text style={styles.registerText}>
               Already have an account? Login
             </Text>

@@ -14,7 +14,7 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="index"
+          name="home"
           options={{
             title: "Home",
             headerShown: false,
@@ -40,6 +40,12 @@ export default function TabLayout() {
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="images-outline" size={size} color={color} />
             ),
+          }}
+        />
+        <Tabs.Screen
+          name="scan"
+          options={{
+            href: null,
           }}
         />
         <Tabs.Screen

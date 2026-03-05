@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -11,13 +11,6 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import { PEOPLE, getLeaderboard } from "../components/leaderboardData";
-
-type Friend = {
-  id: string;
-  name: string;
-  avatarUri?: string;
-  photos: number; // used for leaderboard only
-};
 
 export default function FriendsScreen() {
   const [query, setQuery] = useState("");

@@ -127,14 +127,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { token } = useContext(AuthContext);
   const [mounted, setMounted] = useState(false);
-
+/*
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
     if (mounted && !token) {
-      router.replace("/login"); // safe to redirect now
+      router.replace("/(auth)/login"); // safe to redirect now
     }
   }, [mounted, token]);
 
@@ -143,4 +143,5 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   return <>{children}</>;
+*/
 };
