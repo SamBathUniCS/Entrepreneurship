@@ -64,9 +64,10 @@ photome/
 ### 1. Run everything with Docker Compose
 
 ```bash
-cd photome
+cd photome-backend
 docker compose up --build
 ```
+**This will create and startup all of the servieces below**
 
 Services started:
 | Service | URL |
@@ -76,10 +77,6 @@ Services started:
 | **MinIO Console** | http://localhost:9001 (minioadmin / minioadmin) |
 | **PostgreSQL** | localhost:5432 |
 | **DeepFace** | http://localhost:5000 |
-
-> **Note:** First startup downloads DeepFace model weights (~300 MB). Be patient on the first `docker compose up`.
-
-Alembic migrations run automatically before uvicorn starts (see `command` in docker-compose.yaml).
 
 ---
 
@@ -140,64 +137,8 @@ Alembic migrations run automatically before uvicorn starts (see `command` in doc
 
 ---
 
-## Testing Flow (curl / Swagger UI)
-
-```bash
-BASE=http://localhost:8000/api/v1
-
-# 1. Register
-curl -X POST $BASE/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"alice@example.com","username":"alice","password":"secret123"}'
-
-# 2. Login
-TOKEN=$(curl -s -X POST $BASE/auth/login/json \
-  -H "Content-Type: application/json" \
-  -d '{"email":"alice@example.com","password":"secret123"}' | jq -r .access_token)
-
-# 3. Upgrade to Pro (so you can create events)
-curl -X POST "$BASE/admin/users/me/tier?tier=pro" \
-  -H "Authorization: Bearer $TOKEN"
-
-# 4. Create an event
-EVENT_ID=$(curl -s -X POST $BASE/events/ \
-  -H "Authorization: Bearer $TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Summer Party","visibility":"public"}' | jq -r .id)
-
-# 5. Upload a photo
-curl -X POST $BASE/events/$EVENT_ID/photos/ \
-  -H "Authorization: Bearer $TOKEN" \
-  -F "file=@/path/to/photo.jpg"
-
-# 6. Register your face for recognition
-curl -X POST $BASE/users/me/selfie \
-  -H "Authorization: Bearer $TOKEN" \
-  -F "file=@/path/to/selfie.jpg"
-
-# 7. View gallery
-curl $BASE/events/$EVENT_ID/photos/ \
-  -H "Authorization: Bearer $TOKEN"
-```
-
----
-
 ## Running Tests Locally
-
-Tests use SQLite in-memory — no Docker required.
-
-```bash
-cd photome/photome-backend
-
-# Install deps (inside a venv)
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-
-# Run tests
-pytest tests/ -v
-```
-
----
+Once you've started all services you can call the endpoints from the frontend. If you just want to see how it works / what to expect then just open `photome-tester.html` which is a simple fronetend that has all the basic functionality. This will you check if services are running and get a feel for how things should work. 
 
 ## Tier Model
 

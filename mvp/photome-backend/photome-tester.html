@@ -467,18 +467,53 @@ async function loadExistingEvents() {
   const wrap = document.getElementById('existing-events');
   if (!r.ok || !r.data?.length) { wrap.innerHTML = ''; return; }
 
-  wrap.innerHTML =
-    `<div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.5px;margin-bottom:8px">YOUR EXISTING EVENTS</div>` +
-    r.data.map(e => `
+  const myEvents = r.data.filter(e => e.is_member);
+  const otherEvents = r.data.filter(e => !e.is_member);
+
+  let html = '';
+  
+  if (myEvents.length) {
+    html += `<div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.5px;margin-bottom:8px">YOUR EVENTS</div>`;
+    html += myEvents.map(e => `
       <div class="rrow" style="cursor:pointer;margin-bottom:6px" onclick="selectEvent('${e.id}','${e.title.replace(/'/g,"\\'")}')">
         <div class="rico">📅</div>
         <div style="flex:1">
           <div class="rname">${e.title}</div>
-          <div class="rdet">${e.photo_count} photos · ${e.member_count} members · ${e.status}</div>
+          <div class="rdet">${e.photo_count} photos · ${e.member_count} members ${e.has_access ? '· <span style="color:var(--accent)">unlocked</span>' : ''}</div>
         </div>
         <button class="btn bo" style="font-size:12px;padding:5px 11px;flex-shrink:0">Use →</button>
       </div>`
-    ).join('') + '<hr>';
+    ).join('');
+  }
+
+  if (otherEvents.length) {
+    html += `<div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.5px;margin:16px 0 8px;padding-top:12px;border-top:1px solid var(--border)">PUBLIC EVENTS</div>`;
+    html += otherEvents.map(e => `
+      <div class="rrow" style="margin-bottom:6px">
+        <div class="rico">🌍</div>
+        <div style="flex:1">
+          <div class="rname">${e.title}</div>
+          <div class="rdet">${e.photo_count} photos · ${e.member_count} members</div>
+        </div>
+        <button class="btn bo" style="font-size:11px;padding:4px 10px" onclick="joinEvent('${e.id}','${e.title.replace(/'/g,"\\'")}')">Join</button>
+      </div>`
+    ).join('');
+  }
+
+  wrap.innerHTML = html || '<div style="color:var(--muted);font-size:12px">No events yet</div>';
+  if (html) wrap.innerHTML += '<hr>';
+}
+
+async function joinEvent(eventId, title) {
+  const r = await api('POST', `/api/v1/events/${eventId}/join`);
+  if (r.ok) {
+    out('event-out', alertHtml('aok', `✓ Joined "${title}"!`));
+    logInfo(`✓ Joined event: ${title}`);
+    await loadExistingEvents();
+    selectEvent(eventId, title);
+  } else {
+    out('event-out', alertHtml('aerr', r.data?.detail || 'Failed to join'));
+  }
 }
 
 function selectEvent(id, title) {
