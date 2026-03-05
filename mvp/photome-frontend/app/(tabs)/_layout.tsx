@@ -34,9 +34,9 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="photos"
+          name="events"
           options={{
-            title: "Photos",
+            title: "Events",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="images-outline" size={size} color={color} />
             ),
