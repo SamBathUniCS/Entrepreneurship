@@ -128,6 +128,7 @@ export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { token } = useContext(AuthContext);
   const [mounted, setMounted] = useState(false);
 
+  // TODO: Remove this
   // useEffect(() => {
   //   setMounted(true);
   // }, []);
