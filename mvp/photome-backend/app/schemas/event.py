@@ -1,5 +1,6 @@
 from datetime import datetime
 from uuid import UUID
+from typing import Optional
 
 from pydantic import BaseModel, field_validator
 
@@ -62,9 +63,11 @@ class EventPublic(BaseModel):
 
 
 class EventJoinResponse(BaseModel):
-    event: EventPublic
-    membership_id: UUID
-    has_access: bool
-    upload_count: int
-    photos_featuring_you: int
     message: str
+    already_member: bool
+
+    event: Optional[dict] = None
+    membership_id: Optional[str] = None
+    has_access: Optional[bool] = None
+    upload_count: Optional[int] = None
+    photos_featuring_you: Optional[int] = None

@@ -17,7 +17,6 @@ export default function TabLayout() {
           name="index"
           options={{
             title: "Home",
-            headerShown: false,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="home-outline" size={size} color={color} />
             ),
@@ -27,16 +26,15 @@ export default function TabLayout() {
           name="search"
           options={{
             title: "Search",
-            headerTitle: "Event Search",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="search" size={size} color={color} />
             ),
           }}
         />
         <Tabs.Screen
-          name="photos"
+          name="events"
           options={{
-            title: "Photos",
+            title: "Events",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="images-outline" size={size} color={color} />
             ),
