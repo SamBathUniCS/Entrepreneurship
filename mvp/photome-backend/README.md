@@ -140,7 +140,7 @@ Services started:
 ## Running Tests Locally
 Once you've started all services you can call the endpoints from the frontend. If you just want to see how it works / what to expect then just open `photome-tester.html` which is a simple fronetend that has all the basic functionality. This will you check if services are running and get a feel for how things should work. 
 
-## Tier Model
+<!--## Tier Model
 
 | Feature | Basic (Free) | Pro (£2.99/mo) | Business (£15.99/mo) |
 |---|---|---|---|
@@ -167,4 +167,4 @@ All config lives in `app/core/config.py` (pydantic-settings). Values are read fr
 | `S3_BUCKET` | `photome` | Bucket name |
 | `DEEPFACE_URL` | `http://deepface:5000` | DeepFace service |
 | `DEEPFACE_DISTANCE_THRESHOLD` | `0.4` | Face match sensitivity (lower = stricter) |
-| `UPLOAD_THRESHOLD` | `5` | Photos required to unlock gallery |
+| `UPLOAD_THRESHOLD` | `5` | Photos required to unlock gallery |-->
