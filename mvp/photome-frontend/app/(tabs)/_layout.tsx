@@ -17,7 +17,6 @@ export default function TabLayout() {
           name="index"
           options={{
             title: "Home",
-            headerShown: false,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="home-outline" size={size} color={color} />
             ),
@@ -27,7 +26,6 @@ export default function TabLayout() {
           name="search"
           options={{
             title: "Search",
-            headerTitle: "Event Search",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="search" size={size} color={color} />
             ),
