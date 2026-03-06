@@ -127,6 +127,7 @@ select option{background:#1a1a2e}
   <button class="nb" id="btn-myphotos" onclick="show('myphotos')" disabled><div class="nn">7</div>My Face Matches</button>
   <div class="slabel" style="margin-top:6px">Developer</div>
   <button class="nb" id="btn-dev" onclick="show('dev')" disabled><div class="nn">⚙</div>Inspect All Data</button>
+  <button class="nb" id="btn-social" onclick="show('social')"><div class="nn">👥</div>Social</button>
 </aside>
 
 <!-- MAIN -->
@@ -257,6 +258,41 @@ select option{background:#1a1a2e}
   </div>
   <div id="rescan-out"></div>
   <div id="myphotos-out"><div class="empty">🔍<br>No matches yet<br><small>Register your face first, then upload a photo containing your face</small></div></div>
+</div>
+
+<!-- Social -->
+<div class="panel" id="panel-social">
+  <h2>Social Features</h2>
+  <p class="sub">Search users, send friend requests, view mutual friends in events.</p>
+  
+  <!-- Search Users -->
+  <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.5px;margin-bottom:12px">SEARCH USERS</div>
+  <div class="field">
+    <input type="text" id="search-user" placeholder="Search by username or email..." onkeyup="if(event.key==='Enter')searchUsers()">
+  </div>
+  <div class="brow"><button class="btn bo" onclick="searchUsers()">🔍 Search</button></div>
+  <div id="search-out"></div>
+  
+  <hr>
+  
+  <!-- Friend Requests -->
+  <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.5px;margin-bottom:12px">FRIEND REQUESTS</div>
+  <div class="brow"><button class="btn bo" onclick="loadFriendRequests()">↺ Refresh Requests</button></div>
+  <div id="requests-out"></div>
+  
+  <hr>
+  
+  <!-- My Friends -->
+  <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.5px;margin-bottom:12px">MY FRIENDS</div>
+  <div class="brow"><button class="btn bo" onclick="loadFriends()">↺ Refresh Friends</button></div>
+  <div id="friends-out"></div>
+  
+  <hr>
+  
+  <!-- Mutual Friends in Event -->
+  <div style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.5px;margin-bottom:12px">MUTUAL FRIENDS IN CURRENT EVENT</div>
+  <div class="brow"><button class="btn bo" onclick="loadMutualFriends()">Show Mutual Friends</button></div>
+  <div id="mutual-out"></div>
 </div>
 
 <!-- Dev -->
@@ -764,6 +800,144 @@ async function loadMyPhotos() {
   markDone('myphotos');
 }
 
+// ── 9: Social ──
+async function searchUsers() {
+  const q = document.getElementById('search-user').value.trim();
+  if (!q || q.length < 2) { out('search-out', alertHtml('aerr', 'Enter at least 2 characters')); return; }
+  
+  const r = await api('GET', `/api/v1/friends/search?q=${encodeURIComponent(q)}`);
+  if (!r.ok || !r.data?.length) { out('search-out', '<div class="empty">No users found</div>'); return; }
+  
+  out('search-out', `<div style="margin-top:12px">${r.data.map(u => {
+    const status = u.friendship_status;
+    let badge = '';
+    let btn = '';
+    
+    if (!status) {
+      btn = `<button class="btn bp" style="font-size:11px;padding:4px 10px" onclick="sendFriendRequest('${u.id}','${u.username}')">Add Friend</button>`;
+    } else if (status === 'pending_sent') {
+      badge = '<span class="chip" style="background:var(--muted);color:var(--bg)">Request Sent</span>';
+    } else if (status === 'pending_received') {
+      badge = '<span class="chip" style="background:var(--accent);color:var(--bg)">Wants to Add You</span>';
+    } else if (status === 'accepted_sent' || status === 'accepted_received') {
+      badge = '<span class="chip" style="background:var(--success);color:var(--bg)">Friends ✓</span>';
+    }
+    
+    const tierChip = u.tier === 'pro' ? 'cpro' : u.tier === 'business' ? 'cbiz' : 'cbasic';
+    
+    return `<div class="rrow" style="margin-bottom:8px">
+      <div class="rico">${u.has_selfie ? '👤' : '👻'}</div>
+      <div style="flex:1">
+        <div style="font-weight:500;color:var(--fg)">@${u.username} <span class="chip ${tierChip}">${u.tier}</span></div>
+        <div style="font-size:11px;color:var(--muted)">${u.email}</div>
+      </div>
+      ${badge} ${btn}
+    </div>`;
+  }).join('')}</div>`);
+}
+
+async function sendFriendRequest(userId, username) {
+  const r = await api('POST', `/api/v1/friends/request/${userId}`);
+  if (r.ok) {
+    logInfo(`✓ Friend request sent to ${username}`);
+    searchUsers();
+  } else {
+    alert(r.data?.detail || 'Failed');
+  }
+}
+
+async function loadFriendRequests() {
+  const r = await api('GET', '/api/v1/friends/requests');
+  if (!r.ok || !r.data?.length) {
+    out('requests-out', '<div class="empty" style="margin-top:12px">No pending requests</div>');
+    return;
+  }
+  
+  out('requests-out', `<div style="margin-top:12px">${r.data.map(req => `
+    <div class="rrow" style="margin-bottom:8px">
+      <div class="rico">📬</div>
+      <div style="flex:1">
+        <div style="font-weight:500;color:var(--fg)">@${req.from_username}</div>
+        <div style="font-size:11px;color:var(--muted)">${req.from_email}</div>
+      </div>
+      <button class="btn bp" style="font-size:11px;padding:4px 10px;margin-right:6px" onclick="acceptRequest('${req.id}','${req.from_username}')">Accept</button>
+      <button class="btn" style="font-size:11px;padding:4px 10px" onclick="declineRequest('${req.id}')">Decline</button>
+    </div>
+  `).join('')}</div>`);
+}
+
+async function acceptRequest(reqId, username) {
+  const r = await api('POST', `/api/v1/friends/requests/${reqId}/accept`);
+  if (r.ok) {
+    logInfo(`✓ Now friends with ${username}`);
+    loadFriendRequests();
+    loadFriends();
+  } else {
+    alert(r.data?.detail || 'Failed');
+  }
+}
+
+async function declineRequest(reqId) {
+  const r = await api('POST', `/api/v1/friends/requests/${reqId}/decline`);
+  if (r.ok) {
+    logInfo('Friend request declined');
+    loadFriendRequests();
+  }
+}
+
+async function loadFriends() {
+  const r = await api('GET', '/api/v1/friends/');
+  if (!r.ok || !r.data?.length) {
+    out('friends-out', '<div class="empty" style="margin-top:12px">No friends yet</div>');
+    return;
+  }
+  
+  out('friends-out', `<div style="margin-top:12px">${r.data.map(f => {
+    const tierChip = f.tier === 'pro' ? 'cpro' : f.tier === 'business' ? 'cbiz' : 'cbasic';
+    return `<div class="rrow" style="margin-bottom:8px">
+      <div class="rico">👥</div>
+      <div style="flex:1">
+        <div style="font-weight:500;color:var(--fg)">@${f.username} <span class="chip ${tierChip}">${f.tier}</span></div>
+        <div style="font-size:11px;color:var(--muted)">Friends since ${new Date(f.friends_since).toLocaleDateString()}</div>
+      </div>
+      <button class="btn" style="font-size:11px;padding:4px 10px" onclick="if(confirm('Remove friend?'))unfriend('${f.friendship_id}')">Remove</button>
+    </div>`;
+  }).join('')}</div>`);
+}
+
+async function unfriend(friendshipId) {
+  const r = await api('DELETE', `/api/v1/friends/${friendshipId}`);
+  if (r.ok) {
+    logInfo('Friendship removed');
+    loadFriends();
+  }
+}
+
+async function loadMutualFriends() {
+  if (!S.eventId) {
+    out('mutual-out', alertHtml('aerr', 'Select an event first (step 3)'));
+    return;
+  }
+  
+  const r = await api('GET', `/api/v1/friends/mutual/${S.eventId}`);
+  if (!r.ok || !r.data?.length) {
+    out('mutual-out', '<div class="empty" style="margin-top:12px">None of your friends are in this event</div>');
+    return;
+  }
+  
+  out('mutual-out', alertHtml('aok', `✓ Found ${r.data.length} friend(s) in this event`) +
+    `<div style="margin-top:12px">${r.data.map(f => `
+      <div class="rrow" style="margin-bottom:8px">
+        <div class="rico">🎉</div>
+        <div style="flex:1">
+          <div style="font-weight:500;color:var(--fg)">@${f.username}</div>
+          <div style="font-size:11px;color:var(--muted)">${f.upload_count} uploads · ${f.has_access ? '<span style="color:var(--accent)">unlocked gallery</span>' : 'locked'}</div>
+        </div>
+      </div>
+    `).join('')}</div>`
+  );
+}
+
 // ── Re-scan: re-upload all photos to trigger face matching ──
 async function rescanPhotos() {
   if (!S.eventId) { out('rescan-out', alertHtml('aerr', 'No event selected.')); return; }
@@ -805,6 +979,144 @@ async function rescanPhotos() {
   }
 
   btn.disabled = false; btn.innerHTML = '🔍 Re-scan All Photos';
+}
+
+// ── Social ──
+async function searchUsers() {
+  const q = document.getElementById('search-user').value.trim();
+  if (!q || q.length < 2) { out('search-out', alertHtml('aerr', 'Enter at least 2 characters')); return; }
+  
+  const r = await api('GET', `/api/v1/friends/search?q=${encodeURIComponent(q)}`);
+  if (!r.ok || !r.data?.length) { out('search-out', '<div class="empty">No users found</div>'); return; }
+  
+  out('search-out', `<div style="margin-top:12px">${r.data.map(u => {
+    const status = u.friendship_status;
+    let badge = '';
+    let btn = '';
+    
+    if (!status) {
+      btn = `<button class="btn bp" style="font-size:11px;padding:4px 10px" onclick="sendFriendRequest('${u.id}','${u.username}')">Add Friend</button>`;
+    } else if (status === 'pending_sent') {
+      badge = '<span class="chip" style="background:var(--muted);color:var(--bg)">Request Sent</span>';
+    } else if (status === 'pending_received') {
+      badge = '<span class="chip" style="background:var(--accent);color:var(--bg)">Wants to Add You</span>';
+    } else if (status === 'accepted_sent' || status === 'accepted_received') {
+      badge = '<span class="chip" style="background:var(--success);color:var(--bg)">Friends ✓</span>';
+    }
+    
+    const tierChip = u.tier === 'pro' ? 'cpro' : u.tier === 'business' ? 'cbiz' : 'cbasic';
+    
+    return `<div class="rrow" style="margin-bottom:8px">
+      <div class="rico">${u.has_selfie ? '👤' : '👻'}</div>
+      <div style="flex:1">
+        <div style="font-weight:500;color:var(--fg)">@${u.username} <span class="chip ${tierChip}">${u.tier}</span></div>
+        <div style="font-size:11px;color:var(--muted)">${u.email}</div>
+      </div>
+      ${badge} ${btn}
+    </div>`;
+  }).join('')}</div>`);
+}
+
+async function sendFriendRequest(userId, username) {
+  const r = await api('POST', `/api/v1/friends/request/${userId}`);
+  if (r.ok) {
+    logInfo(`✓ Friend request sent to ${username}`);
+    searchUsers(); // refresh
+  } else {
+    alert(r.data?.detail || 'Failed');
+  }
+}
+
+async function loadFriendRequests() {
+  const r = await api('GET', '/api/v1/friends/requests');
+  if (!r.ok || !r.data?.length) {
+    out('requests-out', '<div class="empty" style="margin-top:12px">No pending requests</div>');
+    return;
+  }
+  
+  out('requests-out', `<div style="margin-top:12px">${r.data.map(req => `
+    <div class="rrow" style="margin-bottom:8px">
+      <div class="rico">📬</div>
+      <div style="flex:1">
+        <div style="font-weight:500;color:var(--fg)">@${req.from_username}</div>
+        <div style="font-size:11px;color:var(--muted)">${req.from_email}</div>
+      </div>
+      <button class="btn bp" style="font-size:11px;padding:4px 10px;margin-right:6px" onclick="acceptRequest('${req.id}','${req.from_username}')">Accept</button>
+      <button class="btn" style="font-size:11px;padding:4px 10px" onclick="declineRequest('${req.id}')">Decline</button>
+    </div>
+  `).join('')}</div>`);
+}
+
+async function acceptRequest(reqId, username) {
+  const r = await api('POST', `/api/v1/friends/requests/${reqId}/accept`);
+  if (r.ok) {
+    logInfo(`✓ Now friends with ${username}`);
+    loadFriendRequests();
+    loadFriends();
+  } else {
+    alert(r.data?.detail || 'Failed');
+  }
+}
+
+async function declineRequest(reqId) {
+  const r = await api('POST', `/api/v1/friends/requests/${reqId}/decline`);
+  if (r.ok) {
+    logInfo('Friend request declined');
+    loadFriendRequests();
+  }
+}
+
+async function loadFriends() {
+  const r = await api('GET', '/api/v1/friends/');
+  if (!r.ok || !r.data?.length) {
+    out('friends-out', '<div class="empty" style="margin-top:12px">No friends yet</div>');
+    return;
+  }
+  
+  out('friends-out', `<div style="margin-top:12px">${r.data.map(f => {
+    const tierChip = f.tier === 'pro' ? 'cpro' : f.tier === 'business' ? 'cbiz' : 'cbasic';
+    return `<div class="rrow" style="margin-bottom:8px">
+      <div class="rico">👥</div>
+      <div style="flex:1">
+        <div style="font-weight:500;color:var(--fg)">@${f.username} <span class="chip ${tierChip}">${f.tier}</span></div>
+        <div style="font-size:11px;color:var(--muted)">Friends since ${new Date(f.friends_since).toLocaleDateString()}</div>
+      </div>
+      <button class="btn" style="font-size:11px;padding:4px 10px" onclick="if(confirm('Remove friend?'))unfriend('${f.friendship_id}')">Remove</button>
+    </div>`;
+  }).join('')}</div>`);
+}
+
+async function unfriend(friendshipId) {
+  const r = await api('DELETE', `/api/v1/friends/${friendshipId}`);
+  if (r.ok) {
+    logInfo('Friendship removed');
+    loadFriends();
+  }
+}
+
+async function loadMutualFriends() {
+  if (!S.eventId) {
+    out('mutual-out', alertHtml('aerr', 'Select an event first (step 3)'));
+    return;
+  }
+  
+  const r = await api('GET', `/api/v1/friends/mutual/${S.eventId}`);
+  if (!r.ok || !r.data?.length) {
+    out('mutual-out', '<div class="empty" style="margin-top:12px">None of your friends are in this event</div>');
+    return;
+  }
+  
+  out('mutual-out', alertHtml('aok', `✓ Found ${r.data.length} friend(s) in this event`) +
+    `<div style="margin-top:12px">${r.data.map(f => `
+      <div class="rrow" style="margin-bottom:8px">
+        <div class="rico">🎉</div>
+        <div style="flex:1">
+          <div style="font-weight:500;color:var(--fg)">@${f.username}</div>
+          <div style="font-size:11px;color:var(--muted)">${f.upload_count} uploads · ${f.has_access ? '<span style="color:var(--accent)">unlocked gallery</span>' : 'locked'}</div>
+        </div>
+      </div>
+    `).join('')}</div>`
+  );
 }
 
 // ── Dev ──
