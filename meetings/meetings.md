@@ -260,3 +260,43 @@ Action Points:
 - reels page - Kithmini/ Gabriel
 - montage creation and highlights - kithmini
 - log in (username asked which later used ot add friends) - Sam
+
+    
+## 05-06-2026
+
+Overall Discussion:
+- Discussed  progress of the prototype and remaining tasks for frontend and backend .
+- Reviewed how event creation should function in the backend and how users joining events should be added to the database.
+- Also discussed ideas for the final presentation and marketing strategies
+- 
+
+Discussion Points:
+
+ presentation Planning:
+ - Presentation length is 10 minutes, speaking roles still need to be allocated.
+ - Idea to include a live skit demonstrating the problem of lost event photos and how PhotoMe solves it.
+
+ Marketing Ideas:
+ - Marketing videos (TikTok).
+ - Possible campus stall launch to promote the app.
+
+Backend Event Flow:
+- When a user creates an event, the system must automatically generate the event page.
+- Event data should be stored in the database.
+- When a user joins an event (mutual friend joining), they must be added to the event in the database.
+
+Action Points:
+
+ Backend
+ - Sushil – Implement event creation so that creating an event automatically generates an event page and sends the data to the backend.
+
+ Frontend
+ - Sam – Develop Page C.
+ - Nick – Develop Pages D and F.
+
+ Presentation
+ - Allocate speaking roles for the 10 minute presentation.
+ - Plan live skit  for the final pitch.
+
+ Marketing / Media
+ - Gabriel – Develop marketing scripts and concepts for promotional content 
