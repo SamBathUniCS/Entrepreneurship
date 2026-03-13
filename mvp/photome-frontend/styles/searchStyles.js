@@ -26,4 +26,17 @@ export default StyleSheet.create({
   listContent: {
     paddingBottom: 100,
   },
+  // add to your existing StyleSheet
+  qrButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: "#1677ff",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  qrButtonText: {
+    color: "white",
+    fontWeight: "900",
+  },
 });

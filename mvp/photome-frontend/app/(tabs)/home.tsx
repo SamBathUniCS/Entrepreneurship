@@ -130,11 +130,8 @@ export default function Home() {
       </ScrollView>
 
       
-      <Pressable style={styles.fab} onPress={() => router.push("/qr-scan")}>
-        <Image
-          source={require("../../assets/images/qr_scan.png")}
-          style={styles.fabIcon}
-        />
+      <Pressable style={styles.fab} onPress={() => router.push("/(tabs)/scan")}>
+        <Ionicons name="qr-code" size={24} color="#fff" />
       </Pressable>
     </View>
   );

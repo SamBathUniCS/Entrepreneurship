@@ -146,10 +146,12 @@ export default function Account() {
 
           <View style={{ height: 28 }} />
         </ScrollView>
-
-        {/* Optional: floating action button like your screenshot */}
-        <TouchableOpacity activeOpacity={0.9} style={styles.fab}>
-          <Text style={styles.fabIcon}>≡</Text>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={styles.fab}
+          onPress={() => router.push("/(tabs)/scan")}
+        >
+          <Ionicons name="qr-code" size={24} color="#fff" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>

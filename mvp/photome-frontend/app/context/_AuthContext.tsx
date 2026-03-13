@@ -127,21 +127,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { token } = useContext(AuthContext);
   const [mounted, setMounted] = useState(false);
-/*
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
-  useEffect(() => {
-    if (mounted && !token) {
-      router.replace("/(auth)/login"); // safe to redirect now
-    }
-  }, [mounted, token]);
-
-  if (!token) {
-    return null; // hide protected content until redirect
-  }
+  // TODO: Remove this
+  // useEffect(() => {
+  //   setMounted(true);
+  // }, []);
+  //
+  // useEffect(() => {
+  //   if (mounted && !token) {
+  //     router.replace("/login"); // safe to redirect now
+  //   }
+  // }, [mounted, token]);
+  //
+  // if (!token) {
+  //   return null; // hide protected content until redirect
+  // }
 
   return <>{children}</>;
-*/
 };

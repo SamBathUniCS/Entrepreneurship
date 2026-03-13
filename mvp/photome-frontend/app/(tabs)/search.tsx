@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { View, TextInput, FlatList } from "react-native";
+import { View, TextInput, FlatList, Pressable, Text } from "react-native";
 import { router } from "expo-router";
 import EventCard from "../../components/EventCard";
 import styles from "../../styles/searchStyles";
@@ -28,6 +28,14 @@ export default function SearchPage() {
           placeholder="Search events..."
           style={styles.input}
         />
+
+        {/* NEW: QR scan button */}
+        <Pressable
+          style={styles.qrButton}
+          onPress={() => router.push("/(tabs)/scan")}
+        >
+          <Text style={styles.qrButtonText}>Scan</Text>
+        </Pressable>
       </View>
 
       <FlatList
