@@ -298,4 +298,29 @@ Action Points:
  - Plan live skit  for the final pitch.
 
  Marketing / Media
- - Gabriel – Develop marketing scripts and concepts for promotional content 
+ - Gabriel – Develop marketing scripts and concepts for promotional content
+
+## 13-03-2026
+
+Overall Discussion:
+- discuss progress
+- discuss marketing 
+
+Discussion Points:
+- need to make checks for tiers when functionality done
+- payment needed? no
+- add "not want to be in pics" in the script 
+
+Action Points:
+- nick - uplaod pics page
+- kithmini - real/montage page 
+- sushil - set up facial recognition in fornt-end so show how many pics they in + notification
+- sam - legal terms and conditions + pitch + consistency
+- saniya - friend requests + change toggle names + poster 
+- gabriel - script and film + create an event
+- all - implement tier checks if applicable to our pages
+- ALL SHOULD BE DONE BY 23RD
+- create social media pages 
+
+side note:
+- take pics of presentation and create an event and show live during presenation how easy it is 
