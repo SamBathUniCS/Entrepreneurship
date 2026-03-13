@@ -29,7 +29,7 @@ Under the Copyright, Designs and Patents Act 1988, copyright in a photograph bel
 Under section 9(3) CDPA 1988, computer-generated works have limited protection and no human author. The Terms of Service must clearly state who owns these inputs.
 
 #### Watermarking and moral rights.
-UK GDPR's moral rights provisions (sections 77–85 CDPA) give photographers the right of integrity, meaning their work cannot be subjected to derogatory treatment. The Terms of Service must address this, likely by obtaining a waiver from photographers who upload to the platform.
+UK GDPR's moral rights provisions (sections 77–85 CDPA) give photographers the right of integrity, meaning their work cannot be subjected to derogatory treatment. The Terms of Service must address this, by obtaining a waiver from photographers who upload to the platform.
 
 #### Trademark registration
 Relevant classes to PhotoMe include: 
@@ -44,7 +44,23 @@ The proprietary face recognition pipeline, gamification system, and upload-to-un
 
 ## Photography, Consent & Event Law
 
+#### Consent for non-registered attendees
+Individuals who attend events but have not downloaded PhotoMe may still appear in photos uploaded by other attendees and would be subject to facial recognition processing. Under UK GDPR, this requires a lawful basis and explicit consent. Event organisers using the Business tier should be contractually required to display clear notes at event entry points informing attendees that photos will be collected and processed by PhotoMe.
+
+#### Children at Events
+UK GDPR requires parental or guardian consent for biometric data processing of Individuals under 13, and special care for those under 18. Before offering the Business tier for any event type that may include under-18s, PhotoMe needs a child-specific consent framework and potentially age verification for facial recognition opt-in.
+
+#### Photographer employment status
+UK law distinguishes between employees, workers, and independent contractors for tax obligations (IR35 rules for off-payroll workers), liability for photographers' actions, and copyright ownership. PhotoMe must clarify this from the outset.
+
 ## Consumer Protection & Subscription Law
+
+#### Consumer Contracts Regulations 2013
+All subscription tiers are distance contracts for digital services. Users must be clearly informed of: total price; billing frequency; auto-renewals; how to cancel; and a 14-day cooling-off period. This must be addressed before launch.
+
+#### Consumer Rights Act 2015
+Digital content supplied under subscription must be of satisfactory quality, fit for purpose, and as described. If the facial recognition feature fails to work accurately at a paid event, this would constitute a breach of statutory quality obligation, giving users the right to a remedy.
+
 
 ## Summary of Priority Legal Actions
 
@@ -59,3 +75,4 @@ The proprietary face recognition pipeline, gamification system, and upload-to-un
 | Medium     | Establish IR35-compliant contracts for commissioned photographers | Before commissioning | 
 | Medium     | Add consumer subscription disclosures to Tier Selection screen | Pre-launch | 
 | Ongoing    | Monitor ICO guidance on AI and facial recognition as the regulatory landscape evolves | Post-launch |
+
