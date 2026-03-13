@@ -268,7 +268,6 @@ Overall Discussion:
 - Discussed  progress of the prototype and remaining tasks for frontend and backend .
 - Reviewed how event creation should function in the backend and how users joining events should be added to the database.
 - Also discussed ideas for the final presentation and marketing strategies
-- 
 
 Discussion Points:
 
