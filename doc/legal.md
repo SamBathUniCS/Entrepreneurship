@@ -23,13 +23,13 @@ A breach involving biometric data must be reported to the ICO within 72 hours, a
 ## Intellectual Property
 
 #### Copyright of uploaded photos
-Under the Copyright, Designs and Patents Act 1988, copyright in a photograph belongs automatically to the person who took it. Uploading a photo to PhotoMe does not transfer this. PhotoMe's Terms of Service require obtaining a clear, explicit consent from uploading users permitting the platform to: display, store, process, and distribute images. Without this, PhotoMe's operation is an infringement of users' own copyright.
+Under the Copyright, Designs and Patents Act 1988, copyright in a photograph belongs automatically to the person who took it. Uploading a photo to PhotoMe does not transfer this. PhotoMe's Terms of Service require obtaining a clear, explicit consent from uploading users permitting the platform to: display, store, process, and distribute images. Without this, PhotoMe's operation would be an infringement of users' own copyrights.
 
 #### AI-generated compilations
 Under section 9(3) CDPA 1988, computer-generated works have limited protection and no human author. The Terms of Service must clearly state who owns these inputs.
 
 #### Watermarking and moral rights.
-UK GDPR's moral rights provisions (sections 77–85 CDPA) give photographers the right of integrity, meaning their work cannot be subjected to derogatory treatment. The Terms of Service must address this, by obtaining a waiver from photographers who upload to the platform.
+UK GDPR's moral rights provisions (sections 77–85 CDPA) give photographers the right of integrity, meaning their work cannot be subjected to derogatory treatment. The Terms of Service must address this by obtaining a waiver from photographers who upload to the platform.
 
 #### Trademark registration
 Relevant classes to PhotoMe include: 
@@ -61,12 +61,11 @@ All subscription tiers are distance contracts for digital services. Users must b
 #### Consumer Rights Act 2015
 Digital content supplied under subscription must be of satisfactory quality, fit for purpose, and as described. If the facial recognition feature fails to work accurately at a paid event, this would constitute a breach of statutory quality obligation, giving users the right to a remedy.
 
-
 ## Summary of Priority Legal Actions
 
-| Priority      | Action      | Timing   |
-| ------------- | ----------- | -------- |
-| Critical   | Complete DPIA before any biometric data processing | Pre-launch |
+| Priority      | Action      | Timing   | 
+| ------------- | ----------- | -------- | 
+| Critical   | Complete DPIA before any biometric data processing | Pre-launch | 
 | Critical   | Draft explicit, standalone biometric consent flows (not buried in T&Cs) | Pre-launch | 
 | Critical   | Obtain copyright licence from users via T&S covering AI processing and derivative works | Pre-launch |
 | High       | Define and publish biometric data retention schedules | Pre-launch | 
@@ -75,4 +74,3 @@ Digital content supplied under subscription must be of satisfactory quality, fit
 | Medium     | Establish IR35-compliant contracts for commissioned photographers | Before commissioning | 
 | Medium     | Add consumer subscription disclosures to Tier Selection screen | Pre-launch | 
 | Ongoing    | Monitor ICO guidance on AI and facial recognition as the regulatory landscape evolves | Post-launch |
-

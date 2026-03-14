@@ -1,4 +1,3 @@
-
 # Ethical Implications of our venture
 
 ## Facial Recognition & Surveillance Ethics
@@ -33,7 +32,7 @@ The paid bypass addresses this partially, but also introduces a secondary barrie
 
 ## Advertising Ethics
 
-The basic tier is ad-funded, estimated at -£500/month for 1,000 users. Three constraints will apply:
+The basic tier is ad-funded, estimated at £500/month for 1,000 users. Three constraints will apply:
  - **No biometric-informed targeting**. PhotoMe must not use facial recognition outputs to inform ad selection. This would constitute secondary processing of biometric data incompatible with the original consent, violating UK GDPR and crossing a clear ethical line. This should be explicit in the privacy policy and in advertising partners.
  - **Upfront discloure**. Users should understand at onboarding that the free tier is ad-supported.
  - **Age-appropriate filtering**. If under-18s are on the platform, the ad-serving system must apply ASA CAP code restrictions on alcohol, gambling, and HFSS products to minors
