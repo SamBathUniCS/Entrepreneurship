@@ -193,7 +193,7 @@ Violation of these prohibitions may result in immediate account suspension and, 
 
 ## 11. Privacy & Data Protection
 
-PhotoMe processes your personal data in accordance with our **Privacy Policy**, which forms part of these Terms and is available at [photome.co.uk/privacy]. Key points:
+PhotoMe processes your personal data in accordance with our **Privacy Policy**, which forms part of these Terms and is available at [photome.co.uk/privacy](photome.co.uk/privacy). Key points:
 
 - We act as a **data controller** for your account data and biometric data
 - Business tier organisers act as a **joint data controller** for event-specific data collected at their events
