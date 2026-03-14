@@ -2,7 +2,7 @@
 
 ## Partnerships
 
-#### Cloud Infrastructure — AWS
+#### Cloud Infrastructure 
 
 All three cloud providers (AWS, Azure, Google Cloud) offer UK data centres, facial recognition APIs, and comparable storage pricing. The decisive factors for PhotoMe specifically are:
  - AWS Rekognition is a mature, production-tested facial recognition service with well-documented accuracy benchmarks and straightforward GDPR-compliant configuration, compared to building Azure Face API or Google Vision.
@@ -15,15 +15,15 @@ The plan notes that compute cost, not storage, will dominate cloud spend as user
 
 #### Payment Processing
 
-The plan is currently to use Stipe, as it provides lower transaction fees and better suitability for subscription-based digital services. Additional operation considerations:
- - Trails, Upgrades, Downgrades, and failed payment retries are out of the box.
+The plan is currently to use Stripe, as it provides lower transaction fees and better suitability for subscription-based digital services. Additional operation considerations include:
+ - Trials, Upgrades, Downgrades, and failed payment retries are out of the box.
  - Stripes webhook system enables real-time tier provisioning
  - Stripe is PCI DSS Level 1 compliant, meaning PhotoMe never handles raw card data and inherits Stripe's compliance certification.
  - The 20p fixed fee per transaction is disproportionately costly for the £2.99 Pro Subscription. As the service grows, so does the need for negotiating volume-based rates with Stripe.
 
 #### University Societies & Event Organisers
 
-University societies operate on annual committee cycles with high turnover; a society president who champions PhotoMe may not be present in the next year. Partnerships must be institutionalised at the society or university level, not dependent on individual relationships. This means:
+University societies operate on annual committee cycles with high turnover; a society president who champions PhotoMe may not be present in the next year. Partnerships must be institutionalised at the society or university level, not dependent on individual relationships. We should establish:
  - Formal partnership agreements with society treasures or university student unions
  - Incentive structures for societies themselves (free Business tier access for affiliated societies, commission on member Pro upgrades) rather than solely for individual users
 
@@ -85,10 +85,10 @@ The sequencing focuses on the core value proposition and avoids the common start
 
 #### Go-to-Market Sequencing
 
-**Phase 1 (Months 1–6): University societies**
+**Phase 1 (Months 1–6): University societies**.
 Single geography, student societies only, Basic and Pro tiers. This generates a contained, high-frequency user base that produces rapid feedback cycles, stress-tests the upload-to-unlock mechanic, and builds the social proof needed for wider adoption. The network effects are strongest in dense, geographically concentrated communities, exactly what a university campus provides.
 
-**Phase 2 (Months 7–12): Expand university coverage and introduce Business tier**
+**Phase 2 (Months 7–12): Expand university coverage and introduce Business tier**.
 With a validated product and case studies from phase 1, approach student unions and university events teams with formal partnership agreements. Launch business tier to event organiser partners who have been identified and briefed during Phase 1.
 
 **Phase 3 (Year 2+): General public events**.  
