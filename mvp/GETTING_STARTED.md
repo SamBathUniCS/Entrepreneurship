@@ -1,18 +1,24 @@
 # Getting Started with PhotoMe
+
 **Prerequisites:** Docker Desktop installed and running
 
 ## One-Command Setup BACKEND
+
 From the `mvp` folder run the quickstart script
+
 ```bash
 cd ./mvp
-./photome-backend/quickstart.sh
+./quickstart.sh
 ```
 
 This automatically:
-- Starts all services (Postgres, MinIO, DeepFace, Backend)
+
+- Starts all services (Postgres, MinIO, DeepFace, Backend, Frontend)
 - Runs database migrations
-- Seeds 10 test users + 5 events with photos
-```
+- Seeds 10 test users + 5 events.
+- Friendship connections are established
+
+````
 
 ##  What Gets Created
 
@@ -58,32 +64,22 @@ All passwords: `letmeinbro`
    - Creator: taylor
    - Members: taylor, maya, boff, saniya, alex
    - Date: In 12 days
-   
-### 🤝 Friendships (15 connections)
-Pre-established friend network:
-- sushil ↔ gabriel, nico, kit
-- gabriel ↔ nico, maya
-- nico ↔ boff
-- boff ↔ kit, saniya
-- kit ↔ saniya, jordan
-- saniya ↔ maya
-- maya ↔ alex, taylor
-- alex ↔ taylor
-- taylor ↔ jordan
 
 
 ### View Logs
 ```bash
 docker compose logs -f backend      # Backend logs
 docker compose logs -f deepface     # Face recognition logs
-```
+````
 
 ### Stop Services
+
 ```bash
 docker compose down
 ```
 
 ### Reset All Data
+
 ```bash
 docker compose down -v              # Wipes everything
 ```
@@ -91,19 +87,20 @@ docker compose down -v              # Wipes everything
 ## 🐛 Troubleshooting
 
 ### "Connection refused" errors
+
 Services aren't ready yet. Wait 20-30 seconds after `docker compose up`.
 
 ### "Module not found" errors
+
 ```bash
 docker compose down
 docker compose up --build -d
 ```
 
 ### Database errors
+
 ```bash
 docker compose down -v  # Nuclear option: wipes all data
 docker compose up -d
 docker compose exec backend alembic upgrade head
 ```
-
-
