@@ -5,8 +5,10 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+
 import { AuthContext } from "../context/_AuthContext";
 import { apiFetch } from "../../api";
+import { COLORS, FONT_SIZES, SPACING } from "../theme";
 
 interface Event {
   id: string;
@@ -155,69 +157,71 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#f6f6f6" },
+  screen: { flex: 1, backgroundColor: COLORS.background },
   scrollContent: { paddingBottom: 120 },
 
   hero: {
-    backgroundColor: "#1e88e5",
-    paddingTop: 28, paddingHorizontal: 24, paddingBottom: 28,
+    backgroundColor: COLORS.primary,
+    paddingTop: SPACING.xxl,
+    paddingHorizontal: SPACING.xl,
+    paddingBottom: SPACING.xxl,
   },
-  heroTitle:    { color: "#fff", fontSize: 28, fontWeight: "800" },
-  heroGreeting: { color: "#e0f0ff", fontSize: 15, fontWeight: "600", marginTop: 6 },
-  heroSubtitle: { color: "#bbdeff", fontSize: 13, marginTop: 4 },
+  heroTitle:    { color: COLORS.surface, fontSize: FONT_SIZES.heroTitle, fontWeight: "800" },
+  heroGreeting: { color: COLORS.heroGreeting, fontSize: FONT_SIZES.heroGreeting, fontWeight: "600", marginTop: SPACING.sm },
+  heroSubtitle: { color: COLORS.heroSubtitle, fontSize: FONT_SIZES.heroSubtitle, marginTop: SPACING.xs },
 
   sectionTitle: {
-    fontSize: 18, fontWeight: "800", color: "#111827",
-    marginTop: 22, marginBottom: 12, paddingHorizontal: 20,
+    fontSize: FONT_SIZES.sectionTitle, fontWeight: "800", color: COLORS.textPrimary,
+    marginTop: SPACING.xl, marginBottom: SPACING.md, paddingHorizontal: SPACING.xl,
   },
-  emptyText: { color: "#9ca3af", fontSize: 14, paddingHorizontal: 20 },
+  emptyText: { color: COLORS.textMuted, fontSize: FONT_SIZES.cardMeta, paddingHorizontal: SPACING.xl },
 
-  discoverList: { gap: 10, paddingHorizontal: 20 },
+  discoverList: { gap: SPACING.md, paddingHorizontal: SPACING.xl },
   discoverCard: {
-    backgroundColor: "#fff", borderRadius: 14, padding: 12,
-    flexDirection: "row", alignItems: "center", gap: 12,
+    backgroundColor: COLORS.surface, borderRadius: 14, padding: SPACING.md,
+    flexDirection: "row", alignItems: "center", gap: SPACING.md,
     borderWidth: 1, borderColor: "#E5E7EB",
   },
   discoverImage:  { width: 52, height: 52, borderRadius: 10 },
   discoverText:   { flex: 1 },
-  discoverTitle:  { fontSize: 15, fontWeight: "700", color: "#111827" },
-  discoverMeta:   { fontSize: 11, color: "#9ca3af", marginTop: 3 },
-  discoverDesc:   { fontSize: 12, color: "#6b7280", marginTop: 2 },
+  discoverTitle:  { fontSize: FONT_SIZES.cardTitle, fontWeight: "700", color: COLORS.textPrimary },
+  discoverMeta:   { fontSize: FONT_SIZES.small, color: COLORS.textMuted, marginTop: SPACING.xs },
+  discoverDesc:   { fontSize: FONT_SIZES.cardMeta, color: COLORS.textSecondary, marginTop: SPACING.xs },
 
   recentCard: {
-    marginHorizontal: 20, backgroundColor: "#fff",
+    marginHorizontal: SPACING.xl, backgroundColor: COLORS.surface,
     borderRadius: 16, overflow: "hidden",
     borderWidth: 1, borderColor: "#E5E7EB",
   },
   recentImage:  { width: "100%", height: 170 },
-  recentTitle:  { fontSize: 17, fontWeight: "800", color: "#111827", padding: 14, paddingBottom: 4 },
-  recentMeta:   { fontSize: 12, color: "#6b7280", paddingHorizontal: 14, paddingBottom: 14 },
+  recentTitle:  { fontSize: FONT_SIZES.cardTitle, fontWeight: "800", color: COLORS.textPrimary, padding: SPACING.lg, paddingBottom: SPACING.xs },
+  recentMeta:   { fontSize: FONT_SIZES.cardMeta, color: COLORS.textSecondary, paddingHorizontal: SPACING.lg, paddingBottom: SPACING.lg },
 
   carouselControls: {
-    marginTop: 12, flexDirection: "row",
+    marginTop: SPACING.md, flexDirection: "row",
     justifyContent: "space-between", alignItems: "center",
     paddingHorizontal: 40,
   },
   carouselButton: {
     width: 40, height: 40, borderRadius: 20,
-    backgroundColor: "#fff", alignItems: "center", justifyContent: "center",
+    backgroundColor: COLORS.surface, alignItems: "center", justifyContent: "center",
     borderWidth: 1, borderColor: "#E5E7EB",
   },
-  carouselDots: { fontSize: 12, color: "#9ca3af", letterSpacing: 4 },
+  carouselDots: { fontSize: FONT_SIZES.small, color: COLORS.textMuted, letterSpacing: 4 },
 
   emptyCard: {
-    marginHorizontal: 20, backgroundColor: "#fff", borderRadius: 14,
-    padding: 24, alignItems: "center", gap: 12,
+    marginHorizontal: SPACING.xl, backgroundColor: COLORS.surface, borderRadius: 14,
+    padding: SPACING.xxl, alignItems: "center", gap: SPACING.sm,
     borderWidth: 1, borderColor: "#E5E7EB",
   },
-  emptyCardText:   { fontSize: 14, color: "#6b7280", textAlign: "center" },
-  emptyCardBtn:    { backgroundColor: "#1677ff", paddingHorizontal: 20, paddingVertical: 10, borderRadius: 10 },
-  emptyCardBtnTxt: { color: "#fff", fontWeight: "700", fontSize: 14 },
+  emptyCardText:   { fontSize: FONT_SIZES.cardMeta, color: COLORS.textSecondary, textAlign: "center" },
+  emptyCardBtn:    { backgroundColor: COLORS.primary, paddingHorizontal: SPACING.xl, paddingVertical: SPACING.sm * 2, borderRadius: 10 },
+  emptyCardBtnTxt: { color: COLORS.surface, fontWeight: "700", fontSize: FONT_SIZES.cardMeta },
 
   fab: {
     position: "absolute", bottom: 26, alignSelf: "center",
     width: 56, height: 56, borderRadius: 28,
-    backgroundColor: "#5b3df5", alignItems: "center", justifyContent: "center",
+    backgroundColor: COLORS.secondary, alignItems: "center", justifyContent: "center",
     shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 }, elevation: 6,
   },

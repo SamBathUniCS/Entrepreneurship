@@ -5,9 +5,12 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+
+import { Button } from "../components/button";
 import { AuthContext } from "../context/_AuthContext";
 import { apiFetch } from "../../api";
 import AuthImage from "../../AuthImage";
+import { COLORS, FONT_SIZES, SPACING } from "../theme";
 
 interface Friend { id: string; username: string; friendship_id: string; }
 interface Photo  { id: string; url: string; thumbnail_url: string | null; }
@@ -20,7 +23,6 @@ export default function Account() {
   const [loadingFriends, setLF]     = useState(true);
   const [loadingPhotos, setLP]      = useState(true);
 
-  // Privacy toggles — initialised from user object
   const [faceEnabled, setFaceEnabled]   = useState(user?.face_recognition_enabled ?? true);
   const [autoTag, setAutoTag]           = useState(user?.allow_auto_tagging ?? true);
   const [savingPrivacy, setSavingPrivacy] = useState(false);
@@ -31,7 +33,6 @@ export default function Account() {
     loadMyPhotos();
   }, [token]);
 
-  // Keep toggles in sync if user refreshes
   useEffect(() => {
     if (user) {
       setFaceEnabled(user.face_recognition_enabled ?? true);
@@ -48,14 +49,11 @@ export default function Account() {
 
   async function loadMyPhotos() {
     setLP(true);
-    // Get all events user is in, then fetch photos from the first one
     const evR = await apiFetch("GET", "/events/?my_events=true", token);
     if (evR.ok && evR.data?.length > 0) {
       const eventId = evR.data[0].id;
       const phR = await apiFetch("GET", `/events/${eventId}/photos/`, token);
-      if (phR.ok) {
-        setUploads((phR.data ?? []).filter((p: Photo) => !("locked" in p)).slice(0, 7));
-      }
+      if (phR.ok) setUploads((phR.data ?? []).filter((p: Photo) => !("locked" in p)).slice(0, 7));
     }
     setLP(false);
   }
@@ -74,7 +72,7 @@ export default function Account() {
     router.replace("/login");
   }
 
-  const tierColor = user?.tier === "pro" ? "#5E35B1" : user?.tier === "business" ? "#ea580c" : "#6b7280";
+  const tierColor = user?.tier === "pro" ? COLORS.primary : user?.tier === "business" ? COLORS.accent : COLORS.textSecondary;
   const tierLabel = user?.tier ? user.tier.charAt(0).toUpperCase() + user.tier.slice(1) : "Basic";
 
   return (
@@ -87,7 +85,7 @@ export default function Account() {
             {user?.selfie_url ? (
               <AuthImage uri={user.selfie_url} token={token ?? ""} style={styles.avatarImg} resizeMode="cover" />
             ) : (
-              <Ionicons name="person-outline" size={48} color="#5E35B1" />
+              <Ionicons name="person-outline" size={48} color={COLORS.primary} />
             )}
           </View>
           {user && (
@@ -96,13 +94,14 @@ export default function Account() {
               {user.full_name ? <Text style={styles.fullName}>{user.full_name}</Text> : null}
             </>
           )}
-          <TouchableOpacity
-            style={styles.primaryBtn}
-            activeOpacity={0.85}
+
+          <Button
+            title="Create an Event"
             onPress={() => router.push("/(tabs)/events")}
-          >
-            <Text style={styles.primaryBtnText}>Create an Event</Text>
-          </TouchableOpacity>
+            variant="primary"
+            size="md"
+          />
+
         </View>
 
         {/* Stats */}
@@ -131,19 +130,19 @@ export default function Account() {
           <View style={[styles.planPill, { borderColor: tierColor }]}>
             <Text style={[styles.planPillTxt, { color: tierColor }]}>{tierLabel}</Text>
           </View>
-          <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
+          <Ionicons name="chevron-forward" size={18} color={COLORS.textSecondary} />
         </TouchableOpacity>
 
         {/* Face setup row */}
         <TouchableOpacity style={styles.planRow} onPress={() => router.push("/face-setup")} activeOpacity={0.85}>
-          <Ionicons name="scan-outline" size={20} color="#5E35B1" />
-          <View style={{ flex: 1, marginLeft: 10 }}>
+          <Ionicons name="scan-outline" size={20} color={COLORS.primary} />
+          <View style={{ flex: 1, marginLeft: SPACING.sm }}>
             <Text style={styles.planTitle}>Face Setup</Text>
             <Text style={styles.planSub}>
               {user?.has_face_embedding ? "✓ Face registered" : "Not yet registered"}
             </Text>
           </View>
-          <Ionicons name="chevron-forward" size={18} color="#9ca3af" />
+          <Ionicons name="chevron-forward" size={18} color={COLORS.textSecondary} />
         </TouchableOpacity>
 
         {/* Friends */}
@@ -151,20 +150,20 @@ export default function Account() {
           Friends ›
         </Text>
         {loadingFriends ? (
-          <ActivityIndicator color="#5E35B1" style={{ marginVertical: 10 }} />
+          <ActivityIndicator color={COLORS.primary} style={{ marginVertical: 10 }} />
         ) : (
           <View style={styles.friendsRow}>
             {friends.slice(0, 5).map((f) => (
               <View key={f.id} style={styles.friendBubble}>
-                <Ionicons name="person-outline" size={18} color="#5E35B1" />
+                <Ionicons name="person-outline" size={18} color={COLORS.primary} />
               </View>
             ))}
             {friends.length === 0 && (
               <Text style={styles.emptyTxt}>No friends yet. Search to add some!</Text>
             )}
             {friends.length > 5 && (
-              <View style={[styles.friendBubble, { backgroundColor: "#E5E7EB" }]}>
-                <Text style={{ fontWeight: "800", fontSize: 12 }}>+{friends.length - 5}</Text>
+              <View style={[styles.friendBubble, { backgroundColor: COLORS.border }]}>
+                <Text style={{ fontWeight: "800", fontSize: FONT_SIZES.label }}>+{friends.length - 5}</Text>
               </View>
             )}
           </View>
@@ -173,7 +172,7 @@ export default function Account() {
         {/* Recent uploads */}
         <Text style={styles.sectionHeader}>Uploaded Pictures</Text>
         {loadingPhotos ? (
-          <ActivityIndicator color="#5E35B1" style={{ marginVertical: 10 }} />
+          <ActivityIndicator color={COLORS.primary} style={{ marginVertical: 10 }} />
         ) : (
           <View style={styles.grid}>
             {uploads.slice(0, 6).map((p) => (
@@ -194,10 +193,7 @@ export default function Account() {
           <Text style={styles.toggleLabel}>Enable Facial Recognition</Text>
           <Switch
             value={faceEnabled}
-            onValueChange={async (v) => {
-              setFaceEnabled(v);
-              await savePrivacyToggle("face_recognition_enabled", v);
-            }}
+            onValueChange={async (v) => { setFaceEnabled(v); await savePrivacyToggle("face_recognition_enabled", v); }}
             disabled={savingPrivacy}
           />
         </View>
@@ -206,19 +202,17 @@ export default function Account() {
           <Text style={styles.toggleLabel}>Allow Friends to Auto-Tag You</Text>
           <Switch
             value={autoTag}
-            onValueChange={async (v) => {
-              setAutoTag(v);
-              await savePrivacyToggle("allow_auto_tagging", v);
-            }}
+            onValueChange={async (v) => { setAutoTag(v); await savePrivacyToggle("allow_auto_tagging", v); }}
             disabled={savingPrivacy}
           />
         </View>
 
-        {/* Logout */}
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
-          <Ionicons name="log-out-outline" size={18} color="#ef4444" />
-          <Text style={styles.logoutTxt}>Log Out</Text>
-        </TouchableOpacity>
+        <Button
+          title="Log Out"
+          icon={<Ionicons name="log-out-outline" size={FONT_SIZES.icon} color="#fff" />}
+          variant="danger"
+          onPress={handleLogout}
+        />
 
         <View style={{ height: 40 }} />
       </ScrollView>
@@ -227,76 +221,59 @@ export default function Account() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#fff" },
-  scroll: { padding: 16, paddingBottom: 60 },
+  safe: { flex: 1, backgroundColor: COLORS.surface },
+  scroll: { padding: SPACING.md, paddingBottom: 60 },
 
-  profileWrap: { alignItems: "center", paddingTop: 14, paddingBottom: 10, gap: 6 },
+  profileWrap: { alignItems: "center", paddingTop: SPACING.sm, paddingBottom: SPACING.sm, gap: SPACING.xs },
   avatarRing: {
     width: 92, height: 92, borderRadius: 46,
-    backgroundColor: "#EDE7F6", alignItems: "center", justifyContent: "center",
+    backgroundColor: COLORS.bgAlt, alignItems: "center", justifyContent: "center",
     overflow: "hidden",
   },
   avatarImg: { width: 92, height: 92 },
-  username: { fontSize: 16, fontWeight: "800", color: "#111827", marginTop: 4 },
-  fullName: { fontSize: 13, color: "#6b7280" },
-
-  primaryBtn: {
-    backgroundColor: "#5E35B1", paddingHorizontal: 26, paddingVertical: 10,
-    borderRadius: 10, marginTop: 6,
-  },
-  primaryBtnText: { color: "#fff", fontWeight: "800", fontSize: 14 },
+  username: { fontSize: FONT_SIZES.subtitle, fontWeight: "800", color: COLORS.textPrimary, marginTop: 4 },
+  fullName: { fontSize: FONT_SIZES.body, color: COLORS.textSecondary },
 
   statsRow: {
-    flexDirection: "row", backgroundColor: "#fff",
-    borderRadius: 14, borderWidth: 1, borderColor: "#E5E7EB",
-    marginVertical: 14, overflow: "hidden",
+    flexDirection: "row", backgroundColor: COLORS.surface,
+    borderRadius: 14, borderWidth: 1, borderColor: COLORS.border,
+    marginVertical: SPACING.md, overflow: "hidden",
   },
-  statBox: { flex: 1, alignItems: "center", paddingVertical: 14 },
-  statNum: { fontSize: 20, fontWeight: "800", color: "#111827" },
-  statLabel: { fontSize: 11, color: "#9ca3af", marginTop: 2 },
-  statDivider: { width: 1, backgroundColor: "#E5E7EB" },
+  statBox: { flex: 1, alignItems: "center", paddingVertical: SPACING.sm },
+  statNum: { fontSize: FONT_SIZES.h2, fontWeight: "800", color: COLORS.textPrimary },
+  statLabel: { fontSize: FONT_SIZES.label, color: COLORS.textSecondary, marginTop: 2 },
+  statDivider: { width: 1, backgroundColor: COLORS.border },
 
   planRow: {
     flexDirection: "row", alignItems: "center",
-    paddingVertical: 14, paddingHorizontal: 14,
-    borderRadius: 14, backgroundColor: "#fff",
-    borderWidth: 1, borderColor: "#E5E7EB",
-    marginBottom: 10,
+    paddingVertical: SPACING.sm, paddingHorizontal: SPACING.sm,
+    borderRadius: 14, backgroundColor: COLORS.surface,
+    borderWidth: 1, borderColor: COLORS.border,
+    marginBottom: SPACING.sm,
   },
-  planTitle: { flex: 1, fontSize: 15, fontWeight: "700", color: "#111827" },
-  planSub:   { fontSize: 12, color: "#9ca3af" },
-  planPill: {
-    paddingHorizontal: 12, paddingVertical: 5,
-    borderRadius: 8, borderWidth: 1, marginRight: 8,
-  },
-  planPillTxt: { fontSize: 12, fontWeight: "800" },
+  planTitle: { flex: 1, fontSize: FONT_SIZES.body, fontWeight: "700", color: COLORS.textPrimary },
+  planSub:   { fontSize: FONT_SIZES.label, color: COLORS.textSecondary },
+  planPill: { paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs, borderRadius: 8, borderWidth: 1, marginRight: SPACING.xs },
+  planPillTxt: { fontSize: FONT_SIZES.label, fontWeight: "800" },
 
-  sectionHeader: { fontSize: 16, fontWeight: "800", color: "#111827", marginTop: 18, marginBottom: 10 },
+  sectionHeader: { fontSize: FONT_SIZES.subtitle, fontWeight: "800", color: COLORS.textPrimary, marginTop: SPACING.md, marginBottom: SPACING.sm },
 
-  friendsRow: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 4 },
+  friendsRow: { flexDirection: "row", alignItems: "center", gap: SPACING.xs, flexWrap: "wrap", marginBottom: 4 },
   friendBubble: {
     width: 40, height: 40, borderRadius: 20,
-    backgroundColor: "#EDE7F6", alignItems: "center", justifyContent: "center",
+    backgroundColor: COLORS.bgAlt, alignItems: "center", justifyContent: "center",
   },
 
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-  tile: { width: "22%", aspectRatio: 1, borderRadius: 10, overflow: "hidden", backgroundColor: "#F3F4F6" },
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: SPACING.xs },
+  tile: { width: "22%", aspectRatio: 1, borderRadius: 10, overflow: "hidden", backgroundColor: COLORS.bgAlt },
   tileImg: { width: "100%", height: "100%" },
 
-  emptyTxt: { fontSize: 13, color: "#9ca3af" },
+  emptyTxt: { fontSize: FONT_SIZES.label, color: COLORS.textSecondary },
 
   toggleRow: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#E5E7EB",
+    paddingVertical: SPACING.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COLORS.border,
   },
-  toggleLabel: { flex: 1, paddingRight: 12, fontSize: 14, color: "#111827", fontWeight: "600" },
-
-  logoutBtn: {
-    flexDirection: "row", alignItems: "center", gap: 8,
-    marginTop: 28, paddingVertical: 14, paddingHorizontal: 16,
-    borderRadius: 12, borderWidth: 1, borderColor: "#fecaca",
-    backgroundColor: "#fff5f5", justifyContent: "center",
-  },
-  logoutTxt: { color: "#ef4444", fontWeight: "700", fontSize: 14 },
+  toggleLabel: { flex: 1, paddingRight: SPACING.sm, fontSize: FONT_SIZES.body, color: COLORS.textPrimary, fontWeight: "600" },
 });

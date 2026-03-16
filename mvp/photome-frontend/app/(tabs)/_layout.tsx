@@ -10,18 +10,21 @@ export default function TabLayout() {
         screenOptions={{
           headerStyle: { backgroundColor: "#1677ff" },
           headerTintColor: "#fff",
+          headerTitleStyle: { fontWeight: "700" },
           tabBarActiveTintColor: "#1677ff",
         }}
       >
         <Tabs.Screen
-          name="index"
+          name="home"
           options={{
             title: "Home",
+            headerShown: false,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="home-outline" size={size} color={color} />
             ),
           }}
         />
+
         <Tabs.Screen
           name="search"
           options={{
@@ -31,6 +34,7 @@ export default function TabLayout() {
             ),
           }}
         />
+
         <Tabs.Screen
           name="events"
           options={{
@@ -40,6 +44,7 @@ export default function TabLayout() {
             ),
           }}
         />
+
         <Tabs.Screen
           name="account"
           options={{
