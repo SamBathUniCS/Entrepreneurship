@@ -10,6 +10,8 @@ import {
   ScrollView,
 } from "react-native";
 import { router } from "expo-router";
+
+import { Button } from "../components/button";
 import { AuthContext } from "../context/_AuthContext";
 import { COLORS, FONT_SIZES, SPACING } from "../theme";
 
@@ -62,9 +64,7 @@ export default function Login() {
             secureTextEntry
           />
 
-          <Pressable style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Login</Text>
-          </Pressable>
+          <Button title="Login" onPress={handleLogin} variant="primary" size="md" />
 
           <Pressable onPress={() => router.push("/signup")}>
             <Text style={styles.registerText}>
@@ -112,18 +112,6 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm * 2,
     marginBottom: SPACING.md,
     fontSize: FONT_SIZES.cardMeta,
-  },
-  button: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: SPACING.sm * 4,
-    borderRadius: 14,
-    alignItems: "center",
-    marginTop: SPACING.sm,
-  },
-  buttonText: {
-    color: COLORS.surface,
-    fontSize: FONT_SIZES.cardTitle,
-    fontWeight: "700",
   },
   registerText: {
     marginTop: SPACING.lg,
