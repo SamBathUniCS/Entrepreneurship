@@ -57,6 +57,7 @@ def _enrich_photo(photo: Photo, current_user: User) -> dict:
         "tags": [
             {
                 "user_id": str(t.user_id),
+                "username": t.user.username if t.user else str(t.user_id),
                 "confidence": t.confidence,
                 "tag_source": t.tag_source,
                 "confirmed": t.confirmed,
