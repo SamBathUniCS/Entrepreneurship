@@ -8,9 +8,10 @@ import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../context/_AuthContext";
 import { apiFetch } from "../../api";
+import { COLORS, FONT_SIZES, SPACING } from "../theme";
 
 const { width } = Dimensions.get("window");
-const H_PAD = 14, GAP = 10;
+const H_PAD = SPACING.md, GAP = SPACING.sm;
 const COL_W = (width - H_PAD * 2 - GAP) / 2;
 const ROW_H = 130;
 
@@ -36,7 +37,7 @@ export default function EventsTab() {
   }
 
   if (loading) {
-    return <View style={styles.screen}><ActivityIndicator color="#1677ff" style={{ marginTop: 40 }} /></View>;
+    return <View style={styles.screen}><ActivityIndicator color={COLORS.primary} style={{ marginTop: 40 }} /></View>;
   }
 
   const renderGrid = () => {
@@ -82,7 +83,7 @@ export default function EventsTab() {
 
       {/* Create event FAB */}
       <TouchableOpacity style={styles.fab} onPress={() => setShowCreate(true)} activeOpacity={0.85}>
-        <Ionicons name="add" size={28} color="#fff" />
+        <Ionicons name="add" size={28} color={COLORS.surface} />
       </TouchableOpacity>
 
       <CreateEventModal
@@ -155,7 +156,7 @@ function CreateEventModal({
       <View style={modal.container}>
         <View style={modal.header}>
           <Text style={modal.title}>Create Event</Text>
-          <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} color="#111827" /></TouchableOpacity>
+          <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} color={COLORS.textPrimary} /></TouchableOpacity>
         </View>
 
         <ScrollView style={modal.body} keyboardShouldPersistTaps="handled">
@@ -184,8 +185,8 @@ function CreateEventModal({
               >
                 <Ionicons
                   name={v === "public" ? "globe-outline" : "lock-closed-outline"}
-                  size={16}
-                  color={visibility === v ? "#fff" : "#6b7280"}
+                  size={FONT_SIZES.label}
+                  color={visibility === v ? COLORS.surface : COLORS.textSecondary}
                 />
                 <Text style={[modal.toggleTxt, visibility === v && modal.toggleTxtActive]}>
                   {v.charAt(0).toUpperCase() + v.slice(1)}
@@ -198,7 +199,7 @@ function CreateEventModal({
             style={[modal.createBtn, saving && { opacity: 0.6 }]}
             onPress={create} disabled={saving} activeOpacity={0.85}
           >
-            {saving ? <ActivityIndicator color="#fff" /> : <Text style={modal.createBtnTxt}>Create Event →</Text>}
+            {saving ? <ActivityIndicator color={COLORS.surface} /> : <Text style={modal.createBtnTxt}>Create Event →</Text>}
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -207,67 +208,67 @@ function CreateEventModal({
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: "#f2f5fa" },
+  screen: { flex: 1, backgroundColor: COLORS.background },
   scrollContent: { paddingBottom: 100 },
   grid: { padding: H_PAD, gap: GAP },
   gridRow: { flexDirection: "row", gap: GAP, height: ROW_H * 2 + GAP },
   rightCol: { flex: 1, gap: GAP },
 
-  card: { borderRadius: 18, overflow: "hidden", backgroundColor: "#dde4ee" },
+  card: { borderRadius: 18, overflow: "hidden", backgroundColor: COLORS.surface },
   cardWide: { width: "100%", height: ROW_H * 1.4 },
   cardTall: { width: COL_W, flex: 1 },
   cardNormal: { flex: 1 },
   cardOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.3)" },
-  cardContent: { position: "absolute", bottom: 0, left: 0, right: 0, padding: 10 },
-  cardTitle: { fontSize: 13, fontWeight: "800", color: "#fff", marginBottom: 5 },
-  statsRow: { flexDirection: "row", alignItems: "center", gap: 5 },
-  statTxt: { fontSize: 10, fontWeight: "700", color: "rgba(255,255,255,.9)" },
+  cardContent: { position: "absolute", bottom: SPACING.sm, left: SPACING.sm, right: SPACING.sm },
+  cardTitle: { fontSize: FONT_SIZES.cardTitle, fontWeight: "800", color: COLORS.surface, marginBottom: SPACING.xs },
+  statsRow: { flexDirection: "row", alignItems: "center", gap: SPACING.xs },
+  statTxt: { fontSize: FONT_SIZES.label, fontWeight: "700", color: "rgba(255,255,255,.9)" },
   statDivider: { width: 1, height: 10, backgroundColor: "rgba(255,255,255,.35)" },
   unlockedPill: {
-    marginTop: 5, alignSelf: "flex-start",
-    backgroundColor: "rgba(74,247,176,.3)", borderRadius: 4,
-    paddingHorizontal: 6, paddingVertical: 2,
+    marginTop: SPACING.xs, alignSelf: "flex-start",
+    backgroundColor: COLORS.successBg, borderRadius: 4,
+    paddingHorizontal: SPACING.xs, paddingVertical: SPACING.xs / 2,
   },
-  unlockedTxt: { fontSize: 9, fontWeight: "800", color: "#4af7b0" },
+  unlockedTxt: { fontSize: FONT_SIZES.label, fontWeight: "800", color: COLORS.successText },
 
-  emptyWrap: { alignItems: "center", paddingVertical: 60, gap: 10 },
-  emptyIcon: { fontSize: 44 },
-  emptyTitle: { fontSize: 18, fontWeight: "800", color: "#111827" },
-  emptyDesc: { fontSize: 14, color: "#6b7280", textAlign: "center" },
+  emptyWrap: { alignItems: "center", paddingVertical: SPACING.lg * 2, gap: SPACING.sm },
+  emptyIcon: { fontSize: FONT_SIZES.heroTitle },
+  emptyTitle: { fontSize: FONT_SIZES.sectionTitle, fontWeight: "800", color: COLORS.textPrimary },
+  emptyDesc: { fontSize: FONT_SIZES.body, color: COLORS.textSecondary, textAlign: "center" },
 
   fab: {
-    position: "absolute", bottom: 26, right: 24,
+    position: "absolute", bottom: SPACING.lg, right: SPACING.md,
     width: 56, height: 56, borderRadius: 28,
-    backgroundColor: "#5E35B1", alignItems: "center", justifyContent: "center",
+    backgroundColor: COLORS.primary, alignItems: "center", justifyContent: "center",
     shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 }, elevation: 6,
   },
 });
 
 const modal = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
+  container: { flex: 1, backgroundColor: COLORS.surface },
   header: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    padding: 20, borderBottomWidth: 1, borderBottomColor: "#E5E7EB",
+    padding: SPACING.md, borderBottomWidth: 1, borderBottomColor: COLORS.border,
   },
-  title: { fontSize: 18, fontWeight: "800", color: "#111827" },
-  body:  { padding: 20 },
-  label: { fontSize: 13, fontWeight: "700", color: "#374151", marginBottom: 6, marginTop: 14 },
+  title: { fontSize: FONT_SIZES.sectionTitle, fontWeight: "800", color: COLORS.textPrimary },
+  body:  { padding: SPACING.md },
+  label: { fontSize: FONT_SIZES.label, fontWeight: "700", color: COLORS.textSecondary, marginBottom: SPACING.xs, marginTop: SPACING.sm },
   input: {
-    backgroundColor: "#f9fafb", borderWidth: 1, borderColor: "#E5E7EB",
-    borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, fontSize: 14,
+    backgroundColor: COLORS.inputBg, borderWidth: 1, borderColor: COLORS.border,
+    borderRadius: 12, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, fontSize: FONT_SIZES.body,
   },
-  toggleRow:     { flexDirection: "row", gap: 10 },
+  toggleRow:     { flexDirection: "row", gap: SPACING.sm },
   toggleBtn:     {
-    flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
-    paddingVertical: 12, borderRadius: 10, borderWidth: 1, borderColor: "#E5E7EB",
+    flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: SPACING.xs,
+    paddingVertical: SPACING.sm, borderRadius: 10, borderWidth: 1, borderColor: COLORS.border,
   },
-  toggleBtnActive: { backgroundColor: "#1677ff", borderColor: "#1677ff" },
-  toggleTxt:       { fontSize: 14, fontWeight: "600", color: "#6b7280" },
-  toggleTxtActive: { color: "#fff" },
+  toggleBtnActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
+  toggleTxt:       { fontSize: FONT_SIZES.body, fontWeight: "600", color: COLORS.textSecondary },
+  toggleTxtActive: { color: COLORS.surface },
   createBtn: {
-    marginTop: 28, backgroundColor: "#5E35B1", borderRadius: 12,
-    paddingVertical: 14, alignItems: "center",
+    marginTop: SPACING.lg, backgroundColor: COLORS.primary, borderRadius: 12,
+    paddingVertical: SPACING.md, alignItems: "center",
   },
-  createBtnTxt: { color: "#fff", fontSize: 15, fontWeight: "800" },
+  createBtnTxt: { color: COLORS.surface, fontSize: FONT_SIZES.body, fontWeight: "800" },
 });
