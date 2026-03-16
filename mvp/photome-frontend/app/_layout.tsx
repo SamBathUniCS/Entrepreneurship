@@ -28,7 +28,7 @@ export default function RootLayout() {
           }}
         />
         {/* face-setup manages its own header */}
-        <Stack.Screen name="face-setup" options={{ headerShown: false }} />
+        <Stack.Screen name="faceSetup" options={{ headerShown: false }} />
         <Stack.Screen
           name="events/[id]"
           options={{
@@ -37,7 +37,7 @@ export default function RootLayout() {
             headerTintColor: "#fff",
           }}
         />
-        <Stack.Screen name="qr-scan" options={{ headerShown: false }} />
+        <Stack.Screen name="qrScan" options={{ headerShown: false }} />
       </Stack>
     </AuthProvider>
   );
