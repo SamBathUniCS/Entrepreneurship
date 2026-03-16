@@ -5,6 +5,8 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+
+import { Button } from "../components/button";
 import { AuthContext } from "../context/_AuthContext";
 import { apiFetch } from "../../api";
 import AuthImage from "../../AuthImage";
@@ -92,13 +94,14 @@ export default function Account() {
               {user.full_name ? <Text style={styles.fullName}>{user.full_name}</Text> : null}
             </>
           )}
-          <TouchableOpacity
-            style={styles.primaryBtn}
-            activeOpacity={0.85}
+
+          <Button
+            title="Create an Event"
             onPress={() => router.push("/(tabs)/events")}
-          >
-            <Text style={styles.primaryBtnText}>Create an Event</Text>
-          </TouchableOpacity>
+            variant="primary"
+            size="md"
+          />
+
         </View>
 
         {/* Stats */}
@@ -204,11 +207,12 @@ export default function Account() {
           />
         </View>
 
-        {/* Logout */}
-        <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout} activeOpacity={0.8}>
-          <Ionicons name="log-out-outline" size={18} color={COLORS.error} />
-          <Text style={styles.logoutTxt}>Log Out</Text>
-        </TouchableOpacity>
+        <Button
+          title="Log Out"
+          icon={<Ionicons name="log-out-outline" size={FONT_SIZES.icon} color="#fff" />}
+          variant="danger"
+          onPress={handleLogout}
+        />
 
         <View style={{ height: 40 }} />
       </ScrollView>
@@ -229,12 +233,6 @@ const styles = StyleSheet.create({
   avatarImg: { width: 92, height: 92 },
   username: { fontSize: FONT_SIZES.subtitle, fontWeight: "800", color: COLORS.textPrimary, marginTop: 4 },
   fullName: { fontSize: FONT_SIZES.body, color: COLORS.textSecondary },
-
-  primaryBtn: {
-    backgroundColor: COLORS.primary, paddingHorizontal: SPACING.lg, paddingVertical: SPACING.sm,
-    borderRadius: 10, marginTop: SPACING.xs,
-  },
-  primaryBtnText: { color: COLORS.surface, fontWeight: "800", fontSize: FONT_SIZES.body },
 
   statsRow: {
     flexDirection: "row", backgroundColor: COLORS.surface,
@@ -278,12 +276,4 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: COLORS.border,
   },
   toggleLabel: { flex: 1, paddingRight: SPACING.sm, fontSize: FONT_SIZES.body, color: COLORS.textPrimary, fontWeight: "600" },
-
-  logoutBtn: {
-    flexDirection: "row", alignItems: "center", gap: SPACING.xs,
-    marginTop: SPACING.lg, paddingVertical: SPACING.sm, paddingHorizontal: SPACING.md,
-    borderRadius: 12, borderWidth: 1, borderColor: COLORS.errorLight,
-    backgroundColor: COLORS.errorBg, justifyContent: "center",
-  },
-  logoutTxt: { color: COLORS.error, fontWeight: "700", fontSize: FONT_SIZES.body },
 });

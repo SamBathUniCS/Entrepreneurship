@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TouchableOpacity, StyleSheet } from "react-native";
+import { Text, TouchableOpacity} from "react-native";
 import { COLORS, FONT_SIZES, SPACING } from "../theme";
 
 type ButtonProps = {
@@ -9,6 +9,7 @@ type ButtonProps = {
   size?: "sm" | "md" | "lg";
   disabled?: boolean;
   style?: object;
+  icon?: React.ReactNode;
 };
 
 export const Button = ({
@@ -18,6 +19,7 @@ export const Button = ({
   size = "md",
   disabled = false,
   style,
+  icon,
 }: ButtonProps) => {
   const bgColor = (() => {
     if (disabled) return COLORS.border;
@@ -65,12 +67,15 @@ export const Button = ({
           borderRadius: 12,
           borderWidth,
           borderColor,
+          flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
+          gap: SPACING.sm,
         },
         style,
       ]}
     >
+      {icon && icon}
       <Text style={{ color: textColor, fontSize: FONT_SIZES.body, fontWeight: "700" }}>
         {title}
       </Text>
