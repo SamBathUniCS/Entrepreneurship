@@ -5,6 +5,8 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+
+import { Button } from "../components/button";
 import { AuthContext } from "../context/_AuthContext";
 import { apiFetch } from "../../api";
 import { COLORS, FONT_SIZES, SPACING } from "../theme";
@@ -73,12 +75,12 @@ export default function Search() {
             </Pressable>
           )}
         </View>
-        <TouchableOpacity style={styles.searchBtn} onPress={doSearch} activeOpacity={0.8}>
-          {loading
-            ? <ActivityIndicator size="small" color={COLORS.surface} />
-            : <Text style={styles.searchBtnTxt}>Search</Text>
-          }
-        </TouchableOpacity>
+        <Button
+          title={loading ? "Searching..." : "Search"}
+          onPress={doSearch}
+          variant="primary"
+          size="sm"
+        />
       </View>
 
       <FlatList
@@ -159,12 +161,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md, height: 44, backgroundColor: COLORS.inputBg, gap: SPACING.xs,
   },
   searchInput: { flex: 1, fontSize: FONT_SIZES.body, color: COLORS.textPrimary },
-  searchBtn: {
-    backgroundColor: COLORS.primary, borderRadius: 12,
-    paddingHorizontal: SPACING.md, height: 44,
-    alignItems: "center", justifyContent: "center",
-  },
-  searchBtnTxt: { color: COLORS.surface, fontWeight: "700", fontSize: FONT_SIZES.body },
 
   list: { padding: SPACING.md, gap: SPACING.sm },
   empty: { alignItems: "center", paddingTop: 48, gap: SPACING.sm },
