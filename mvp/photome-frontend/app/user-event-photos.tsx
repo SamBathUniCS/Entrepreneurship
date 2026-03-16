@@ -1,4 +1,3 @@
-// app/event-photos.tsx
 import React, { useMemo } from "react";
 import {
   SafeAreaView,
@@ -10,9 +9,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { COLORS, FONT_SIZES, SPACING } from "./theme";
 
 export default function EventPhotos() {
-
   const photos = useMemo(
     () => [
       { id: "1", uri: "https://picsum.photos/seed/xmas1/600/800" },
@@ -27,13 +26,11 @@ export default function EventPhotos() {
     []
   );
 
-  // 2-column masonry-ish layout like your screenshot
   const left = photos.filter((_, i) => i % 2 === 0);
   const right = photos.filter((_, i) => i % 2 === 1);
 
   return (
     <SafeAreaView style={styles.safe}>
-      {/* Top blue header */}
       <View style={styles.topBar}>
         <Text style={styles.topBarTitle}>Christmas Party</Text>
       </View>
@@ -47,7 +44,6 @@ export default function EventPhotos() {
               <PhotoTile key={p.id} uri={p.uri} tall={idx % 3 === 1} />
             ))}
           </View>
-
           <View style={styles.col}>
             {right.map((p, idx) => (
               <PhotoTile key={p.id} uri={p.uri} tall={idx % 3 === 0} />
@@ -55,12 +51,11 @@ export default function EventPhotos() {
           </View>
         </View>
 
-        <View style={{ height: 120 }} />
+        <View style={{ height: SPACING.xxl }} />
       </ScrollView>
 
-      {/* Floating check button */}
       <TouchableOpacity activeOpacity={0.9} style={styles.fab}>
-        <Ionicons name="checkmark" size={22} color="#FFFFFF" />
+        <Ionicons name="checkmark" size={22} color={COLORS.surface} />
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -75,50 +70,50 @@ function PhotoTile({ uri, tall }: { uri: string; tall?: boolean }) {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F7EEF6" }, // light pink-ish like screenshot
+  safe: { flex: 1, backgroundColor: COLORS.heroGreeting },
 
   topBar: {
     height: 54,
-    backgroundColor: "#1E88E5",
+    backgroundColor: COLORS.primary,
     alignItems: "flex-start",
     justifyContent: "center",
-    paddingHorizontal: 14,
+    paddingHorizontal: SPACING.lg,
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
   },
   topBarTitle: {
-    color: "#FFFFFF",
-    fontSize: 18,
+    color: COLORS.surface,
+    fontSize: FONT_SIZES.sectionTitle,
     fontWeight: "800",
   },
 
   content: {
-    paddingHorizontal: 16,
-    paddingTop: 14,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.md,
   },
 
   sectionTitle: {
     textAlign: "center",
-    fontSize: 14,
+    fontSize: FONT_SIZES.cardTitle,
     fontWeight: "800",
-    color: "#111827",
-    marginBottom: 12,
+    color: COLORS.textPrimary,
+    marginBottom: SPACING.md,
   },
 
   columns: {
     flexDirection: "row",
-    gap: 12,
+    gap: SPACING.md,
   },
   col: {
     flex: 1,
-    gap: 12,
+    gap: SPACING.md,
   },
 
   tile: {
     width: "100%",
     borderRadius: 18,
     overflow: "hidden",
-    backgroundColor: "#E5E7EB",
+    backgroundColor: COLORS.surface,
   },
   tileShort: { height: 130 },
   tileTall: { height: 190 },
@@ -127,12 +122,12 @@ const styles = StyleSheet.create({
 
   fab: {
     position: "absolute",
-    right: 18,
-    bottom: 22,
+    right: SPACING.lg,
+    bottom: SPACING.lg,
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#5E35B1",
+    backgroundColor: COLORS.secondary,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: "#000",
