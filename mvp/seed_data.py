@@ -274,6 +274,11 @@ async def upload_sample_photos(db, user_map, event_map):
 
 
 async def main():
+    import argparse, sys
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--yes", "-y", action="store_true", help="Skip confirmation prompt")
+    args, _ = parser.parse_known_args()
+
     print("=" * 60)
     print("PhotoMe Seed Script")
     print("=" * 60)
@@ -284,11 +289,12 @@ async def main():
     print("  • 10 sample photos")
     print("\n⚠️  WARNING: This will add data to your database!")
     print("   Run 'docker compose down -v' first to start fresh.\n")
-    
-    response = input("Continue? [y/N]: ")
-    if response.lower() != 'y':
-        print("Aborted.")
-        return
+
+    if not args.yes:
+        response = input("Continue? [y/N]: ")
+        if response.lower() != 'y':
+            print("Aborted.")
+            return
     
     db = SessionLocal()
     

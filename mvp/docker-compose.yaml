@@ -30,7 +30,7 @@ services:
     command: server /data --console-address ":9001"
     ports:
       - "9000:9000"   # S3 API
-      - "9001:9001"   # Web Console  →  open http://localhost:9001 to browse files
+      - "9001:9001"   # Web Console → http://localhost:9001
     volumes:
       - miniodata:/data
     networks:
@@ -41,10 +41,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── DeepFace (face recognition microservice) ─────────────────────────────────
-  # https://github.com/serengil/deepface
-  # Internally listens on port 5000, we keep that mapping here.
-  # NOTE: First startup downloads model weights (~300 MB) — be patient.
+  # ── DeepFace ────────────────────────────────────────────────────────────────
   deepface:
     image: docker.io/serengil/deepface:latest
     container_name: deepface
@@ -52,6 +49,12 @@ services:
       - "5000:5000"
     networks:
       - localnet
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:5000/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s   # DeepFace downloads model weights on first boot (~300 MB)
 
   # ── PhotoMe Backend ──────────────────────────────────────────────────────────
   backend:
@@ -62,28 +65,20 @@ services:
     ports:
       - "8000:8000"
     environment:
-      # Database — use service name "postgres" as host inside Docker network
       DATABASE_URL: postgresql://myuser:mypassword@postgres:5432/mydb
-
-      # Auth
       SECRET_KEY: replace_this_with_a_real_secret_in_production
       ALGORITHM: HS256
       ACCESS_TOKEN_EXPIRE_MINUTES: "10080"
-
-      # MinIO — use service name "minio" as host inside Docker network
       S3_ENDPOINT_URL: http://minio:9000
+      S3_PUBLIC_URL: http://localhost:9000
       S3_ACCESS_KEY: minioadmin
       S3_SECRET_KEY: minioadmin
       S3_BUCKET: photome
       S3_REGION: us-east-1
-
-      # DeepFace — use service name "deepface" as host inside Docker network
       DEEPFACE_URL: http://deepface:5000
       DEEPFACE_MODEL: Facenet512
       DEEPFACE_DETECTOR: opencv
       DEEPFACE_DISTANCE_THRESHOLD: "0.4"
-
-      # App
       APP_NAME: PhotoMe
       DEBUG: "true"
       UPLOAD_THRESHOLD: "5"
@@ -96,11 +91,10 @@ services:
         condition: service_started
     networks:
       - localnet
-    # Runs migrations then starts the server
     command: >
       sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
 
-  # ── Expo Frontend ───────────────────────────────────────────────────────────
+  # ── Expo Frontend (web) ─────────────────────────────────────────────────────
   frontend:
     build:
       context: ./photome-frontend
@@ -108,19 +102,17 @@ services:
     container_name: photome-frontend
     ports:
       - "8081:8081"
-      - "19000:19000"
-      - "19001:19001"
-      - "19002:19002"
     environment:
-      - EXPO_DEVTOOLS_LISTEN_ADDRESS=0.0.0.0
-      - CHOKIDAR_USEPOLLING=true
-    tty: true
-    networks:
-      - localnet
+      # Tells the Expo web build where the API lives.
+      # From the browser's perspective the backend is on localhost:8000.
+      EXPO_PUBLIC_API_URL: http://localhost:8000/api/v1
+      # Needed for file-watching inside Docker on Linux/Windows
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
     depends_on:
       - backend
-    command: >
-      npx expo start --tunnel -c
+    networks:
+      - localnet
 
 volumes:
   pgdata:

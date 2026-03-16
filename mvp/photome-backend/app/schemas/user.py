@@ -45,8 +45,33 @@ class UserPublic(BaseModel):
     upload_streak: int
     total_uploads: int
     created_at: datetime
+    # Face recognition fields — computed from the face_embedding relationship
+    has_face_embedding: bool = False
+    selfie_url: str | None = None
 
     model_config = {"from_attributes": True}
+
+    @classmethod
+    def from_user(cls, user: "User") -> "UserPublic":
+        has_emb = user.face_embedding is not None and user.face_embedding.embedding is not None
+        selfie = (
+            f"/api/v1/users/me/selfie/file"
+            if has_emb
+            else None
+        )
+        return cls(
+            id=user.id,
+            username=user.username,
+            full_name=user.full_name,
+            profile_picture_url=user.profile_picture_url,
+            bio=user.bio,
+            tier=user.tier,
+            upload_streak=user.upload_streak,
+            total_uploads=user.total_uploads,
+            created_at=user.created_at,
+            has_face_embedding=has_emb,
+            selfie_url=selfie,
+        )
 
 
 class UserMe(UserPublic):
