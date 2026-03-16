@@ -57,7 +57,7 @@ export default function Search() {
       {/* Search bar */}
       <View style={styles.searchRow}>
         <View style={styles.searchBox}>
-          <Ionicons name="search-outline" size={FONT_SIZES.icon} color={COLORS.textSecondary} />
+          <Ionicons name="search-outline" size={FONT_SIZES.icon} color={COLORS.placeholder} />
           <TextInput
             value={q}
             onChangeText={setQ}
@@ -69,7 +69,7 @@ export default function Search() {
           />
           {q.length > 0 && (
             <Pressable onPress={() => { setQ(""); setResults([]); setSearched(false); }}>
-              <Ionicons name="close-circle" size={FONT_SIZES.icon} color={COLORS.textSecondary} />
+              <Ionicons name="close-circle" size={FONT_SIZES.icon} color={COLORS.placeholder} />
             </Pressable>
           )}
         </View>
@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
   list: { padding: SPACING.md, gap: SPACING.sm },
   empty: { alignItems: "center", paddingTop: 48, gap: SPACING.sm },
   emptyIcon: { fontSize: FONT_SIZES.heroTitle },
-  emptyTxt: { fontSize: FONT_SIZES.body, color: COLORS.textSecondary, textAlign: "center" },
+  emptyTxt: { fontSize: FONT_SIZES.body, color: COLORS.placeholder, textAlign: "center" },
 
   card: {
     backgroundColor: COLORS.surface, borderRadius: 14,
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   cardTitleRow: { flexDirection: "row", alignItems: "center", gap: SPACING.xs },
   cardTitle: { fontSize: FONT_SIZES.cardTitle, fontWeight: "700", color: COLORS.textPrimary, flex: 1 },
   cardDesc: { fontSize: FONT_SIZES.cardMeta, color: COLORS.textSecondary, marginTop: SPACING.xs },
-  cardMeta: { fontSize: FONT_SIZES.label, color: COLORS.textTertiary, marginTop: SPACING.xs },
+  cardMeta: { fontSize: FONT_SIZES.label, color: COLORS.placeholder, marginTop: SPACING.xs },
   cardAction: { alignItems: "flex-end" },
 
   privatePill: {

@@ -8,6 +8,19 @@ export const COLORS = {
   textMuted: "#9ca3af",
   heroGreeting: "#e0f0ff",
   heroSubtitle: "#bbdeff",
+
+  border: "#E5E7EB",
+  inputBg: "#f9fafb",
+  placeholder: "#9ca3af",
+
+  successBg: "#D1FAE5",
+  successBorder: "#10B981",
+  successText: "#065F46",
+
+  bgAlt: "#EDE7F6",
+  errorBg: "#FFF5F5",
+  errorLight: "#FECACA",
+  error: "#EF4444",
 };
 
 export const FONT_SIZES = {
@@ -15,10 +28,16 @@ export const FONT_SIZES = {
   heroGreeting: 15,
   heroSubtitle: 13,
   sectionTitle: 18,
+  icon: 18,
   cardTitle: 17,
   cardMeta: 12,
   small: 11,
   tiny: 10,
+  body: 14,
+  input: 14,
+  label: 12,
+  subtitle: 16,
+  h2: 20,
 };
 
 export const SPACING = {
