@@ -141,10 +141,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { token, loggedIn } = useContext(AuthContext);
 
-  useEffect(() => {
-    if (!token) router.replace("/login");
-  }, [token]);
-
-  if (!loggedIn) return null;
+  // useEffect(() => {
+  //   if (!token) router.replace("/login");
+  // }, [token]);
+  //
+  // if (!loggedIn) return null;
   return <>{children}</>;
 };
