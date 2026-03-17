@@ -20,10 +20,6 @@ down:
 logs:
     {{engine}}-compose -f mvp/docker-compose.yaml logs -f
 
-restart:
-    {{engine}}-compose -f mvp/docker-compose.yaml down
-    {{engine}}-compose -f mvp/docker-compose.yaml up -d
-
 logs-frontend:
     {{engine}}-compose -f mvp/docker-compose.yaml logs -f frontend
 
@@ -34,3 +30,6 @@ run-frontend:
 run-backend:
     {{engine}} build -t mvp_backend "mvp/photome-backend"
     {{engine}} run --rm -it -p 8000:8000 mvp_backend
+
+dev:
+  ./mvp/quickstart.sh {{engine}}
