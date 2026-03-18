@@ -8,7 +8,6 @@ import { COLORS, FONT_SIZES, SPACING } from "./theme";
 export default function QrScan() {
   return (
     <SafeAreaView style={styles.container}>
-
       <View style={styles.header}>
         <Pressable style={styles.backButton} onPress={() => router.back()}>
           <Ionicons name="arrow-back" size={22} color={COLORS.textPrimary} />
@@ -18,9 +17,7 @@ export default function QrScan() {
 
       <View style={styles.content}>
         <Text style={styles.title}>QR Scan</Text>
-        <Text style={styles.subtitle}>
-          Event Search page.
-        </Text>
+        <Text style={styles.subtitle}>Event Search page.</Text>
       </View>
     </SafeAreaView>
   );

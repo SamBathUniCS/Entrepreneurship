@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, TouchableOpacity} from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 import { COLORS, FONT_SIZES, SPACING } from "../theme";
 
 type ButtonProps = {
@@ -24,31 +24,45 @@ export const Button = ({
   const bgColor = (() => {
     if (disabled) return COLORS.border;
     switch (variant) {
-      case "primary": return COLORS.primary;
-      case "secondary": return COLORS.secondary;
-      case "outline": return COLORS.surface;
-      case "danger": return COLORS.error;
-      default: return COLORS.primary;
+      case "primary":
+        return COLORS.primary;
+      case "secondary":
+        return COLORS.secondary;
+      case "outline":
+        return COLORS.surface;
+      case "danger":
+        return COLORS.error;
+      default:
+        return COLORS.primary;
     }
   })();
 
   const textColor = (() => {
     if (disabled) return COLORS.textMuted;
     switch (variant) {
-      case "primary": return COLORS.surface;
-      case "secondary": return COLORS.surface;
-      case "outline": return COLORS.primary;
-      case "danger": return COLORS.surface;
-      default: return COLORS.surface;
+      case "primary":
+        return COLORS.surface;
+      case "secondary":
+        return COLORS.surface;
+      case "outline":
+        return COLORS.primary;
+      case "danger":
+        return COLORS.surface;
+      default:
+        return COLORS.surface;
     }
   })();
 
   const paddingVertical = (() => {
     switch (size) {
-      case "sm": return SPACING.sm;
-      case "md": return SPACING.md;
-      case "lg": return SPACING.lg;
-      default: return SPACING.md;
+      case "sm":
+        return SPACING.sm;
+      case "md":
+        return SPACING.md;
+      case "lg":
+        return SPACING.lg;
+      default:
+        return SPACING.md;
     }
   })();
 
@@ -76,7 +90,13 @@ export const Button = ({
       ]}
     >
       {icon && icon}
-      <Text style={{ color: textColor, fontSize: FONT_SIZES.body, fontWeight: "700" }}>
+      <Text
+        style={{
+          color: textColor,
+          fontSize: FONT_SIZES.body,
+          fontWeight: "700",
+        }}
+      >
         {title}
       </Text>
     </TouchableOpacity>

@@ -71,7 +71,12 @@ export default function Signup() {
             secureTextEntry
           />
 
-          <Button title="Sign Up" onPress={handleSignup} variant="primary" size="md" />
+          <Button
+            title="Sign Up"
+            onPress={handleSignup}
+            variant="primary"
+            size="md"
+          />
 
           <Pressable onPress={() => router.push("/login")}>
             <Text style={styles.registerText}>

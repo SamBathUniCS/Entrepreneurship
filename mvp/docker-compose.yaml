@@ -1,5 +1,4 @@
 services:
-
   # ── PostgreSQL ──────────────────────────────────────────────────────────────
   postgres:
     image: docker.io/library/postgres:18-alpine
@@ -29,8 +28,8 @@ services:
       MINIO_ROOT_PASSWORD: minioadmin
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"   # S3 API
-      - "9001:9001"   # Web Console → http://localhost:9001
+      - "9000:9000" # S3 API
+      - "9001:9001" # Web Console → http://localhost:9001
     volumes:
       - miniodata:/data
     networks:
@@ -54,7 +53,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 60s   # DeepFace downloads model weights on first boot (~300 MB)
+      start_period: 60s # DeepFace downloads model weights on first boot (~300 MB)
 
   # ── PhotoMe Backend ──────────────────────────────────────────────────────────
   backend:
