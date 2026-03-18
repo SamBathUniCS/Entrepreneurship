@@ -97,7 +97,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const data = await res.json();
     if (!res.ok) {
       const msg = Array.isArray(data.detail)
-        ? data.detail.map((e: any) => e.msg.split(": ").slice(1).join(": ") || e.msg).join("\n")
+        ? data.detail
+            .map((e: any) => e.msg.split(": ").slice(1).join(": ") || e.msg)
+            .join("\n")
         : data.detail || "Login failed";
       throw new Error(msg);
     }
@@ -115,7 +117,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const data = await res.json();
     if (!res.ok) {
       const msg = Array.isArray(data.detail)
-        ? data.detail.map((e: any) => e.msg.split(": ").slice(1).join(": ") || e.msg).join("\n")
+        ? data.detail
+            .map((e: any) => e.msg.split(": ").slice(1).join(": ") || e.msg)
+            .join("\n")
         : data.detail || "Signup failed";
       throw new Error(msg);
     }
@@ -130,7 +134,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider
-      value={{ token, user, loggedIn: !!token, login, signup, logout, refreshUser }}
+      value={{
+        token,
+        user,
+        loggedIn: !!token,
+        login,
+        signup,
+        logout,
+        refreshUser,
+      }}
     >
       {children}
     </AuthContext.Provider>

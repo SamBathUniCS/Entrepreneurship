@@ -23,7 +23,7 @@ export default function EventPhotos() {
       { id: "7", uri: "https://picsum.photos/seed/xmas7/600/800" },
       { id: "8", uri: "https://picsum.photos/seed/xmas8/600/800" },
     ],
-    []
+    [],
   );
 
   const left = photos.filter((_, i) => i % 2 === 0);
@@ -35,7 +35,10 @@ export default function EventPhotos() {
         <Text style={styles.topBarTitle}>Christmas Party</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={styles.sectionTitle}>Your Photos</Text>
 
         <View style={styles.columns}>

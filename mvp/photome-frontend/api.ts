@@ -15,7 +15,7 @@ export async function apiFetch<T = any>(
   path: string,
   token: string | null,
   body?: object | FormData,
-  isForm?: boolean
+  isForm?: boolean,
 ): Promise<ApiResult<T>> {
   const headers: Record<string, string> = {};
   if (token) headers["Authorization"] = `Bearer ${token}`;

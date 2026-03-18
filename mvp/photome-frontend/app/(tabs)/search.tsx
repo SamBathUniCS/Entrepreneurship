@@ -1,7 +1,15 @@
 import React, { useContext, useState, useCallback } from "react";
 import {
-  View, Text, TextInput, FlatList, Image,
-  Pressable, StyleSheet, ActivityIndicator, TouchableOpacity, Alert,
+  View,
+  Text,
+  TextInput,
+  FlatList,
+  Image,
+  Pressable,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -35,7 +43,9 @@ export default function Search() {
     if (!token) return;
     setLoading(true);
     setSearched(true);
-    const path = q.trim() ? `/events/?q=${encodeURIComponent(q.trim())}` : "/events/";
+    const path = q.trim()
+      ? `/events/?q=${encodeURIComponent(q.trim())}`
+      : "/events/";
     const r = await apiFetch("GET", path, token);
     setLoading(false);
     if (r.ok) setResults(r.data ?? []);
@@ -47,7 +57,10 @@ export default function Search() {
     const r = await apiFetch("POST", `/events/${event.id}/join`, token);
     setJoiningId(null);
     if (r.ok) {
-      Alert.alert("Joined!", `You've joined "${event.title}". Upload 5 photos to unlock the gallery.`);
+      Alert.alert(
+        "Joined!",
+        `You've joined "${event.title}". Upload 5 photos to unlock the gallery.`,
+      );
       doSearch();
     } else {
       Alert.alert("Error", r.data?.detail ?? "Could not join event");
@@ -59,7 +72,11 @@ export default function Search() {
       {/* Search bar */}
       <View style={styles.searchRow}>
         <View style={styles.searchBox}>
-          <Ionicons name="search-outline" size={FONT_SIZES.icon} color={COLORS.placeholder} />
+          <Ionicons
+            name="search-outline"
+            size={FONT_SIZES.icon}
+            color={COLORS.placeholder}
+          />
           <TextInput
             value={q}
             onChangeText={setQ}
@@ -70,8 +87,18 @@ export default function Search() {
             style={styles.searchInput}
           />
           {q.length > 0 && (
-            <Pressable onPress={() => { setQ(""); setResults([]); setSearched(false); }}>
-              <Ionicons name="close-circle" size={FONT_SIZES.icon} color={COLORS.placeholder} />
+            <Pressable
+              onPress={() => {
+                setQ("");
+                setResults([]);
+                setSearched(false);
+              }}
+            >
+              <Ionicons
+                name="close-circle"
+                size={FONT_SIZES.icon}
+                color={COLORS.placeholder}
+              />
             </Pressable>
           )}
         </View>
@@ -91,11 +118,15 @@ export default function Search() {
           searched && !loading ? (
             <View style={styles.empty}>
               <Text style={styles.emptyIcon}>🔍</Text>
-              <Text style={styles.emptyTxt}>No events found. Try a different search.</Text>
+              <Text style={styles.emptyTxt}>
+                No events found. Try a different search.
+              </Text>
             </View>
           ) : !searched ? (
             <View style={styles.empty}>
-              <Text style={styles.emptyTxt}>Search for events by name or tap Search to browse all.</Text>
+              <Text style={styles.emptyTxt}>
+                Search for events by name or tap Search to browse all.
+              </Text>
             </View>
           ) : null
         }
@@ -105,23 +136,35 @@ export default function Search() {
             onPress={() => router.push(`/events/${item.id}`)}
           >
             <Image
-              source={{ uri: `https://picsum.photos/seed/${item.id.slice(0, 8)}/120/120` }}
+              source={{
+                uri: `https://picsum.photos/seed/${item.id.slice(0, 8)}/120/120`,
+              }}
               style={styles.cardImg}
             />
             <View style={styles.cardBody}>
               <View style={styles.cardTitleRow}>
-                <Text style={styles.cardTitle} numberOfLines={1}>{item.title}</Text>
+                <Text style={styles.cardTitle} numberOfLines={1}>
+                  {item.title}
+                </Text>
                 {item.visibility === "private" && (
                   <View style={styles.privatePill}>
-                    <Ionicons name="lock-closed" size={FONT_SIZES.label} color={COLORS.textSecondary} />
+                    <Ionicons
+                      name="lock-closed"
+                      size={FONT_SIZES.label}
+                      color={COLORS.textSecondary}
+                    />
                     <Text style={styles.privateTxt}>Private</Text>
                   </View>
                 )}
               </View>
               {item.description && (
-                <Text style={styles.cardDesc} numberOfLines={2}>{item.description}</Text>
+                <Text style={styles.cardDesc} numberOfLines={2}>
+                  {item.description}
+                </Text>
               )}
-              <Text style={styles.cardMeta}>👥 {item.member_count} · 📷 {item.photo_count}</Text>
+              <Text style={styles.cardMeta}>
+                👥 {item.member_count} · 📷 {item.photo_count}
+              </Text>
             </View>
             <View style={styles.cardAction}>
               {item.is_member ? (
@@ -135,9 +178,11 @@ export default function Search() {
                   disabled={joiningId === item.id}
                   activeOpacity={0.8}
                 >
-                  {joiningId === item.id
-                    ? <ActivityIndicator size="small" color={COLORS.surface} />
-                    : <Text style={styles.joinBtnTxt}>Join</Text>}
+                  {joiningId === item.id ? (
+                    <ActivityIndicator size="small" color={COLORS.surface} />
+                  ) : (
+                    <Text style={styles.joinBtnTxt}>Join</Text>
+                  )}
                 </TouchableOpacity>
               )}
             </View>
@@ -152,50 +197,104 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: COLORS.background },
 
   searchRow: {
-    flexDirection: "row", gap: SPACING.sm, padding: SPACING.md,
-    backgroundColor: COLORS.surface, borderBottomWidth: 1, borderBottomColor: COLORS.border,
+    flexDirection: "row",
+    gap: SPACING.sm,
+    padding: SPACING.md,
+    backgroundColor: COLORS.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   searchBox: {
-    flex: 1, flexDirection: "row", alignItems: "center",
-    borderWidth: 1, borderColor: COLORS.border, borderRadius: 12,
-    paddingHorizontal: SPACING.md, height: 44, backgroundColor: COLORS.inputBg, gap: SPACING.xs,
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingHorizontal: SPACING.md,
+    height: 44,
+    backgroundColor: COLORS.inputBg,
+    gap: SPACING.xs,
   },
-  searchInput: { flex: 1, fontSize: FONT_SIZES.body, color: COLORS.textPrimary },
+  searchInput: {
+    flex: 1,
+    fontSize: FONT_SIZES.body,
+    color: COLORS.textPrimary,
+  },
 
   list: { padding: SPACING.md, gap: SPACING.sm },
   empty: { alignItems: "center", paddingTop: 48, gap: SPACING.sm },
   emptyIcon: { fontSize: FONT_SIZES.heroTitle },
-  emptyTxt: { fontSize: FONT_SIZES.body, color: COLORS.placeholder, textAlign: "center" },
+  emptyTxt: {
+    fontSize: FONT_SIZES.body,
+    color: COLORS.placeholder,
+    textAlign: "center",
+  },
 
   card: {
-    backgroundColor: COLORS.surface, borderRadius: 14,
-    flexDirection: "row", gap: SPACING.sm, padding: SPACING.sm,
-    borderWidth: 1, borderColor: COLORS.border, alignItems: "center",
+    backgroundColor: COLORS.surface,
+    borderRadius: 14,
+    flexDirection: "row",
+    gap: SPACING.sm,
+    padding: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    alignItems: "center",
   },
   cardImg: { width: 60, height: 60, borderRadius: 10 },
   cardBody: { flex: 1 },
   cardTitleRow: { flexDirection: "row", alignItems: "center", gap: SPACING.xs },
-  cardTitle: { fontSize: FONT_SIZES.cardTitle, fontWeight: "700", color: COLORS.textPrimary, flex: 1 },
-  cardDesc: { fontSize: FONT_SIZES.cardMeta, color: COLORS.textSecondary, marginTop: SPACING.xs },
-  cardMeta: { fontSize: FONT_SIZES.label, color: COLORS.placeholder, marginTop: SPACING.xs },
+  cardTitle: {
+    fontSize: FONT_SIZES.cardTitle,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    flex: 1,
+  },
+  cardDesc: {
+    fontSize: FONT_SIZES.cardMeta,
+    color: COLORS.textSecondary,
+    marginTop: SPACING.xs,
+  },
+  cardMeta: {
+    fontSize: FONT_SIZES.label,
+    color: COLORS.placeholder,
+    marginTop: SPACING.xs,
+  },
   cardAction: { alignItems: "flex-end" },
 
   privatePill: {
-    flexDirection: "row", alignItems: "center", gap: SPACING.xs,
-    backgroundColor: COLORS.inputBg, borderRadius: 6,
-    paddingHorizontal: SPACING.xs, paddingVertical: SPACING.xs / 2,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.xs,
+    backgroundColor: COLORS.inputBg,
+    borderRadius: 6,
+    paddingHorizontal: SPACING.xs,
+    paddingVertical: SPACING.xs / 2,
   },
   privateTxt: { fontSize: FONT_SIZES.label, color: COLORS.textSecondary },
 
   joinBtn: {
-    backgroundColor: COLORS.primary, borderRadius: 8,
-    paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs * 2,
+    backgroundColor: COLORS.primary,
+    borderRadius: 8,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs * 2,
   },
-  joinBtnTxt: { color: COLORS.surface, fontWeight: "700", fontSize: FONT_SIZES.body },
+  joinBtnTxt: {
+    color: COLORS.surface,
+    fontWeight: "700",
+    fontSize: FONT_SIZES.body,
+  },
   joinedPill: {
-    backgroundColor: COLORS.successBg, borderRadius: 8,
-    paddingHorizontal: SPACING.sm, paddingVertical: SPACING.xs * 2,
-    borderWidth: 1, borderColor: COLORS.successBorder,
+    backgroundColor: COLORS.successBg,
+    borderRadius: 8,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs * 2,
+    borderWidth: 1,
+    borderColor: COLORS.successBorder,
   },
-  joinedTxt: { color: COLORS.successText, fontWeight: "700", fontSize: FONT_SIZES.label },
+  joinedTxt: {
+    color: COLORS.successText,
+    fontWeight: "700",
+    fontSize: FONT_SIZES.label,
+  },
 });
