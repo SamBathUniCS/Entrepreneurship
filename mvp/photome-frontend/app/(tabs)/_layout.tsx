@@ -10,6 +10,7 @@ export default function TabLayout() {
         screenOptions={{
           headerStyle: { backgroundColor: "#1677ff" },
           headerTintColor: "#fff",
+          headerTitleStyle: { fontWeight: "700" },
           tabBarActiveTintColor: "#1677ff",
         }}
       >
@@ -23,25 +24,27 @@ export default function TabLayout() {
             ),
           }}
         />
+
         <Tabs.Screen
           name="search"
           options={{
             title: "Search",
-            headerTitle: "Event Search",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="search" size={size} color={color} />
             ),
           }}
         />
+
         <Tabs.Screen
-          name="photos"
+          name="events"
           options={{
-            title: "Photos",
+            title: "Events",
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="images-outline" size={size} color={color} />
             ),
           }}
         />
+
         <Tabs.Screen
           name="scan"
           options={{

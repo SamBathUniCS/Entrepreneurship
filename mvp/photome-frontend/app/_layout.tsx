@@ -6,28 +6,38 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <Stack>
-        {/* Tabs: no header */}
-        <Stack.Screen
-          name="(tabs)"
-          options={{ headerShown: false }}
-        />
-
-        {/* Friends page */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)/login" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)/signup" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)/logout" options={{ headerShown: false }} />
         <Stack.Screen
           name="friends"
-          options={{ title: "Friends List" }}
+          options={{
+            title: "Friends",
+            headerStyle: { backgroundColor: "#1677ff" },
+            headerTintColor: "#fff",
+          }}
         />
-
-        {/* Subscription Plans */}
         <Stack.Screen
           name="subPlans"
           options={{
-            title: "Subscription plans",
+            title: "Subscription Plans",
+            headerStyle: { backgroundColor: "#1677ff" },
+            headerTintColor: "#fff",
             headerBackTitle: "Account",
           }}
         />
-        <Stack.Screen name="event/[eventId]" options={{ title: "Event" }} />
-        <Stack.Screen name="share/[eventId]" options={{ title: "Share Event" }} />
+        {/* face-setup manages its own header */}
+        <Stack.Screen name="faceSetup" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="events/[id]"
+          options={{
+            title: "Event",
+            headerStyle: { backgroundColor: "#1677ff" },
+            headerTintColor: "#fff",
+          }}
+        />
+        <Stack.Screen name="qrScan" options={{ headerShown: false }} />
       </Stack>
     </AuthProvider>
   );

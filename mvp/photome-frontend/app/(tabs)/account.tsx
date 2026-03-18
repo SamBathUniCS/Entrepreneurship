@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,362 +8,450 @@ import {
   Image,
   Switch,
   SafeAreaView,
-  Pressable,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { getRankForUser } from "../../components/leaderboardData";
+
+import { Button } from "../components/button";
+import { AuthContext } from "../context/_AuthContext";
+import { apiFetch } from "../../api";
+import AuthImage from "../../AuthImage";
+import { COLORS, FONT_SIZES, SPACING } from "../theme";
+
+interface Friend {
+  id: string;
+  username: string;
+  friendship_id: string;
+}
+interface Photo {
+  id: string;
+  url: string;
+  thumbnail_url: string | null;
+}
 
 export default function Account() {
-  const [faceNotif, setFaceNotif] = useState(false);
-  const [autoTag, setAutoTag] = useState(false);
+  const { token, user, refreshUser, logout } = useContext(AuthContext);
 
-  const myRank = getRankForUser("me"); // "me" matches the id in PEOPLE
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [uploads, setUploads] = useState<Photo[]>([]);
+  const [loadingFriends, setLF] = useState(true);
+  const [loadingPhotos, setLP] = useState(true);
 
-  // Replace these with real data later
-  const friends = useMemo(
-    () => [
-      { id: "f1", uri: "https://i.pravatar.cc/80?img=12" },
-      { id: "f2", uri: "https://i.pravatar.cc/80?img=32" },
-      { id: "f3", uri: "https://i.pravatar.cc/80?img=45" },
-    ],
-    []
+  const [faceEnabled, setFaceEnabled] = useState(
+    user?.face_recognition_enabled ?? true,
   );
+  const [autoTag, setAutoTag] = useState(user?.allow_auto_tagging ?? true);
+  const [savingPrivacy, setSavingPrivacy] = useState(false);
 
-  const uploads = useMemo(
-    () => [
-      { id: "p1", uri: "https://picsum.photos/seed/photome1/300/300" },
-      { id: "p2", uri: "https://picsum.photos/seed/photome2/300/300" },
-      { id: "p3", uri: "https://picsum.photos/seed/photome3/300/300" },
-      { id: "p4", uri: "https://picsum.photos/seed/photome4/300/300" },
-      { id: "p5", uri: "https://picsum.photos/seed/photome5/300/300" },
-      { id: "p6", uri: "https://picsum.photos/seed/photome6/300/300" },
-    ],
-    []
-  );
+  useEffect(() => {
+    if (!token) return;
+    loadFriends();
+    loadMyPhotos();
+  }, [token]);
 
-  const unreadCount = 5;
+  useEffect(() => {
+    if (user) {
+      setFaceEnabled(user.face_recognition_enabled ?? true);
+      setAutoTag(user.allow_auto_tagging ?? true);
+    }
+  }, [user]);
+
+  async function loadFriends() {
+    setLF(true);
+    const r = await apiFetch("GET", "/friends/", token);
+    if (r.ok) setFriends(r.data ?? []);
+    setLF(false);
+  }
+
+  async function loadMyPhotos() {
+    setLP(true);
+    const evR = await apiFetch("GET", "/events/?my_events=true", token);
+    if (evR.ok && evR.data?.length > 0) {
+      const eventId = evR.data[0].id;
+      const phR = await apiFetch("GET", `/events/${eventId}/photos/`, token);
+      if (phR.ok)
+        setUploads(
+          (phR.data ?? []).filter((p: Photo) => !("locked" in p)).slice(0, 7),
+        );
+    }
+    setLP(false);
+  }
+
+  async function savePrivacyToggle(
+    field: "face_recognition_enabled" | "allow_auto_tagging",
+    value: boolean,
+  ) {
+    if (!token) return;
+    setSavingPrivacy(true);
+    const r = await apiFetch("PATCH", "/users/me", token, { [field]: value });
+    if (r.ok) await refreshUser();
+    else Alert.alert("Error", "Could not save setting");
+    setSavingPrivacy(false);
+  }
+
+  async function handleLogout() {
+    await logout();
+    router.replace("/login");
+  }
+
+  const tierColor =
+    user?.tier === "pro"
+      ? COLORS.primary
+      : user?.tier === "business"
+        ? COLORS.accent
+        : COLORS.textSecondary;
+  const tierLabel = user?.tier
+    ? user.tier.charAt(0).toUpperCase() + user.tier.slice(1)
+    : "Basic";
 
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.container}>
-        <ScrollView
-          contentContainerStyle={styles.scroll}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Profile + badge */}
-          <View style={styles.profileWrap}>
-            <View style={styles.avatarWrap}>
-              <View style={styles.avatarRing}>
-                <Ionicons name="person-outline" size={48} color="#5E35B1" />
-              </View>
-
-              {unreadCount > 0 && (
-                <Pressable
-                  onPress={() =>
-                    router.push({
-                      pathname: "/friends",
-                      params: { section: "leaderboard" },
-                    })
-                  }
-                  hitSlop={8}
-                  style={styles.badge}
-                >
-                  <Ionicons name="trophy" size={13} color="#FFFFFF" />
-                  {myRank !== null && (
-                    <Text style={styles.badgeRank}>#{myRank}</Text>
-                  )}
-                </Pressable>
-              )}
-            </View>
-
-            <TouchableOpacity activeOpacity={0.85} style={styles.primaryBtn}>
-              <Text style={styles.primaryBtnText}>Create an Event</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Plan row (NEW) */}
-          <PlanRow planLabel="Free" onPress={() => router.push("/subPlans")} />
-          
-          {/* Friends List */}
-          <SectionHeader
-            title="Friends List"
-            onPress={() => router.push("/friends")}
-          />
-          <View style={[styles.row, { marginBottom: 24 }]}>
-            {friends.map((f) => (
-              <Image
-                key={f.id}
-                source={{ uri: f.uri }}
-                style={styles.friendAvatar}
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Avatar + username */}
+        <View style={styles.profileWrap}>
+          <View style={styles.avatarRing}>
+            {user?.selfie_url ? (
+              <AuthImage
+                uri={user.selfie_url}
+                token={token ?? ""}
+                style={styles.avatarImg}
+                resizeMode="cover"
               />
-            ))}
-            <View style={styles.morePill}>
-              <Text style={styles.morePillText}>+1</Text>
+            ) : (
+              <Ionicons
+                name="person-outline"
+                size={48}
+                color={COLORS.primary}
+              />
+            )}
+          </View>
+          {user && (
+            <>
+              <Text style={styles.username}>@{user.username}</Text>
+              {user.full_name ? (
+                <Text style={styles.fullName}>{user.full_name}</Text>
+              ) : null}
+            </>
+          )}
+
+          <Button
+            title="Create an Event"
+            onPress={() => router.push("/(tabs)/events")}
+            variant="primary"
+            size="md"
+          />
+        </View>
+
+        {/* Stats */}
+        {user && (
+          <View style={styles.statsRow}>
+            <View style={styles.statBox}>
+              <Text style={styles.statNum}>{user.total_uploads}</Text>
+              <Text style={styles.statLabel}>Uploads</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statBox}>
+              <Text style={styles.statNum}>{user.upload_streak}</Text>
+              <Text style={styles.statLabel}>Streak 🔥</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statBox}>
+              <Text style={[styles.statNum, { color: tierColor }]}>
+                {tierLabel}
+              </Text>
+              <Text style={styles.statLabel}>Plan</Text>
             </View>
           </View>
+        )}
 
-          {/* Uploaded Pictures */}
-          <SectionHeader title="Uploaded Pictures" />
-          <View style={[styles.grid, { marginBottom: 12 }]}>
-            {uploads.slice(0, 6).map((p) => (
-              <TouchableOpacity
-                key={p.id}
-                activeOpacity={0.85}
-                style={styles.tile}
-              >
-                <Image source={{ uri: p.uri }} style={styles.tileImg} />
-              </TouchableOpacity>
-            ))}
-
-            {/* Add tile */}
-            <TouchableOpacity
-              activeOpacity={0.85}
-              style={[styles.tile, styles.addTile]}
-            >
-              <Text style={styles.addPlus}>+</Text>
-            </TouchableOpacity>
-          </View>
-
-          
-
-          {/* Privacy Controls */}
-          <Text style={styles.sectionTitlePlain}>Privacy Controls</Text>
-
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>
-              Enable Facial Recognition Notifications
-            </Text>
-            <Switch value={faceNotif} onValueChange={setFaceNotif} />
-          </View>
-
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>
-              Allow Friends to Tag You{"\n"}Automatically
-            </Text>
-            <Switch value={autoTag} onValueChange={setAutoTag} />
-          </View>
-
-          <View style={{ height: 28 }} />
-        </ScrollView>
+        {/* Plan row */}
         <TouchableOpacity
-          activeOpacity={0.9}
-          style={styles.fab}
-          onPress={() => router.push("/(tabs)/scan")}
+          style={styles.planRow}
+          onPress={() => router.push("/subPlans")}
+          activeOpacity={0.85}
         >
-          <Ionicons name="qr-code" size={24} color="#fff" />
+          <Text style={styles.planTitle}>Subscription Plan</Text>
+          <View style={[styles.planPill, { borderColor: tierColor }]}>
+            <Text style={[styles.planPillTxt, { color: tierColor }]}>
+              {tierLabel}
+            </Text>
+          </View>
+          <Ionicons
+            name="chevron-forward"
+            size={18}
+            color={COLORS.textSecondary}
+          />
         </TouchableOpacity>
-      </View>
+
+        {/* Face setup row */}
+        <TouchableOpacity
+          style={styles.planRow}
+          onPress={() => router.push("/face-setup")}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="scan-outline" size={20} color={COLORS.primary} />
+          <View style={{ flex: 1, marginLeft: SPACING.sm }}>
+            <Text style={styles.planTitle}>Face Setup</Text>
+            <Text style={styles.planSub}>
+              {user?.has_face_embedding
+                ? "✓ Face registered"
+                : "Not yet registered"}
+            </Text>
+          </View>
+          <Ionicons
+            name="chevron-forward"
+            size={18}
+            color={COLORS.textSecondary}
+          />
+        </TouchableOpacity>
+
+        {/* Friends */}
+        <Text
+          style={styles.sectionHeader}
+          onPress={() => router.push("/friends")}
+        >
+          Friends ›
+        </Text>
+        {loadingFriends ? (
+          <ActivityIndicator
+            color={COLORS.primary}
+            style={{ marginVertical: 10 }}
+          />
+        ) : (
+          <View style={styles.friendsRow}>
+            {friends.slice(0, 5).map((f) => (
+              <View key={f.id} style={styles.friendBubble}>
+                <Ionicons
+                  name="person-outline"
+                  size={18}
+                  color={COLORS.primary}
+                />
+              </View>
+            ))}
+            {friends.length === 0 && (
+              <Text style={styles.emptyTxt}>
+                No friends yet. Search to add some!
+              </Text>
+            )}
+            {friends.length > 5 && (
+              <View
+                style={[
+                  styles.friendBubble,
+                  { backgroundColor: COLORS.border },
+                ]}
+              >
+                <Text style={{ fontWeight: "800", fontSize: FONT_SIZES.label }}>
+                  +{friends.length - 5}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
+
+        {/* Recent uploads */}
+        <Text style={styles.sectionHeader}>Uploaded Pictures</Text>
+        {loadingPhotos ? (
+          <ActivityIndicator
+            color={COLORS.primary}
+            style={{ marginVertical: 10 }}
+          />
+        ) : (
+          <View style={styles.grid}>
+            {uploads.slice(0, 6).map((p) => (
+              <View key={p.id} style={styles.tile}>
+                <AuthImage
+                  uri={p.thumbnail_url ?? p.url}
+                  token={token ?? ""}
+                  style={styles.tileImg}
+                  resizeMode="cover"
+                />
+              </View>
+            ))}
+            {uploads.length === 0 && (
+              <Text style={styles.emptyTxt}>
+                Upload photos to events to see them here.
+              </Text>
+            )}
+          </View>
+        )}
+
+        {/* Privacy */}
+        <Text style={styles.sectionHeader}>Privacy Controls</Text>
+
+        <View style={styles.toggleRow}>
+          <Text style={styles.toggleLabel}>Enable Facial Recognition</Text>
+          <Switch
+            value={faceEnabled}
+            onValueChange={async (v) => {
+              setFaceEnabled(v);
+              await savePrivacyToggle("face_recognition_enabled", v);
+            }}
+            disabled={savingPrivacy}
+          />
+        </View>
+
+        <View style={styles.toggleRow}>
+          <Text style={styles.toggleLabel}>Allow Friends to Auto-Tag You</Text>
+          <Switch
+            value={autoTag}
+            onValueChange={async (v) => {
+              setAutoTag(v);
+              await savePrivacyToggle("allow_auto_tagging", v);
+            }}
+            disabled={savingPrivacy}
+          />
+        </View>
+
+        <Button
+          title="Log Out"
+          icon={
+            <Ionicons
+              name="log-out-outline"
+              size={FONT_SIZES.icon}
+              color="#fff"
+            />
+          }
+          variant="danger"
+          onPress={handleLogout}
+        />
+
+        <View style={{ height: 40 }} />
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
-function SectionHeader({
-  title,
-  onPress,
-}: {
-  title: string;
-  onPress?: () => void;
-}) {
-  return (
-    <Text onPress={onPress} style={styles.sectionHeaderText}>
-      {title} ›
-    </Text>
-  );
-}
-
-/** NEW */
-function PlanRow({
-  planLabel,
-  onPress,
-}: {
-  planLabel: string;
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity activeOpacity={0.85} onPress={onPress} style={styles.planRow}>
-      <Text style={styles.planTitle}>Plan</Text>
-
-      <View style={styles.planPill}>
-        <Text style={styles.planPillText}>{planLabel}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-}
-
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#FFFFFF" },
-  container: { flex: 1, backgroundColor: "#FFFFFF" },
-
-  scroll: { padding: 16, paddingBottom: 120 },
+  safe: { flex: 1, backgroundColor: COLORS.surface },
+  scroll: { padding: SPACING.md, paddingBottom: 60 },
 
   profileWrap: {
     alignItems: "center",
-    paddingTop: 14,
-    paddingBottom: 6,
+    paddingTop: SPACING.sm,
+    paddingBottom: SPACING.sm,
+    gap: SPACING.xs,
   },
-
-  avatarWrap: { position: "relative", marginBottom: 12 },
   avatarRing: {
     width: 92,
     height: 92,
     borderRadius: 46,
-    backgroundColor: "#EDE7F6",
+    backgroundColor: COLORS.bgAlt,
     alignItems: "center",
     justifyContent: "center",
+    overflow: "hidden",
   },
-  avatar: { width: 70, height: 70, borderRadius: 35 },
+  avatarImg: { width: 92, height: 92 },
+  username: {
+    fontSize: FONT_SIZES.subtitle,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    marginTop: 4,
+  },
+  fullName: { fontSize: FONT_SIZES.body, color: COLORS.textSecondary },
 
-  badge: {
-    position: "absolute",
-    right: -2,
-    top: -4,
-    paddingHorizontal: 6,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: "#FF9800",
-
+  statsRow: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-
-    borderWidth: 2,
-    borderColor: "#FFFFFF",
-  },
-
-  primaryBtn: {
-    backgroundColor: "#5E35B1",
-    paddingHorizontal: 26,
-    paddingVertical: 10,
-    borderRadius: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.12,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-  },
-  primaryBtnText: { color: "#FFFFFF", fontWeight: "800" },
-
-  sectionHeaderText: { fontSize: 16, fontWeight: "800", color: "#111827" },
-
-  row: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10,
-  },
-  friendAvatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: "#FFFFFF",
-  },
-  morePill: {
-    height: 28,
-    paddingHorizontal: 10,
+    backgroundColor: COLORS.surface,
     borderRadius: 14,
-    backgroundColor: "#E5E7EB",
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginVertical: SPACING.md,
+    overflow: "hidden",
+  },
+  statBox: { flex: 1, alignItems: "center", paddingVertical: SPACING.sm },
+  statNum: {
+    fontSize: FONT_SIZES.h2,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+  },
+  statLabel: {
+    fontSize: FONT_SIZES.label,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  statDivider: { width: 1, backgroundColor: COLORS.border },
+
+  planRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: 14,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: SPACING.sm,
+  },
+  planTitle: {
+    flex: 1,
+    fontSize: FONT_SIZES.body,
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+  },
+  planSub: { fontSize: FONT_SIZES.label, color: COLORS.textSecondary },
+  planPill: {
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.xs,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginRight: SPACING.xs,
+  },
+  planPillTxt: { fontSize: FONT_SIZES.label, fontWeight: "800" },
+
+  sectionHeader: {
+    fontSize: FONT_SIZES.subtitle,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    marginTop: SPACING.md,
+    marginBottom: SPACING.sm,
+  },
+
+  friendsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.xs,
+    flexWrap: "wrap",
+    marginBottom: 4,
+  },
+  friendBubble: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: COLORS.bgAlt,
     alignItems: "center",
     justifyContent: "center",
   },
-  morePillText: { fontWeight: "800", color: "#111827", fontSize: 12 },
 
-  grid: {
-    marginTop: 10,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: SPACING.xs },
   tile: {
     width: "22%",
     aspectRatio: 1,
     borderRadius: 10,
     overflow: "hidden",
-    backgroundColor: "#F3F4F6",
+    backgroundColor: COLORS.bgAlt,
   },
   tileImg: { width: "100%", height: "100%" },
 
-  addTile: {
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1.5,
-    borderColor: "#D1D5DB",
-    backgroundColor: "#FFFFFF",
-  },
-  addPlus: { fontSize: 28, fontWeight: "700", color: "#111827", opacity: 0.7 },
-
-  /** NEW */
-  planRow: {
-    marginTop: 6,
-    marginBottom: 18,
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-    borderRadius: 14,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-
-    shadowColor: "#000",
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
-  },
-  planTitle: { fontSize: 16, fontWeight: "800", color: "#111827" },
-  planPill: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
-    backgroundColor: "#F3F4F6",
-    borderWidth: 1,
-    borderColor: "#E5E7EB",
-  },
-  planPillText: { fontSize: 13, fontWeight: "800", color: "#111827" },
-
-  sectionTitlePlain: {
-    marginTop: 18,
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#111827",
-  },
-
-  badgeRank: {
-    marginLeft: 4,
-    color: "#FFFFFF",
-    fontWeight: "900",
-    fontSize: 12,
-  },
+  emptyTxt: { fontSize: FONT_SIZES.label, color: COLORS.textSecondary },
 
   toggleRow: {
-    marginTop: 12,
-    paddingVertical: 10,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    paddingVertical: SPACING.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#E5E7EB",
+    borderBottomColor: COLORS.border,
   },
-  toggleLabel: { flex: 1, paddingRight: 12, color: "#111827", fontWeight: "600" },
-
-  fab: {
-    position: "absolute",
-    bottom: 22,
-    alignSelf: "center",
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#5E35B1",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
+  toggleLabel: {
+    flex: 1,
+    paddingRight: SPACING.sm,
+    fontSize: FONT_SIZES.body,
+    color: COLORS.textPrimary,
+    fontWeight: "600",
   },
-  fabIcon: { color: "#FFFFFF", fontSize: 22, fontWeight: "900" },
 });

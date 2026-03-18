@@ -3,6 +3,7 @@ import logging
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
@@ -16,8 +17,29 @@ logger = logging.getLogger(__name__)
 
 
 @router.get("/me", response_model=UserPublic)
-def get_me(current_user: User = Depends(get_current_user)):
-    return current_user
+def get_me(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    db.refresh(current_user)
+    return UserPublic.from_user(current_user)
+
+
+@router.get("/me/selfie/file")
+def get_selfie_file(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Stream the current user's registered selfie image directly (no presigned URL needed)."""
+    emb = db.query(FaceEmbedding).filter(FaceEmbedding.user_id == current_user.id).first()
+    if not emb or not emb.selfie_s3_key:
+        raise HTTPException(status_code=404, detail="No selfie registered")
+    try:
+        file_bytes = storage.download_file(emb.selfie_s3_key)
+    except Exception:
+        raise HTTPException(status_code=404, detail="Selfie file not found in storage")
+    return StreamingResponse(
+        io.BytesIO(file_bytes),
+        media_type="image/jpeg",
+        headers={"Cache-Control": "private, max-age=3600"},
+    )
 
 
 @router.patch("/me", response_model=UserPublic)
@@ -30,7 +52,7 @@ def update_me(
         setattr(current_user, field, value)
     db.commit()
     db.refresh(current_user)
-    return current_user
+    return UserPublic.from_user(current_user)
 
 
 @router.post("/me/selfie", status_code=200)
@@ -46,7 +68,7 @@ async def upload_selfie(
     if len(image_bytes) > 15 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="Image must be under 15 MB")
 
-    # Always save the selfie to MinIO first — regardless of face detection
+    # Always save the selfie to MinIO first
     selfie_key = storage.build_selfie_key(str(current_user.id))
     storage.upload_file(io.BytesIO(image_bytes), selfie_key, file.content_type or "image/jpeg")
     logger.info(f"Selfie uploaded to MinIO: {selfie_key} ({len(image_bytes)//1024}KB)")
@@ -64,7 +86,6 @@ async def upload_selfie(
         error_detail = str(e)
         logger.error(f"DeepFace call failed entirely: {e}")
 
-    # Save or update the embedding record (even if None — selfie is still stored)
     if embedding is not None:
         existing = db.query(FaceEmbedding).filter(FaceEmbedding.user_id == current_user.id).first()
         if existing:
@@ -88,9 +109,8 @@ async def upload_selfie(
             "selfie_saved": True,
         }
     else:
-        # Don't fail — return a warning so the user knows matching won't work
         return {
-            "message": "Selfie saved, but no face was detected. Face matching will not work until a face is registered. Try a clearer, well-lit front-facing photo.",
+            "message": "Selfie saved, but no face was detected. Try a clearer, well-lit front-facing photo.",
             "face_detected": False,
             "selfie_saved": True,
             "debug": error_detail,
@@ -98,7 +118,7 @@ async def upload_selfie(
 
 
 @router.get("/me/selfie")
-def get_selfie(
+def get_selfie_info(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -108,7 +128,7 @@ def get_selfie(
     return {
         "has_embedding": emb.embedding is not None,
         "model": emb.model_name,
-        "selfie_url": f"/api/v1/photos/selfie/{current_user.id}/file",
+        "selfie_url": "/api/v1/users/me/selfie/file",
     }
 
 
@@ -116,9 +136,9 @@ def get_selfie(
 def get_user(
     user_id: UUID,
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return UserPublic.from_user(user)

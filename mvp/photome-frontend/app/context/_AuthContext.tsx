@@ -1,60 +1,92 @@
-import React, { createContext, useState, useEffect, ReactNode, useContext } from "react";
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  ReactNode,
+} from "react";
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
-import { API_BASE_URL } from "../../config";
 import { router } from "expo-router";
+import { API_BASE_URL } from "../../config";
+import { apiFetch } from "../../api";
 
-// Cross-platform storage wrapper
+// ── Storage (web + native) ────────────────────────────────────────────────────
 const Storage = {
-  getItem: async (key: string) => {
-    if (Platform.OS === "web") {
-      return localStorage.getItem(key);
-    } else {
-      return SecureStore.getItemAsync(key);
-    }
-  },
-  setItem: async (key: string, value: string) => {
-    if (Platform.OS === "web") {
-      localStorage.setItem(key, value);
-    } else {
-      await SecureStore.setItemAsync(key, value);
-    }
-  },
-  removeItem: async (key: string) => {
-    if (Platform.OS === "web") {
-      localStorage.removeItem(key);
-    } else {
-      await SecureStore.deleteItemAsync(key);
-    }
-  },
+  getItem: (key: string) =>
+    Platform.OS === "web"
+      ? Promise.resolve(localStorage.getItem(key))
+      : SecureStore.getItemAsync(key),
+  setItem: (key: string, value: string) =>
+    Platform.OS === "web"
+      ? Promise.resolve(localStorage.setItem(key, value))
+      : SecureStore.setItemAsync(key, value),
+  removeItem: (key: string) =>
+    Platform.OS === "web"
+      ? Promise.resolve(localStorage.removeItem(key))
+      : SecureStore.deleteItemAsync(key),
 };
+
+// ── Types ─────────────────────────────────────────────────────────────────────
+export interface UserProfile {
+  id: string;
+  username: string;
+  full_name: string | null;
+  email?: string;
+  tier: string;
+  upload_streak: number;
+  total_uploads: number;
+  has_face_embedding: boolean;
+  selfie_url: string | null;
+  face_recognition_enabled?: boolean;
+  allow_auto_tagging?: boolean;
+  bio?: string | null;
+}
 
 interface AuthContextType {
   token: string | null;
+  user: UserProfile | null;
   loggedIn: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType>({
   token: null,
+  user: null,
   loggedIn: false,
   login: async () => {},
   signup: async () => {},
   logout: async () => {},
+  refreshUser: async () => {},
 });
 
+// ── Provider ──────────────────────────────────────────────────────────────────
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
 
-  // Load token on mount
+  // Restore session on mount
   useEffect(() => {
     (async () => {
       const savedToken = await Storage.getItem("token");
-      if (savedToken) setToken(savedToken);
+      if (savedToken) {
+        setToken(savedToken);
+        await loadUser(savedToken);
+      }
     })();
   }, []);
+
+  async function loadUser(t: string) {
+    const r = await apiFetch("GET", "/users/me", t);
+    if (r.ok && r.data) setUser(r.data);
+  }
+
+  const refreshUser = async () => {
+    if (token) await loadUser(token);
+  };
 
   const login = async (email: string, password: string) => {
     const res = await fetch(`${API_BASE_URL}/auth/login/json`, {
@@ -62,26 +94,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-
     const data = await res.json();
-
     if (!res.ok) {
-      if (Array.isArray(data.detail)) {
-        const message = data.detail
-          .map((e: any) => {
-            const parts = e.msg.split(": ");
-            return parts.length > 1 ? parts[1] : e.msg;
-          })
-          .join("\n");
-
-        throw new Error(message);
-      }
-
-      throw new Error(data.detail || "Login failed");
+      const msg = Array.isArray(data.detail)
+        ? data.detail
+            .map((e: any) => e.msg.split(": ").slice(1).join(": ") || e.msg)
+            .join("\n")
+        : data.detail || "Login failed";
+      throw new Error(msg);
     }
-
     setToken(data.access_token);
     await Storage.setItem("token", data.access_token);
+    await loadUser(data.access_token);
   };
 
   const signup = async (email: string, username: string, password: string) => {
@@ -90,58 +114,49 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, username, password }),
     });
-
     const data = await res.json();
-
     if (!res.ok) {
-      if (Array.isArray(data.detail)) {
-        const message = data.detail
-          .map((e: any) => {
-            const parts = e.msg.split(": ");
-            return parts.length > 1 ? parts[1] : e.msg;
-          })
-          .join("\n");
-        throw new Error(message);
-      }
-
-      throw new Error(data.detail || "Signup failed");
+      const msg = Array.isArray(data.detail)
+        ? data.detail
+            .map((e: any) => e.msg.split(": ").slice(1).join(": ") || e.msg)
+            .join("\n")
+        : data.detail || "Signup failed";
+      throw new Error(msg);
     }
-
     await login(email, password);
   };
 
   const logout = async () => {
     setToken(null);
+    setUser(null);
     await Storage.removeItem("token");
   };
 
-  const loggedIn = !!token;
-
   return (
-    <AuthContext.Provider value={{ token, loggedIn, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{
+        token,
+        user,
+        loggedIn: !!token,
+        login,
+        signup,
+        logout,
+        refreshUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { token } = useContext(AuthContext);
-  const [mounted, setMounted] = useState(false);
+// ── ProtectedRoute ────────────────────────────────────────────────────────────
+export const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const { token, loggedIn } = useContext(AuthContext);
 
-  // TODO: Remove this
   // useEffect(() => {
-  //   setMounted(true);
-  // }, []);
+  //   if (!token) router.replace("/login");
+  // }, [token]);
   //
-  // useEffect(() => {
-  //   if (mounted && !token) {
-  //     router.replace("/login"); // safe to redirect now
-  //   }
-  // }, [mounted, token]);
-  //
-  // if (!token) {
-  //   return null; // hide protected content until redirect
-  // }
-
+  // if (!loggedIn) return null;
   return <>{children}</>;
 };

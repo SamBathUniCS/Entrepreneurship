@@ -67,6 +67,7 @@ photome/
 cd photome-backend
 docker compose up --build
 ```
+
 **This will create and startup all of the servieces below**
 
 Services started:
@@ -84,63 +85,64 @@ Services started:
 
 ### Auth
 
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/api/v1/auth/register` | Create account |
-| `POST` | `/api/v1/auth/login` | OAuth2 form login → JWT |
+| Method | Path                      | Description                     |
+| ------ | ------------------------- | ------------------------------- |
+| `POST` | `/api/v1/auth/register`   | Create account                  |
+| `POST` | `/api/v1/auth/login`      | OAuth2 form login → JWT         |
 | `POST` | `/api/v1/auth/login/json` | JSON login (easier for testing) |
-| `GET` | `/api/v1/auth/me` | Current user |
+| `GET`  | `/api/v1/auth/me`         | Current user                    |
 
 ### Users
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/api/v1/users/me` | My full profile |
-| `PATCH` | `/api/v1/users/me` | Update profile / privacy settings |
-| `POST` | `/api/v1/users/me/change-password` | Change password |
-| `POST` | `/api/v1/users/me/selfie` | Upload selfie → register face embedding |
-| `GET` | `/api/v1/users/{username}` | Public profile |
-| `GET` | `/api/v1/users/me/friends` | Friend list |
-| `POST` | `/api/v1/users/me/friends/{username}` | Send friend request |
-| `PATCH` | `/api/v1/users/me/friends/{id}/accept` | Accept friend request |
+| Method  | Path                                   | Description                             |
+| ------- | -------------------------------------- | --------------------------------------- |
+| `GET`   | `/api/v1/users/me`                     | My full profile                         |
+| `PATCH` | `/api/v1/users/me`                     | Update profile / privacy settings       |
+| `POST`  | `/api/v1/users/me/change-password`     | Change password                         |
+| `POST`  | `/api/v1/users/me/selfie`              | Upload selfie → register face embedding |
+| `GET`   | `/api/v1/users/{username}`             | Public profile                          |
+| `GET`   | `/api/v1/users/me/friends`             | Friend list                             |
+| `POST`  | `/api/v1/users/me/friends/{username}`  | Send friend request                     |
+| `PATCH` | `/api/v1/users/me/friends/{id}/accept` | Accept friend request                   |
 
 ### Events
 
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/api/v1/events/` | Create event (**Pro/Business only**) |
-| `GET` | `/api/v1/events/` | My events |
-| `GET` | `/api/v1/events/discover?q=...` | Search public events |
-| `GET` | `/api/v1/events/{id}` | Event detail |
-| `POST` | `/api/v1/events/{id}/join` | Join event |
-| `PATCH` | `/api/v1/events/{id}` | Update event (creator only) |
-| `DELETE` | `/api/v1/events/{id}` | Archive event (creator only) |
-| `GET` | `/api/v1/events/{id}/members` | Member leaderboard |
+| Method   | Path                            | Description                          |
+| -------- | ------------------------------- | ------------------------------------ |
+| `POST`   | `/api/v1/events/`               | Create event (**Pro/Business only**) |
+| `GET`    | `/api/v1/events/`               | My events                            |
+| `GET`    | `/api/v1/events/discover?q=...` | Search public events                 |
+| `GET`    | `/api/v1/events/{id}`           | Event detail                         |
+| `POST`   | `/api/v1/events/{id}/join`      | Join event                           |
+| `PATCH`  | `/api/v1/events/{id}`           | Update event (creator only)          |
+| `DELETE` | `/api/v1/events/{id}`           | Archive event (creator only)         |
+| `GET`    | `/api/v1/events/{id}/members`   | Member leaderboard                   |
 
 ### Photos
 
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/api/v1/events/{id}/photos/` | Upload photo (triggers face recognition) |
-| `GET` | `/api/v1/events/{id}/photos/` | Gallery (locked view for Basic without access) |
-| `GET` | `/api/v1/events/{id}/photos/my` | Photos featuring me |
-| `DELETE` | `/api/v1/events/{id}/photos/{photo_id}` | Soft delete |
+| Method   | Path                                    | Description                                    |
+| -------- | --------------------------------------- | ---------------------------------------------- |
+| `POST`   | `/api/v1/events/{id}/photos/`           | Upload photo (triggers face recognition)       |
+| `GET`    | `/api/v1/events/{id}/photos/`           | Gallery (locked view for Basic without access) |
+| `GET`    | `/api/v1/events/{id}/photos/my`         | Photos featuring me                            |
+| `DELETE` | `/api/v1/events/{id}/photos/{photo_id}` | Soft delete                                    |
 
 ### Admin / Testing
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/api/v1/admin/health` | Health check |
-| `GET` | `/api/v1/admin/deepface/health` | DeepFace connectivity |
-| `POST` | `/api/v1/admin/storage/init` | Create MinIO bucket |
+| Method | Path                                   | Description                 |
+| ------ | -------------------------------------- | --------------------------- |
+| `GET`  | `/api/v1/admin/health`                 | Health check                |
+| `GET`  | `/api/v1/admin/deepface/health`        | DeepFace connectivity       |
+| `POST` | `/api/v1/admin/storage/init`           | Create MinIO bucket         |
 | `POST` | `/api/v1/admin/users/me/tier?tier=pro` | Upgrade tier (testing only) |
 
 ---
 
 ## Running Tests Locally
-Once you've started all services you can call the endpoints from the frontend. If you just want to see how it works / what to expect then just open `photome-tester.html` which is a simple fronetend that has all the basic functionality. This will you check if services are running and get a feel for how things should work. 
 
-## Tier Model
+Once you've started all services you can call the endpoints from the frontend. If you just want to see how it works / what to expect then just open `photome-tester.html` which is a simple fronetend that has all the basic functionality. This will you check if services are running and get a feel for how things should work.
+
+<!--## Tier Model
 
 | Feature | Basic (Free) | Pro (£2.99/mo) | Business (£15.99/mo) |
 |---|---|---|---|
@@ -167,4 +169,4 @@ All config lives in `app/core/config.py` (pydantic-settings). Values are read fr
 | `S3_BUCKET` | `photome` | Bucket name |
 | `DEEPFACE_URL` | `http://deepface:5000` | DeepFace service |
 | `DEEPFACE_DISTANCE_THRESHOLD` | `0.4` | Face match sensitivity (lower = stricter) |
-| `UPLOAD_THRESHOLD` | `5` | Photos required to unlock gallery |
+| `UPLOAD_THRESHOLD` | `5` | Photos required to unlock gallery |-->

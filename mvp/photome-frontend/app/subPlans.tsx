@@ -7,22 +7,20 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+import { router } from "expo-router";
+import { COLORS, FONT_SIZES, SPACING } from "./theme";
 
 export default function Plans() {
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.container}>
-
         <Text style={styles.header}>Choose Your Plan</Text>
 
         {/* Basic */}
         <PlanCard
           title="Basic"
           price="Free"
-          features={[
-            "Download Up To 1080p",
-            "Upload And View Photos",
-          ]}
+          features={["Download Up To 1080p", "Upload And View Photos"]}
         />
 
         {/* Pro */}
@@ -41,12 +39,8 @@ export default function Plans() {
         <PlanCard
           title="Business"
           price="£14.99 / Month"
-          features={[
-            "All Pro Features",
-            "Create Events With Anyone",
-          ]}
+          features={["All Pro Features", "Create Events With Anyone"]}
         />
-
       </ScrollView>
     </SafeAreaView>
   );
@@ -64,12 +58,7 @@ function PlanCard({
   highlighted?: boolean;
 }) {
   return (
-    <View
-      style={[
-        styles.card,
-        highlighted && styles.highlightCard,
-      ]}
-    >
+    <View style={[styles.card, highlighted && styles.highlightCard]}>
       <View style={styles.cardTop}>
         <View>
           <Text style={styles.planTitle}>{title}</Text>
@@ -86,10 +75,7 @@ function PlanCard({
       </View>
 
       <TouchableOpacity
-        style={[
-          styles.selectBtn,
-          highlighted && styles.selectBtnHighlight,
-        ]}
+        style={[styles.selectBtn, highlighted && styles.selectBtnHighlight]}
       >
         <Text
           style={[
@@ -107,28 +93,24 @@ function PlanCard({
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: COLORS.background,
   },
   container: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  back: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 10,
+    padding: SPACING.xl,
+    paddingBottom: SPACING.xxl,
   },
   header: {
-    fontSize: 24,
+    fontSize: FONT_SIZES.sectionTitle,
     fontWeight: "800",
-    marginBottom: 20,
+    marginBottom: SPACING.xl,
+    color: COLORS.textPrimary,
   },
 
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.surface,
     borderRadius: 14,
-    padding: 18,
-    marginBottom: 20,
+    padding: SPACING.lg,
+    marginBottom: SPACING.xl,
     shadowColor: "#000",
     shadowOpacity: 0.06,
     shadowRadius: 10,
@@ -138,51 +120,53 @@ const styles = StyleSheet.create({
 
   highlightCard: {
     borderWidth: 2,
-    borderColor: "#5E35B1",
+    borderColor: COLORS.secondary,
   },
 
   cardTop: {
-    marginBottom: 12,
+    marginBottom: SPACING.md,
   },
 
   planTitle: {
-    fontSize: 18,
+    fontSize: FONT_SIZES.sectionTitle,
     fontWeight: "800",
+    color: COLORS.textPrimary,
   },
 
   price: {
-    fontSize: 16,
+    fontSize: FONT_SIZES.cardTitle,
     fontWeight: "700",
-    marginTop: 4,
-    color: "#5E35B1",
+    marginTop: SPACING.xs,
+    color: COLORS.secondary,
   },
 
   features: {
-    marginBottom: 16,
+    marginBottom: SPACING.lg,
   },
 
   featureText: {
-    fontSize: 14,
-    marginBottom: 6,
-    color: "#374151",
+    fontSize: FONT_SIZES.cardMeta,
+    marginBottom: SPACING.sm,
+    color: COLORS.textSecondary,
   },
 
   selectBtn: {
-    paddingVertical: 10,
+    paddingVertical: SPACING.md,
     borderRadius: 8,
-    backgroundColor: "#E5E7EB",
+    backgroundColor: COLORS.textMuted,
     alignItems: "center",
   },
 
   selectBtnHighlight: {
-    backgroundColor: "#5E35B1",
+    backgroundColor: COLORS.secondary,
   },
 
   selectBtnText: {
     fontWeight: "700",
+    color: COLORS.textPrimary,
   },
 
   selectBtnTextHighlight: {
-    color: "#FFFFFF",
+    color: COLORS.surface,
   },
 });
