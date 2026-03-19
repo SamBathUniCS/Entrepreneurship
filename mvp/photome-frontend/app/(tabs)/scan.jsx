@@ -19,7 +19,7 @@ export default function Scan() {
         const parsed = JSON.parse(data);
 
         if (parsed?.type === "event" && parsed?.eventId) {
-          router.push(`/event/${parsed.eventId}`);
+          router.push(`/events/${parsed.eventId}`);
           return;
         }
         setMessage("QR code not recognized.");
@@ -30,7 +30,7 @@ export default function Scan() {
         // very loose UUID check
         const uuidLike = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (uuidLike.test(maybeUuid)) {
-          router.push(`/event/${maybeUuid}`);
+          router.push(`/events/${maybeUuid}`);
         } else {
           setMessage("QR code not recognized.");
         }

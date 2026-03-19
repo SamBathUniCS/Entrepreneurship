@@ -180,7 +180,7 @@ export default function Home() {
       </ScrollView>
 
       {/* FAB — QR scan / join event */}
-      <Pressable style={styles.fab} onPress={() => router.push("/qr-scan")}>
+      <Pressable style={styles.fab} onPress={() => router.push("/(tabs)/scan")}>
         <Ionicons name="qr-code-outline" size={26} color="#fff" />
       </Pressable>
     </View>

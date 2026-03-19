@@ -22,14 +22,14 @@ export default function Login() {
 
   useEffect(() => {
     if (token) {
-      router.replace("/home");
+      router.replace("/(tabs)/home");
     }
   }, [token]);
 
   async function handleLogin() {
     try {
       await login(email, password);
-      router.replace("/home");
+      router.replace("/(tabs)/home");
     } catch (err: any) {
       alert(err.message || "Login failed");
     }

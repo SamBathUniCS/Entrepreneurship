@@ -191,7 +191,7 @@ export default function Account() {
         {/* Face setup row */}
         <TouchableOpacity
           style={styles.planRow}
-          onPress={() => router.push("/face-setup")}
+          onPress={() => router.push("/faceSetup")}
           activeOpacity={0.85}
         >
           <Ionicons name="scan-outline" size={20} color={COLORS.primary} />

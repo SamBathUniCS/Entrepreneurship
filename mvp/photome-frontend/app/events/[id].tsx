@@ -11,7 +11,7 @@ import {
   Platform,
   FlatList,
 } from "react-native";
-import { useLocalSearchParams, Stack } from "expo-router";
+import { useLocalSearchParams, Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { AuthContext } from "../context/_AuthContext";
@@ -270,6 +270,16 @@ export default function EventDetail() {
           <View style={styles.sectionBadge}>
             <Text style={styles.sectionBadgeTxt}>{event.photo_count}</Text>
           </View>
+          {photos.length >= 2 && (
+            <TouchableOpacity
+              style={styles.createBtn}
+              onPress={() => router.push(`/create/${id}`)}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="sparkles-outline" size={14} color="#fff" />
+              <Text style={styles.createBtnTxt}>Create</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Grid */}
@@ -420,6 +430,17 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   sectionTitle: { fontSize: 16, fontWeight: "800", color: "#111827" },
+  createBtn: {
+    marginLeft: "auto",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#5E35B1",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  createBtnTxt: { fontSize: 12, fontWeight: "800", color: "#fff" },
   sectionBadge: {
     backgroundColor: "#EDE7F6",
     borderRadius: 6,
