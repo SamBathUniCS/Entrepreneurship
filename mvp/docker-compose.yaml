@@ -61,6 +61,9 @@ services:
       context: ./photome-backend
       dockerfile: Dockerfile
     container_name: photome-backend
+    env_file:
+      - path: .env
+        required: false
     ports:
       - "8000:8000"
     environment:
@@ -81,8 +84,8 @@ services:
       APP_NAME: PhotoMe
       DEBUG: "true"
       UPLOAD_THRESHOLD: "5"
-      SHOTSTACK_API_KEY: O7WqW5TONTWAcr8o9EODITc65wgx5ksOZ2uWhCTW
-      SHOTSTACK_ENV: "stage"
+      SHOTSTACK_API_KEY: ${SHOTSTACK_API_KEY}
+      SHOTSTACK_ENV: ${SHOTSTACK_ENV:-stage}
     depends_on:
       postgres:
         condition: service_healthy
