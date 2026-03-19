@@ -5,7 +5,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from app.api.routes import auth, users, events, photos, admin, friends
+from app.api.routes import auth, users, events, photos, admin, friends, renders
 from app.api.deps import get_current_user, get_db
 from app.core.config import get_settings
 from app.models.photo import Photo
@@ -49,6 +49,7 @@ app.include_router(events.router, prefix=PREFIX)
 app.include_router(photos.router, prefix=PREFIX)
 app.include_router(admin.router,  prefix=PREFIX)
 app.include_router(friends.router, prefix=PREFIX)
+app.include_router(renders.router, prefix=PREFIX)
 
 
 # ── File proxy — serves photos directly from MinIO through the API ─────────────
