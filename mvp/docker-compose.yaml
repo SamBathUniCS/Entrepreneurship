@@ -61,9 +61,6 @@ services:
       context: ./photome-backend
       dockerfile: Dockerfile
     container_name: photome-backend
-    env_file:
-      - path: .env
-        required: false
     ports:
       - "8000:8000"
     environment:

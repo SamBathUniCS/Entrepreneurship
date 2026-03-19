@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Image, Text } from "react-native";
 
-export default function MutualFriends({ urls = [], label = "Mutuals in event" }) {
+export default function MutualFriends({ urls = [], label = "Mutuals in event" }: { urls?: string[]; label?: string }) {
   const shown = urls.slice(0, 3);
   return (
     <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>

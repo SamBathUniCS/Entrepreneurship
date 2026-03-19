@@ -7,7 +7,7 @@ import * as Sharing from "expo-sharing";
 
 export default function ShareEvent() {
   const { eventId } = useLocalSearchParams();
-  const ref = useRef(null);
+  const ref = useRef<View>(null);
 
   const payload = useMemo(
     () => JSON.stringify({ type: "event", eventId }),

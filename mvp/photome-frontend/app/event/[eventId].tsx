@@ -69,7 +69,7 @@ export default function EventDetails() {
           borderRadius: 12,
           alignItems: "center",
         }}
-        onPress={() => router.push("/(tabs)/photos")}
+        onPress={() => router.push("/(tabs)/events")}
       >
         <Text style={{ fontWeight: "900" }}>View Photos</Text>
       </Pressable>

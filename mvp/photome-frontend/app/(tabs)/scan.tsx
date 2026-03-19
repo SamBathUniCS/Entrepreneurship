@@ -9,7 +9,7 @@ export default function Scan() {
   const [message, setMessage] = useState("");
 
   const onBarcodeScanned = useCallback(
-    ({ data }) => {
+    ({ data }: { data: string }) => {
       if (locked) return;
       setLocked(true);
       setMessage("");

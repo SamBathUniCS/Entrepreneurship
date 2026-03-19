@@ -3,7 +3,7 @@ import { Pressable, View, Text } from "react-native";
 import { Image } from "expo-image";
 import MutualFriendsRow from "./MutualFriends";
 
-function formatDate(iso) {
+function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString(undefined, {
     day: "2-digit",
     month: "short",
@@ -11,7 +11,20 @@ function formatDate(iso) {
   });
 }
 
-export default function EventCard({ event, onPress }) {
+interface EventCardProps {
+  event: {
+    id: string;
+    image: string;
+    date: string;
+    title: string;
+    description: string;
+    mutualFriends: number;
+    mutualProfiles: string[];
+  };
+  onPress: () => void;
+}
+
+export default function EventCard({ event, onPress }: EventCardProps) {
   return (
     <Pressable
       onPress={onPress}
