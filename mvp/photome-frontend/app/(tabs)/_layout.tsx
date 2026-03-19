@@ -46,6 +46,12 @@ export default function TabLayout() {
         />
 
         <Tabs.Screen
+          name="scan"
+          options={{
+            href: null,
+          }}
+        />
+        <Tabs.Screen
           name="account"
           options={{
             title: "Account",
