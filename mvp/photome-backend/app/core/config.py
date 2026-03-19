@@ -33,6 +33,10 @@ class Settings(BaseSettings):
     # Upload
     UPLOAD_THRESHOLD: int = 5
 
+    # Shotstack (montage/reel rendering)
+    SHOTSTACK_API_KEY: str = ""
+    SHOTSTACK_ENV: str = "stage"  # "stage" for sandbox, "v1" for production
+
     class Config:
         env_file = ".env"
         case_sensitive = True
