@@ -38,6 +38,22 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen name="qrScan" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="share/[eventId]"
+          options={{
+            title: "Share Event",
+            headerStyle: { backgroundColor: "#1677ff" },
+            headerTintColor: "#fff",
+          }}
+        />
+        <Stack.Screen
+          name="create/[eventId]"
+          options={{
+            title: "Create",
+            headerStyle: { backgroundColor: "#1677ff" },
+            headerTintColor: "#fff",
+          }}
+        />
       </Stack>
     </AuthProvider>
   );
