@@ -81,8 +81,8 @@ services:
       APP_NAME: PhotoMe
       DEBUG: "true"
       UPLOAD_THRESHOLD: "5"
-      SHOTSTACK_API_KEY: ""        # ← paste your Shotstack key here (shotstack.io)
-      SHOTSTACK_ENV: "stage"       # "stage" for sandbox, "v1" for production
+      SHOTSTACK_API_KEY: O7WqW5TONTWAcr8o9EODITc65wgx5ksOZ2uWhCTW
+      SHOTSTACK_ENV: "stage"
     depends_on:
       postgres:
         condition: service_healthy
