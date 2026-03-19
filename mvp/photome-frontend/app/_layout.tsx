@@ -29,14 +29,6 @@ export default function RootLayout() {
         />
         {/* face-setup manages its own header */}
         <Stack.Screen name="faceSetup" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="events/[id]"
-          options={{
-            title: "Event",
-            headerStyle: { backgroundColor: "#1677ff" },
-            headerTintColor: "#fff",
-          }}
-        />
         <Stack.Screen name="qrScan" options={{ headerShown: false }} />
       </Stack>
     </AuthProvider>

@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
 from app.models.friendship import FaceEmbedding
+from app.models.photo import Photo
 from app.models.user import User
 from app.schemas.user import UserPublic, UserUpdate
 from app.services import deepface as df, storage
@@ -16,10 +17,48 @@ router = APIRouter(prefix="/users", tags=["users"])
 logger = logging.getLogger(__name__)
 
 
+def _photo_url(photo_id: str, thumb: bool = False) -> str:
+    suffix = "?thumb=1" if thumb else ""
+    return f"/api/v1/photos/{photo_id}/file{suffix}"
+
+
 @router.get("/me", response_model=UserPublic)
 def get_me(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     db.refresh(current_user)
     return UserPublic.from_user(current_user)
+
+
+# getting the current users upload hisotry, this will update the uploaded pictures section in the account page
+@router.get("/me/uploads", response_model=list[dict])
+def get_my_uploads(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    photos = (
+        db.query(Photo)
+        .filter(
+
+            Photo.uploader_id == current_user.id,
+            Photo.is_deleted == False,
+        )
+        .order_by(Photo.created_at.desc())
+        .limit(24)
+        .all()
+    )
+    return [
+        {
+
+            "id":  str(photo.id),
+            "event_id":  str(photo.event_id),
+            "uploader_id": str(photo.uploader_id),
+            "original_filename": photo.original_filename,
+            "created_at": photo.created_at.isoformat(),
+            "url": _photo_url(str(photo.id)),
+            "thumbnail_url": _photo_url(str(photo.id), thumb=True) if photo.s3_key_thumbnail else None,
+        }
+
+        for photo in photos
+    ]
 
 
 @router.get("/me/selfie/file")

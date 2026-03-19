@@ -17,10 +17,41 @@ router = APIRouter(prefix="/events", tags=["events"])
 settings = get_settings()
 
 
+def _gallery_photo_count(event: Event, db: Session) -> int:
+    """ 
+        calculating the photo count based on teh gallery images, this excludes teh unlock uploads from users
+        it only counts the photos from the event creator 
+    """
+    return (
+        db.query(func.count(Photo.id))
+        .outerjoin(
+
+            EventMember,
+            (EventMember.event_id == Photo.event_id)
+            & (EventMember.user_id == Photo.uploader_id),
+        )
+
+        .filter(
+
+            Photo.event_id ==  event.id,
+            Photo.is_deleted == False,
+            
+            (
+                (Photo.uploader_id == event.creator_id)
+                | (EventMember.is_photographer == True)
+            ),
+        )
+        .scalar()
+        or 0
+    )
+
+
 def _event_to_public(event: Event, db: Session, current_user: User | None = None) -> dict:
     """Convert event to dict with member/photo counts and membership status."""
     member_count = db.query(func.count(EventMember.id)).filter(EventMember.event_id == event.id).scalar() or 0
-    photo_count  = db.query(func.count(Photo.id)).filter(Photo.event_id == event.id, Photo.is_deleted == False).scalar() or 0
+    
+    # using the gallery count helper to show the number of the actual photos from the event
+    photo_count = _gallery_photo_count(event, db) 
     
     is_member = False
     has_access = False

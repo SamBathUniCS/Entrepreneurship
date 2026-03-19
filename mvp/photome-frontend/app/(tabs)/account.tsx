@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   Switch,
   SafeAreaView,
   ActivityIndicator,
@@ -13,6 +12,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 
 import { Button } from "../components/button";
 import { AuthContext } from "../context/_AuthContext";
@@ -27,6 +27,8 @@ interface Friend {
 }
 interface Photo {
   id: string;
+  event_id?: string;
+  uploader_id?: string;
   url: string;
   thumbnail_url: string | null;
 }
@@ -45,11 +47,39 @@ export default function Account() {
   const [autoTag, setAutoTag] = useState(user?.allow_auto_tagging ?? true);
   const [savingPrivacy, setSavingPrivacy] = useState(false);
 
+
+  // keeping th hooks consistent
+  const loadFriends = useCallback(async () => {
+    setLF(true);
+    const r = await apiFetch("GET", "/friends/", token);
+    if (r.ok) setFriends(r.data ?? []);
+    setLF(false);
+  }, [token]);
+
+  // here we are actually loading the user photos
+  const loadMyPhotos = useCallback(async () => {
+    setLP(true);
+    
+    const phR = await apiFetch("GET", "/users/me/uploads", token);
+
+    if (phR.ok) setUploads((phR.data ?? []).slice(0, 7));
+    setLP(false);
+
+  }, [token]);
+
   useEffect(() => {
     if (!token) return;
     loadFriends();
     loadMyPhotos();
-  }, [token]);
+  }, [token, loadFriends, loadMyPhotos]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!token) return;
+      loadFriends();
+      loadMyPhotos();
+    }, [token, loadFriends, loadMyPhotos]),
+  );
 
   useEffect(() => {
     if (user) {
@@ -57,27 +87,6 @@ export default function Account() {
       setAutoTag(user.allow_auto_tagging ?? true);
     }
   }, [user]);
-
-  async function loadFriends() {
-    setLF(true);
-    const r = await apiFetch("GET", "/friends/", token);
-    if (r.ok) setFriends(r.data ?? []);
-    setLF(false);
-  }
-
-  async function loadMyPhotos() {
-    setLP(true);
-    const evR = await apiFetch("GET", "/events/?my_events=true", token);
-    if (evR.ok && evR.data?.length > 0) {
-      const eventId = evR.data[0].id;
-      const phR = await apiFetch("GET", `/events/${eventId}/photos/`, token);
-      if (phR.ok)
-        setUploads(
-          (phR.data ?? []).filter((p: Photo) => !("locked" in p)).slice(0, 7),
-        );
-    }
-    setLP(false);
-  }
 
   async function savePrivacyToggle(
     field: "face_recognition_enabled" | "allow_auto_tagging",
@@ -191,7 +200,7 @@ export default function Account() {
         {/* Face setup row */}
         <TouchableOpacity
           style={styles.planRow}
-          onPress={() => router.push("/face-setup")}
+          onPress={() => router.push("/faceSetup")}
           activeOpacity={0.85}
         >
           <Ionicons name="scan-outline" size={20} color={COLORS.primary} />
