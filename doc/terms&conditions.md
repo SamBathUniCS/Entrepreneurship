@@ -37,10 +37,10 @@ PhotoMe is an event-based photo-sharing platform that enables users to join even
 
 ### 4.1 Tier Overview
 
-| Tier | Price | Key Features |
-|---|---|---|
-| Basic | Free | Upload to unlock low-resolution photo access; ads served; facial recognition included |
-| Pro | £2.99/month | High-resolution downloads; full gallery access; AI highlight reels; ad-free; priority notifications |
+| Tier     | Price        | Key Features                                                                                                     |
+| -------- | ------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Basic    | Free         | Upload to unlock low-resolution photo access; ads served; facial recognition included                            |
+| Pro      | £2.99/month  | High-resolution downloads; full gallery access; AI highlight reels; ad-free; priority notifications              |
 | Business | £15.99/month | Large-scale event creation (up to 500 attendees); analytics dashboard; white-labelled galleries; organiser tools |
 
 ### 4.2 Billing
@@ -251,4 +251,4 @@ Email: support@photome.co.uk
 Privacy enquiries: privacy@photome.co.uk
 Data Protection Officer: dpo@photome.co.uk
 
-*These Terms were last reviewed in March 2026 and comply with UK GDPR, the Consumer Rights Act 2015, and the Consumer Contracts Regulations 2013.*
+_These Terms were last reviewed in March 2026 and comply with UK GDPR, the Consumer Rights Act 2015, and the Consumer Contracts Regulations 2013._

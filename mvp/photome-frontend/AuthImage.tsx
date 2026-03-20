@@ -16,6 +16,9 @@ interface Props {
   token: string;
   style?: StyleProp<ImageStyle>;
   resizeMode?: "cover" | "contain" | "stretch" | "center";
+
+  // this allows the locked event view
+  blurRadius?: number;
 }
 
 /** Convert a relative backend path to a full URL */
@@ -27,25 +30,44 @@ function toFullUrl(uri: string): string {
 
 // ── Native ────────────────────────────────────────────────────────────────────
 // React Native Image supports headers natively
-function AuthImageNative({ uri, token, style, resizeMode = "cover" }: Props) {
+function AuthImageNative({
+  uri,
+  token,
+  style,
+  resizeMode = "cover",
+  blurRadius,
+}: Props) {
   if (!uri) return <View style={style as StyleProp<ViewStyle>} />;
   return (
     <Image
-      source={{ uri: toFullUrl(uri), headers: { Authorization: `Bearer ${token}` } }}
+      source={{
+        uri: toFullUrl(uri),
+        headers: { Authorization: `Bearer ${token}` },
+      }}
       style={style}
       resizeMode={resizeMode}
+      blurRadius={blurRadius}
     />
   );
 }
 
 // ── Web ───────────────────────────────────────────────────────────────────────
 // On web, <Image headers> is silently ignored — must fetch + blob URL manually
-function AuthImageWeb({ uri, token, style, resizeMode = "cover" }: Props) {
+function AuthImageWeb({
+  uri,
+  token,
+  style,
+  resizeMode = "cover",
+  blurRadius,
+}: Props) {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!uri) { setLoading(false); return; }
+    if (!uri) {
+      setLoading(false);
+      return;
+    }
     let revoked = false;
     let objectUrl: string | null = null;
 
@@ -55,7 +77,10 @@ function AuthImageWeb({ uri, token, style, resizeMode = "cover" }: Props) {
         const res = await fetch(fullUrl, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) { setLoading(false); return; }
+        if (!res.ok) {
+          setLoading(false);
+          return;
+        }
         const blob = await res.blob();
         if (!revoked) {
           objectUrl = URL.createObjectURL(blob);
@@ -79,7 +104,9 @@ function AuthImageWeb({ uri, token, style, resizeMode = "cover" }: Props) {
 
   if (loading) {
     return (
-      <View style={[flatStyle, { alignItems: "center", justifyContent: "center" }]}>
+      <View
+        style={[flatStyle, { alignItems: "center", justifyContent: "center" }]}
+      >
         <ActivityIndicator size="small" color="#c4b5fd" />
       </View>
     );
@@ -90,9 +117,13 @@ function AuthImageWeb({ uri, token, style, resizeMode = "cover" }: Props) {
   }
 
   const objectFit =
-    resizeMode === "cover"   ? "cover"   :
-    resizeMode === "contain" ? "contain" :
-    resizeMode === "stretch" ? "fill"    : "none";
+    resizeMode === "cover"
+      ? "cover"
+      : resizeMode === "contain"
+        ? "contain"
+        : resizeMode === "stretch"
+          ? "fill"
+          : "none";
 
   return (
     // @ts-ignore — we're deliberately rendering a web <img> here
@@ -102,8 +133,10 @@ function AuthImageWeb({ uri, token, style, resizeMode = "cover" }: Props) {
         ...flatStyle,
         objectFit,
         display: "block",
+        
+        filter: blurRadius ? `blur(${blurRadius}px)` : undefined,
         // RN style uses numeric dimensions — pass them straight through
-        width:  flatStyle.width  ?? "100%",
+        width: flatStyle.width ?? "100%",
         height: flatStyle.height ?? "100%",
       }}
       alt=""

@@ -43,9 +43,7 @@ export default function Login() {
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.card}>
           <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>
-            Login to continue to PhotoMe
-          </Text>
+          <Text style={styles.subtitle}>Login to continue to PhotoMe</Text>
 
           <TextInput
             placeholder="Email"
@@ -64,7 +62,12 @@ export default function Login() {
             secureTextEntry
           />
 
-          <Button title="Login" onPress={handleLogin} variant="primary" size="md" />
+          <Button
+            title="Login"
+            onPress={handleLogin}
+            variant="primary"
+            size="md"
+          />
 
           <Pressable onPress={() => router.push("/signup")}>
             <Text style={styles.registerText}>

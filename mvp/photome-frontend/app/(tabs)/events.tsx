@@ -1,8 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
 import {
-  View, Text, Pressable, ScrollView, Image, StyleSheet,
-  Dimensions, TouchableOpacity, Modal, TextInput,
-  ActivityIndicator, Alert,
+  View,
+  Text,
+  Pressable,
+  ScrollView,
+  Image,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
 import { router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
@@ -12,14 +21,20 @@ import { apiFetch } from "../../api";
 import { COLORS, FONT_SIZES, SPACING } from "../theme";
 
 const { width } = Dimensions.get("window");
-const H_PAD = SPACING.md, GAP = SPACING.sm;
+const H_PAD = SPACING.md,
+  GAP = SPACING.sm;
 const COL_W = (width - H_PAD * 2 - GAP) / 2;
 const ROW_H = 130;
 
 interface Event {
-  id: string; title: string; description: string | null;
-  photo_count: number; member_count: number;
-  is_member: boolean; has_access: boolean; status: string;
+  id: string;
+  title: string;
+  description: string | null;
+  photo_count: number;
+  member_count: number;
+  is_member: boolean;
+  has_access: boolean;
+  status: string;
 }
 
 export default function EventsTab() {
@@ -28,7 +43,9 @@ export default function EventsTab() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
 
-  useEffect(() => { if (token) load(); }, [token]);
+  useEffect(() => {
+    if (token) load();
+  }, [token]);
 
   async function load() {
     setLoading(true);
@@ -38,7 +55,11 @@ export default function EventsTab() {
   }
 
   if (loading) {
-    return <View style={styles.screen}><ActivityIndicator color={COLORS.primary} style={{ marginTop: 40 }} /></View>;
+    return (
+      <View style={styles.screen}>
+        <ActivityIndicator color={COLORS.primary} style={{ marginTop: 40 }} />
+      </View>
+    );
   }
 
   const renderGrid = () => {
@@ -48,7 +69,9 @@ export default function EventsTab() {
       const isFirstOrLast = i === 0 || events.length - i === 1;
       if (isFirstOrLast) {
         const ev = events[i];
-        items.push(<EventCard key={ev.id} event={ev} style={styles.cardWide} />);
+        items.push(
+          <EventCard key={ev.id} event={ev} style={styles.cardWide} />,
+        );
         i++;
       } else {
         const tall = events[i];
@@ -57,10 +80,12 @@ export default function EventsTab() {
           <View key={`g-${i}`} style={styles.gridRow}>
             <EventCard event={tall} style={styles.cardTall} />
             <View style={styles.rightCol}>
-              {rights.map((e) => <EventCard key={e.id} event={e} style={styles.cardNormal} />)}
+              {rights.map((e) => (
+                <EventCard key={e.id} event={e} style={styles.cardNormal} />
+              ))}
               {rights.length === 1 && <View style={styles.cardNormal} />}
             </View>
-          </View>
+          </View>,
         );
         i += 1 + rights.length;
       }
@@ -76,14 +101,22 @@ export default function EventsTab() {
             <View style={styles.emptyWrap}>
               <Text style={styles.emptyIcon}>📸</Text>
               <Text style={styles.emptyTitle}>No events yet</Text>
-              <Text style={styles.emptyDesc}>Join an event from Search, or create one below.</Text>
+              <Text style={styles.emptyDesc}>
+                Join an event from Search, or create one below.
+              </Text>
             </View>
-          ) : renderGrid()}
+          ) : (
+            renderGrid()
+          )}
         </View>
       </ScrollView>
 
       {/* Create event FAB */}
-      <TouchableOpacity style={styles.fab} onPress={() => setShowCreate(true)} activeOpacity={0.85}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => setShowCreate(true)}
+        activeOpacity={0.85}
+      >
         <Ionicons name="add" size={28} color={COLORS.surface} />
       </TouchableOpacity>
 
@@ -91,7 +124,10 @@ export default function EventsTab() {
         visible={showCreate}
         token={token!}
         onClose={() => setShowCreate(false)}
-        onCreated={() => { setShowCreate(false); load(); }}
+        onCreated={() => {
+          setShowCreate(false);
+          load();
+        }}
       />
     </View>
   );
@@ -99,22 +135,31 @@ export default function EventsTab() {
 
 function EventCard({ event, style }: { event: Event; style: any }) {
   return (
-    <Pressable style={[styles.card, style]} onPress={() => router.push(`/events/${event.id}`)}>
+    <Pressable
+      style={[styles.card, style]}
+      onPress={() => router.push(`/events/${event.id}`)}
+    >
       <Image
-        source={{ uri: `https://picsum.photos/seed/${event.id.slice(0, 8)}/400/400` }}
+        source={{
+          uri: `https://picsum.photos/seed/${event.id.slice(0, 8)}/400/400`,
+        }}
         style={StyleSheet.absoluteFill}
         resizeMode="cover"
       />
       <View style={styles.cardOverlay} />
       <View style={styles.cardContent}>
-        <Text style={styles.cardTitle} numberOfLines={2}>{event.title}</Text>
+        <Text style={styles.cardTitle} numberOfLines={2}>
+          {event.title}
+        </Text>
         <View style={styles.statsRow}>
           <Text style={styles.statTxt}>👥 {event.member_count}</Text>
           <View style={styles.statDivider} />
           <Text style={styles.statTxt}>📷 {event.photo_count}</Text>
         </View>
         {event.has_access && (
-          <View style={styles.unlockedPill}><Text style={styles.unlockedTxt}>Unlocked ✓</Text></View>
+          <View style={styles.unlockedPill}>
+            <Text style={styles.unlockedTxt}>Unlocked ✓</Text>
+          </View>
         )}
       </View>
     </Pressable>
@@ -122,15 +167,26 @@ function EventCard({ event, style }: { event: Event; style: any }) {
 }
 
 function CreateEventModal({
-  visible, token, onClose, onCreated,
-}: { visible: boolean; token: string; onClose: () => void; onCreated: () => void }) {
+  visible,
+  token,
+  onClose,
+  onCreated,
+}: {
+  visible: boolean;
+  token: string;
+  onClose: () => void;
+  onCreated: () => void;
+}) {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [visibility, setVisibility] = useState<"public" | "private">("public");
   const [saving, setSaving] = useState(false);
 
   async function create() {
-    if (!title.trim()) { Alert.alert("Title required"); return; }
+    if (!title.trim()) {
+      Alert.alert("Title required");
+      return;
+    }
     setSaving(true);
     const r = await apiFetch("POST", "/events/", token, {
       title: title.trim(),
@@ -142,38 +198,51 @@ function CreateEventModal({
     });
     setSaving(false);
     if (r.ok) {
-      setTitle(""); setDesc(""); setVisibility("public");
+      setTitle("");
+      setDesc("");
+      setVisibility("public");
       onCreated();
     } else {
       const detail = Array.isArray(r.data?.detail)
         ? r.data.detail.map((e: any) => e.msg).join("\n")
-        : r.data?.detail ?? "Failed to create event";
+        : (r.data?.detail ?? "Failed to create event");
       Alert.alert("Error", detail);
     }
   }
 
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={onClose}>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={onClose}
+    >
       <View style={modal.container}>
         <View style={modal.header}>
           <Text style={modal.title}>Create Event</Text>
-          <TouchableOpacity onPress={onClose}><Ionicons name="close" size={24} color={COLORS.textPrimary} /></TouchableOpacity>
+          <TouchableOpacity onPress={onClose}>
+            <Ionicons name="close" size={24} color={COLORS.textPrimary} />
+          </TouchableOpacity>
         </View>
 
         <ScrollView style={modal.body} keyboardShouldPersistTaps="handled">
           <Text style={modal.label}>Event Title *</Text>
           <TextInput
-            value={title} onChangeText={setTitle}
+            value={title}
+            onChangeText={setTitle}
             placeholder="e.g. Summer Party 2026"
-            style={modal.input} maxLength={200}
+            style={modal.input}
+            maxLength={200}
           />
 
           <Text style={modal.label}>Description</Text>
           <TextInput
-            value={desc} onChangeText={setDesc}
+            value={desc}
+            onChangeText={setDesc}
             placeholder="Optional short description"
             style={[modal.input, { height: 80, textAlignVertical: "top" }]}
-            multiline maxLength={500}
+            multiline
+            maxLength={500}
           />
 
           <Text style={modal.label}>Visibility</Text>
@@ -181,15 +250,27 @@ function CreateEventModal({
             {(["public", "private"] as const).map((v) => (
               <TouchableOpacity
                 key={v}
-                style={[modal.toggleBtn, visibility === v && modal.toggleBtnActive]}
+                style={[
+                  modal.toggleBtn,
+                  visibility === v && modal.toggleBtnActive,
+                ]}
                 onPress={() => setVisibility(v)}
               >
                 <Ionicons
-                  name={v === "public" ? "globe-outline" : "lock-closed-outline"}
+                  name={
+                    v === "public" ? "globe-outline" : "lock-closed-outline"
+                  }
                   size={FONT_SIZES.label}
-                  color={visibility === v ? COLORS.surface : COLORS.textSecondary}
+                  color={
+                    visibility === v ? COLORS.surface : COLORS.textSecondary
+                  }
                 />
-                <Text style={[modal.toggleTxt, visibility === v && modal.toggleTxtActive]}>
+                <Text
+                  style={[
+                    modal.toggleTxt,
+                    visibility === v && modal.toggleTxtActive,
+                  ]}
+                >
                   {v.charAt(0).toUpperCase() + v.slice(1)}
                 </Text>
               </TouchableOpacity>
@@ -198,9 +279,15 @@ function CreateEventModal({
 
           <TouchableOpacity
             style={[modal.createBtn, saving && { opacity: 0.6 }]}
-            onPress={create} disabled={saving} activeOpacity={0.85}
+            onPress={create}
+            disabled={saving}
+            activeOpacity={0.85}
           >
-            {saving ? <ActivityIndicator color={COLORS.surface} /> : <Text style={modal.createBtnTxt}>Create Event →</Text>}
+            {saving ? (
+              <ActivityIndicator color={COLORS.surface} />
+            ) : (
+              <Text style={modal.createBtnTxt}>Create Event →</Text>
+            )}
           </TouchableOpacity>
         </ScrollView>
       </View>
@@ -215,61 +302,154 @@ const styles = StyleSheet.create({
   gridRow: { flexDirection: "row", gap: GAP, height: ROW_H * 2 + GAP },
   rightCol: { flex: 1, gap: GAP },
 
-  card: { borderRadius: 18, overflow: "hidden", backgroundColor: COLORS.surface },
+  card: {
+    borderRadius: 18,
+    overflow: "hidden",
+    backgroundColor: COLORS.surface,
+  },
   cardWide: { width: "100%", height: ROW_H * 1.4 },
   cardTall: { width: COL_W, flex: 1 },
   cardNormal: { flex: 1 },
-  cardOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.3)" },
-  cardContent: { position: "absolute", bottom: SPACING.sm, left: SPACING.sm, right: SPACING.sm },
-  cardTitle: { fontSize: FONT_SIZES.cardTitle, fontWeight: "800", color: COLORS.surface, marginBottom: SPACING.xs },
-  statsRow: { flexDirection: "row", alignItems: "center", gap: SPACING.xs },
-  statTxt: { fontSize: FONT_SIZES.label, fontWeight: "700", color: "rgba(255,255,255,.9)" },
-  statDivider: { width: 1, height: 10, backgroundColor: "rgba(255,255,255,.35)" },
-  unlockedPill: {
-    marginTop: SPACING.xs, alignSelf: "flex-start",
-    backgroundColor: COLORS.successBg, borderRadius: 4,
-    paddingHorizontal: SPACING.xs, paddingVertical: SPACING.xs / 2,
+  cardOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.3)",
   },
-  unlockedTxt: { fontSize: FONT_SIZES.label, fontWeight: "800", color: COLORS.successText },
+  cardContent: {
+    position: "absolute",
+    bottom: SPACING.sm,
+    left: SPACING.sm,
+    right: SPACING.sm,
+  },
+  cardTitle: {
+    fontSize: FONT_SIZES.cardTitle,
+    fontWeight: "800",
+    color: COLORS.surface,
+    marginBottom: SPACING.xs,
+  },
+  statsRow: { flexDirection: "row", alignItems: "center", gap: SPACING.xs },
+  statTxt: {
+    fontSize: FONT_SIZES.label,
+    fontWeight: "700",
+    color: "rgba(255,255,255,.9)",
+  },
+  statDivider: {
+    width: 1,
+    height: 10,
+    backgroundColor: "rgba(255,255,255,.35)",
+  },
+  unlockedPill: {
+    marginTop: SPACING.xs,
+    alignSelf: "flex-start",
+    backgroundColor: COLORS.successBg,
+    borderRadius: 4,
+    paddingHorizontal: SPACING.xs,
+    paddingVertical: SPACING.xs / 2,
+  },
+  unlockedTxt: {
+    fontSize: FONT_SIZES.label,
+    fontWeight: "800",
+    color: COLORS.successText,
+  },
 
-  emptyWrap: { alignItems: "center", paddingVertical: SPACING.lg * 2, gap: SPACING.sm },
+  emptyWrap: {
+    alignItems: "center",
+    paddingVertical: SPACING.lg * 2,
+    gap: SPACING.sm,
+  },
   emptyIcon: { fontSize: FONT_SIZES.heroTitle },
-  emptyTitle: { fontSize: FONT_SIZES.sectionTitle, fontWeight: "800", color: COLORS.textPrimary },
-  emptyDesc: { fontSize: FONT_SIZES.body, color: COLORS.textSecondary, textAlign: "center" },
+  emptyTitle: {
+    fontSize: FONT_SIZES.sectionTitle,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+  },
+  emptyDesc: {
+    fontSize: FONT_SIZES.body,
+    color: COLORS.textSecondary,
+    textAlign: "center",
+  },
 
   fab: {
-    position: "absolute", bottom: SPACING.lg, right: SPACING.md,
-    width: 56, height: 56, borderRadius: 28,
-    backgroundColor: COLORS.primary, alignItems: "center", justifyContent: "center",
-    shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 }, elevation: 6,
+    position: "absolute",
+    bottom: SPACING.lg,
+    right: SPACING.md,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: COLORS.primary,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
   },
 });
 
 const modal = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.surface },
   header: {
-    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    padding: SPACING.md, borderBottomWidth: 1, borderBottomColor: COLORS.border,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: SPACING.md,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
-  title: { fontSize: FONT_SIZES.sectionTitle, fontWeight: "800", color: COLORS.textPrimary },
-  body:  { padding: SPACING.md },
-  label: { fontSize: FONT_SIZES.label, fontWeight: "700", color: COLORS.textSecondary, marginBottom: SPACING.xs, marginTop: SPACING.sm },
+  title: {
+    fontSize: FONT_SIZES.sectionTitle,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+  },
+  body: { padding: SPACING.md },
+  label: {
+    fontSize: FONT_SIZES.label,
+    fontWeight: "700",
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
+    marginTop: SPACING.sm,
+  },
   input: {
-    backgroundColor: COLORS.inputBg, borderWidth: 1, borderColor: COLORS.border,
-    borderRadius: 12, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm, fontSize: FONT_SIZES.body,
+    backgroundColor: COLORS.inputBg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm,
+    fontSize: FONT_SIZES.body,
   },
-  toggleRow:     { flexDirection: "row", gap: SPACING.sm },
-  toggleBtn:     {
-    flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: SPACING.xs,
-    paddingVertical: SPACING.sm, borderRadius: 10, borderWidth: 1, borderColor: COLORS.border,
+  toggleRow: { flexDirection: "row", gap: SPACING.sm },
+  toggleBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: SPACING.xs,
+    paddingVertical: SPACING.sm,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
-  toggleBtnActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
-  toggleTxt:       { fontSize: FONT_SIZES.body, fontWeight: "600", color: COLORS.textSecondary },
+  toggleBtnActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  toggleTxt: {
+    fontSize: FONT_SIZES.body,
+    fontWeight: "600",
+    color: COLORS.textSecondary,
+  },
   toggleTxtActive: { color: COLORS.surface },
   createBtn: {
-    marginTop: SPACING.lg, backgroundColor: COLORS.primary, borderRadius: 12,
-    paddingVertical: SPACING.md, alignItems: "center",
+    marginTop: SPACING.lg,
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
+    paddingVertical: SPACING.md,
+    alignItems: "center",
   },
-  createBtnTxt: { color: COLORS.surface, fontSize: FONT_SIZES.body, fontWeight: "800" },
+  createBtnTxt: {
+    color: COLORS.surface,
+    fontSize: FONT_SIZES.body,
+    fontWeight: "800",
+  },
 });

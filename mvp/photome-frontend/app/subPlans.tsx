@@ -14,17 +14,13 @@ export default function Plans() {
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.container}>
-
         <Text style={styles.header}>Choose Your Plan</Text>
 
         {/* Basic */}
         <PlanCard
           title="Basic"
           price="Free"
-          features={[
-            "Download Up To 1080p",
-            "Upload And View Photos",
-          ]}
+          features={["Download Up To 1080p", "Upload And View Photos"]}
         />
 
         {/* Pro */}
@@ -43,12 +39,8 @@ export default function Plans() {
         <PlanCard
           title="Business"
           price="£14.99 / Month"
-          features={[
-            "All Pro Features",
-            "Create Events With Anyone",
-          ]}
+          features={["All Pro Features", "Create Events With Anyone"]}
         />
-
       </ScrollView>
     </SafeAreaView>
   );
@@ -66,12 +58,7 @@ function PlanCard({
   highlighted?: boolean;
 }) {
   return (
-    <View
-      style={[
-        styles.card,
-        highlighted && styles.highlightCard,
-      ]}
-    >
+    <View style={[styles.card, highlighted && styles.highlightCard]}>
       <View style={styles.cardTop}>
         <View>
           <Text style={styles.planTitle}>{title}</Text>
@@ -88,10 +75,7 @@ function PlanCard({
       </View>
 
       <TouchableOpacity
-        style={[
-          styles.selectBtn,
-          highlighted && styles.selectBtnHighlight,
-        ]}
+        style={[styles.selectBtn, highlighted && styles.selectBtnHighlight]}
       >
         <Text
           style={[
