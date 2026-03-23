@@ -111,7 +111,7 @@ echo "╚═══════════════════════�
 echo ""
 
 echo "🌐 Open in your browser:"
-echo "   Frontend app  →  http://localhost:8081"
+echo "   Frontend app  →  http://localhost:8082"
 echo "   API docs      →  http://localhost:8000/docs"
 echo "   MinIO console →  http://localhost:9001 (minioadmin / minioadmin)"
 echo ""
