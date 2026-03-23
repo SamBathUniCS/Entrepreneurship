@@ -7,6 +7,7 @@ from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
+from app.models.event import Event
 from app.models.friendship import FaceEmbedding
 from app.models.photo import Photo
 from app.models.user import User
@@ -37,26 +38,46 @@ def get_my_uploads(
     photos = (
         db.query(Photo)
         .filter(
-
             Photo.uploader_id == current_user.id,
             Photo.is_deleted == False,
         )
         .order_by(Photo.created_at.desc())
-        .limit(24)
         .all()
     )
+
+
+
+# unique set to avoid duplicates like getting same event several times
+    unique_event_ids = set()
+    for photo in photos:
+        if photo.event_id:
+            unique_event_ids.add(photo.event_id)
+
+    event_id_list = list(unique_event_ids)
+    events = []
+
+    # querying the database for the events
+    if event_id_list:
+        events = db.query(Event).filter(Event.id.in_(event_id_list)).all()
+
+# mapping the event ids to their tiles
+    event_title_map = {}
+
+    for event in events:
+        event_id_str =  str(event.id)
+        event_title_map[event_id_str] = event.title
+
     return [
         {
-
-            "id":  str(photo.id),
-            "event_id":  str(photo.event_id),
+            "id": str(photo.id),
+            "event_id": str(photo.event_id),
+            "event_title": event_title_map.get(str(photo.event_id), "Unknown Event"),
             "uploader_id": str(photo.uploader_id),
             "original_filename": photo.original_filename,
             "created_at": photo.created_at.isoformat(),
             "url": _photo_url(str(photo.id)),
             "thumbnail_url": _photo_url(str(photo.id), thumb=True) if photo.s3_key_thumbnail else None,
         }
-
         for photo in photos
     ]
 
