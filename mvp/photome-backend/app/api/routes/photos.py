@@ -266,4 +266,27 @@ def delete_photo(
     if photo.uploader_id != current_user.id and event.creator_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorised to delete this photo")
     photo.is_deleted = True
+
+# getting the uploader and event membersihp to modify the stats after deleting
+    uploader = db.query(User).filter(User.id == photo.uploader_id).first()
+
+    membership  = db.query(EventMember).filter(
+        EventMember.event_id == event_id,
+
+        EventMember.user_id == photo.uploader_id,
+    ).first()
+
+# reding the count for tthathis event
+    if membership and membership.upload_count > 0:
+
+        membership.upload_count -= 1
+
+        # for a user with basic tier if photos fall blow the threshold then they lose acess and it will get locked
+        if uploader and  uploader.tier == "basic" and membership.upload_count < event.upload_threshold:
+            membership.has_access  = False
+
+# reducing the global count
+    if uploader and uploader.total_uploads > 0:
+        uploader.total_uploads -=  1
+
     db.commit()
