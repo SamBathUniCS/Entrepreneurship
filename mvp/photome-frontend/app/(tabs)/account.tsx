@@ -9,7 +9,11 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Alert,
+  Modal,
+  Platform,
+  Image,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
@@ -19,6 +23,27 @@ import { AuthContext } from "../context/_AuthContext";
 import { apiFetch } from "../../api";
 import AuthImage from "../../AuthImage";
 import { COLORS, FONT_SIZES, SPACING } from "../theme";
+
+
+
+function triggerWebPicker(onPick: (files: File[]) => void) {
+
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.multiple = true;
+  input.onchange = (e: any) => {
+
+    onPick(Array.from(e.target.files as FileList));
+  };
+  input.click();
+}
+// api mapping
+interface Event {
+  id: string;
+  title: string;
+  status: string;
+}
 
 interface Friend {
   id: string;
@@ -46,6 +71,17 @@ export default function Account() {
   );
   const [autoTag, setAutoTag] = useState(user?.allow_auto_tagging ?? true);
   const [savingPrivacy, setSavingPrivacy] = useState(false);
+
+  const  [pendingUris, setPendingUris] = useState<string[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+
+  const [showEventPicker, setShowEventPicker] = useState(false);
+  const [joinedEvents, setJoinedEvents] = useState<Event[]>([]);
+
+  const [loadingEvents, setLoadingEvents] = useState(false);
+
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState("");
 
 
   // keeping th hooks consistent
@@ -87,6 +123,98 @@ export default function Account() {
       setAutoTag(user.allow_auto_tagging ?? true);
     }
   }, [user]);
+
+  //  we are getting the events the user has joined this populates the selction modal
+  const loadJoinedEvents = useCallback(async () => {
+
+    setLoadingEvents(true);
+    const r = await apiFetch ("GET", "/events/?my_events=true",  token);
+
+    if (r.ok) setJoinedEvents(r.data ?? []);
+
+    setLoadingEvents(false);
+  }, [token]);
+
+
+  // here we are trigeering the event picker modal on sucess
+  async function pickImages() {
+    if (Platform.OS === "web") {
+      triggerWebPicker(async (files) => {
+        if (files.length === 0) return;
+        setPendingFiles(files);
+        await loadJoinedEvents();
+        setShowEventPicker(true);
+      });
+      return;
+    }
+    const { status }  = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      Alert.alert("Permission needed", "Please allow photo library access.");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      quality: 0.85,
+    });
+    if (!result.canceled &&  result.assets.length >  0) {
+
+      setPendingUris(result.assets.map((a) => a.uri));
+
+      await loadJoinedEvents();
+      setShowEventPicker (true);
+    }
+  }
+
+  // we are uploading the images to that specific event
+  async function uploadToEvent(eventId: string) {
+
+    setShowEventPicker(false);
+    if (!token) return;
+
+    setUploading(true);
+
+    const isWeb = Platform.OS === "web";
+    const total = isWeb ? pendingFiles.length : pendingUris.length;
+    let done = 0;
+
+    if (isWeb) {
+      for (const file of pendingFiles) {
+        done++;
+        setUploadProgress(`Uploading ${done}/${total}...`);
+        const form =  new FormData();
+        form.append("file", file, file.name);
+
+        await apiFetch("POST", `/events/${eventId}/photos/`, token, form, true);
+      }
+    } else 
+      {
+      for (const uri of pendingUris) {
+        done++;
+        setUploadProgress(`Uploading ${done}/${total}...`);
+        const form = new FormData();
+        const filename  = uri.split("/").pop() ?? "photo.jpg";
+        const ext  = filename.split(".").pop()?.toLowerCase() ?? "jpg";
+        const mime: Record<string, string> = {
+          jpg: "image/jpeg",
+          jpeg: "image/jpeg",
+          png: "image/png",
+          webp: "image/webp",
+          heic: "image/heic",
+        };
+        // @ts-ignore React Native FormData file object
+        form.append("file", { uri, name: filename, type: mime[ext] ?? "image/jpeg" });
+        await apiFetch("POST", `/events/${eventId}/photos/`, token, form, true);
+      }
+    }
+    setUploading(false);
+    setUploadProgress("");
+    setPendingUris([]);
+
+    setPendingFiles([]) ;
+    await loadMyPhotos();
+    await refreshUser();
+  }
 
   async function savePrivacyToggle(
     field: "face_recognition_enabled" | "allow_auto_tagging",
@@ -263,7 +391,15 @@ export default function Account() {
         )}
 
         {/* Recent uploads */}
-        <Text style={styles.sectionHeader}>Uploaded Pictures</Text>
+        <Text
+          style={styles.sectionHeader}
+          onPress={() => router.push("/myUploads")}
+        >
+          Uploaded Pictures ›
+        </Text>
+        {uploading && (
+          <Text style={styles.uploadProgressTxt}>{uploadProgress}</Text>
+        )}
         {loadingPhotos ? (
           <ActivityIndicator
             color={COLORS.primary}
@@ -271,7 +407,7 @@ export default function Account() {
           />
         ) : (
           <View style={styles.grid}>
-            {uploads.slice(0, 6).map((p) => (
+            {uploads.slice(0, 7).map((p) => (
               <View key={p.id} style={styles.tile}>
                 <AuthImage
                   uri={p.thumbnail_url ?? p.url}
@@ -286,6 +422,23 @@ export default function Account() {
                 Upload photos to events to see them here.
               </Text>
             )}
+            <TouchableOpacity
+              key="add-photo"
+              style={[styles.tile, styles.addTile]}
+              onPress={pickImages}
+              disabled={uploading}
+              activeOpacity={0.75}
+            >
+              {uploading ? (
+                <ActivityIndicator color={COLORS.primary} size="small" />
+              ) : (
+                <Image
+                  source={require("../../assets/images/Plus.png")}
+                  style={styles.addIcon}
+                  resizeMode="contain"
+                />
+              )}
+            </TouchableOpacity>
           </View>
         )}
 
@@ -315,6 +468,88 @@ export default function Account() {
             disabled={savingPrivacy}
           />
         </View>
+
+
+
+{/* when user uploads the photo we let them choose the event first then upload that photo , this links with the unblur logic */}
+        <Modal
+          visible = {showEventPicker}
+          animationType ="slide"
+          presentationStyle ="pageSheet"
+          onRequestClose ={() => {
+            setShowEventPicker(false);
+            setPendingUris([]);
+            setPendingFiles([]);
+          }}
+        >
+          <SafeAreaView style= {styles.pickerSheet}>
+            <View style= {styles.pickerHeader}>
+              <Text style ={styles.pickerTitle}>Upload to Event</Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setShowEventPicker(false);
+                  setPendingUris([]);
+
+                  setPendingFiles([]);
+                }}
+              >
+                <Ionicons name="close" size={24} color={COLORS.textPrimary} />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.pickerSub}>
+              Select an event to upload your{" "}
+              {Platform.OS === "web" ? pendingFiles.length : pendingUris.length}{" "}
+              photo
+              {(Platform.OS === "web" ? pendingFiles.length : pendingUris.length) !== 1
+                ? "s"
+                : ""}{" "}
+              to
+            </Text>
+            {loadingEvents ? (
+              <ActivityIndicator
+                color = {COLORS.primary}
+                style = {{ marginTop: SPACING.xl }}
+              />
+            ) : joinedEvents.filter((e) => e.status === "active").length === 0 ? (
+              <View style={styles.pickerEmpty}>
+                <Ionicons
+                  name = "calendar-outline"
+                  size = {40}
+
+                  color = {COLORS.textMuted}
+                />
+                <Text
+                  style={[styles.emptyTxt, { textAlign: "center", marginTop: SPACING.sm }]}
+                >
+                  No active events found. Please join or create an event first.
+                </Text>
+              </View>
+            ) : (
+              <ScrollView>
+                {joinedEvents
+
+                  .filter((e) => e.status === "active")
+                  .map((e) => (
+                    <TouchableOpacity
+                      key = {e.id}
+                      style = {styles.pickerEventRow}
+                      onPress={() => uploadToEvent(e.id)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style = {styles.pickerEventTitle}>{e.title}</Text>
+                  
+                      <Ionicons
+                        name = "chevron-forward"
+
+                        size = {16}
+                        color = {COLORS.textSecondary}
+                      />
+                    </TouchableOpacity>
+                  ))}
+              </ScrollView>
+            )}
+          </SafeAreaView>
+        </Modal>
 
         <Button
           title="Log Out"
@@ -447,6 +682,72 @@ const styles = StyleSheet.create({
   tileImg: { width: "100%", height: "100%" },
 
   emptyTxt: { fontSize: FONT_SIZES.label, color: COLORS.textSecondary },
+
+  addTile: {
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: COLORS.surface,
+  },
+  addIcon: {
+    width: 38,
+    height: 38,
+  },
+  uploadProgressTxt: {
+    fontSize: FONT_SIZES.label,
+    color: COLORS.textSecondary,
+    marginBottom: SPACING.xs,
+  },
+
+  pickerSheet: { flex: 1, backgroundColor: COLORS.surface },
+  pickerHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: SPACING.md,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  pickerTitle: {
+    fontSize: FONT_SIZES.sectionTitle,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+  },
+  pickerSub: {
+    fontSize: FONT_SIZES.body,
+    color: COLORS.textSecondary,
+    paddingHorizontal: SPACING.md,
+    paddingTop: SPACING.sm,
+    paddingBottom: SPACING.xs,
+  },
+  pickerEmpty: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: SPACING.xl,
+  },
+  pickerEventRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.md,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: COLORS.border,
+    gap: SPACING.sm,
+  },
+  pickerEventIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: COLORS.bgAlt,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pickerEventTitle: {
+    flex: 1,
+    fontSize: FONT_SIZES.body,
+    fontWeight: "600",
+    color: COLORS.textPrimary,
+  },
 
   toggleRow: {
     flexDirection: "row",

@@ -18,6 +18,16 @@ export default function RootLayout() {
             headerTintColor: "#fff",
           }}
         />
+        
+        <Stack.Screen
+          name="myUploads"
+          options={{
+            title: "My Uploads",
+            headerStyle:  { backgroundColor: "#1677ff" },
+            headerTintColor: "#fff",
+            headerBackTitle: "Account",
+          }}
+        />
         <Stack.Screen
           name="subPlans"
           options={{
