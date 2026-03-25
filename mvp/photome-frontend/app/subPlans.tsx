@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
@@ -6,17 +6,74 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Alert,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import { AuthContext } from "./context/_AuthContext";
 
 export default function Plans() {
+  const { currentPlan, highlightPlan } = useLocalSearchParams<{
+    currentPlan?: string;
+    highlightPlan?: string;
+  }>();
+  const { token } = useContext(AuthContext);
+  const [upgradingPlan, setUpgradingPlan] = useState<string | null>(null);
+  // const [currentTier, setCurrentTier] = useState<string>(currentPlan ?? "");
+  // const nextTier =
+  // currentTier === "basic"
+  //   ? "pro"
+  //   : currentTier === "pro"
+  //   ? "business"
+  //   : "";
+
+
+  const handleUpgrade = async (tier: "basic" | "pro" | "business") => {
+    if (!token) {
+      Alert.alert("Not logged in", "Please log in again.");
+      return;
+    }
+  
+    try {
+      setUpgradingPlan(tier);
+  
+      const API_BASE = "http://192.168.1.173:8000/api/v1";
+      // If using a real phone, replace localhost with your laptop IP.
+  
+      const res = await fetch(
+        `${API_BASE}/admin/users/me/tier?tier=${tier}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
+  
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(errorText || `Upgrade failed: ${res.status}`);
+      }
+      // setCurrentTier(tier);
+
+      Alert.alert("Success", `Your plan has been updated to ${tier}.`);
+  
+      router.replace({
+        pathname: "/account",
+      });
+    } catch (error: any) {
+      Alert.alert("Upgrade failed", error.message || "Something went wrong.");
+    } finally {
+      setUpgradingPlan(null);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.container}>
 
         <Text style={styles.header}>Choose Your Plan</Text>
 
-        {/* Basic */}
         <PlanCard
           title="Basic"
           price="Free"
@@ -24,9 +81,12 @@ export default function Plans() {
             "Download Up To 1080p",
             "Upload And View Photos",
           ]}
+          highlighted={highlightPlan === "basic"}
+          current={currentPlan === "basic"}
+          loading={upgradingPlan === "basic"}
+          onPress={() => handleUpgrade("basic")}
         />
 
-        {/* Pro */}
         <PlanCard
           title="Pro"
           price="£2.99 / Month"
@@ -35,10 +95,12 @@ export default function Plans() {
             "Download Up To 4K",
             "Create Private Events With Friends",
           ]}
-          highlighted
+          highlighted={highlightPlan === "pro"}
+          current={currentPlan === "pro"}
+          loading={upgradingPlan === "pro"}
+          onPress={() => handleUpgrade("pro")}
         />
 
-        {/* Business */}
         <PlanCard
           title="Business"
           price="£14.99 / Month"
@@ -46,6 +108,10 @@ export default function Plans() {
             "All Pro Features",
             "Create Events With Anyone",
           ]}
+          highlighted={highlightPlan === "business"}
+          current={currentPlan === "business"}
+          loading={upgradingPlan === "business"}
+          onPress={() => handleUpgrade("business")}
         />
 
       </ScrollView>
@@ -58,11 +124,17 @@ function PlanCard({
   price,
   features,
   highlighted = false,
+  current = false,
+  loading = false,
+  onPress,
 }: {
   title: string;
   price: string;
   features: string[];
   highlighted?: boolean;
+  current?: boolean;
+  loading?: boolean;
+  onPress: () => void;
 }) {
   return (
     <View
@@ -87,18 +159,30 @@ function PlanCard({
       </View>
 
       <TouchableOpacity
+        disabled={current || loading}
+        onPress={onPress}
         style={[
           styles.selectBtn,
           highlighted && styles.selectBtnHighlight,
+          current && styles.currentPlanBtn,
+          loading && styles.currentPlanBtn,
         ]}
       >
         <Text
           style={[
             styles.selectBtnText,
             highlighted && styles.selectBtnTextHighlight,
+            current && styles.currentPlanBtnText,
+            loading && styles.currentPlanBtnText,
           ]}
         >
-          Select Plan
+          {current
+            ? "Current Plan"
+            : loading
+            ? "Updating..."
+            : highlighted
+            ? "Upgrade"
+            : "Select Plan"}
         </Text>
       </TouchableOpacity>
     </View>
@@ -140,6 +224,14 @@ const styles = StyleSheet.create({
   highlightCard: {
     borderWidth: 2,
     borderColor: "#5E35B1",
+  },
+
+  currentPlanBtn: {
+    backgroundColor: "#D1D5DB",
+  },
+  
+  currentPlanBtnText: {
+    color: "#6B7280",
   },
 
   cardTop: {

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -12,38 +12,209 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { getRankForUser } from "../../components/leaderboardData";
+import { getRankForUser, type Person } from "../../components/leaderboardData";
+import { AuthContext } from "../context/_AuthContext";
+
+type UploadPhoto = {
+  id: string;
+  uri: string;
+  thumbnailUrl?: string | null;
+  eventId: string;
+};
+
+type EventItem = {
+  id: string;
+};
+
+type PhotoPublic = {
+  id: string;
+  event_id: string;
+  url?: string | null;
+  thumbnail_url?: string | null;
+};
 
 export default function Account() {
   const [faceNotif, setFaceNotif] = useState(false);
   const [autoTag, setAutoTag] = useState(false);
+  const [uploads, setUploads] = useState<UploadPhoto[]>([]);
+  const [loadingUploads, setLoadingUploads] = useState(true);
+  const { token } = useContext(AuthContext);
+  const [userTier, setUserTier] = useState<"basic" | "pro" | "business" | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [leaderboardPeople, setLeaderboardPeople] = useState<Person[]>([]);
+  const myRank = currentUserId
+  ? getRankForUser(currentUserId, leaderboardPeople)
+  : null; // "me" matches the id in PEOPLE
+  const [loadingTier, setLoadingTier] = useState(true);
+  
+  const displayPlan = userTier
+  ? userTier.charAt(0).toUpperCase() + userTier.slice(1)
+  : "Loading...";
 
-  const myRank = getRankForUser("me"); // "me" matches the id in PEOPLE
+const nextPlan =
+  userTier === "basic"
+    ? "pro"
+    : userTier === "pro"
+    ? "business"
+    : "";
 
   // Replace these with real data later
-  const friends = useMemo(
-    () => [
-      { id: "f1", uri: "https://i.pravatar.cc/80?img=12" },
-      { id: "f2", uri: "https://i.pravatar.cc/80?img=32" },
-      { id: "f3", uri: "https://i.pravatar.cc/80?img=45" },
-    ],
-    []
+  const friendsPreview = useMemo(
+    () => leaderboardPeople.slice(0, 3),
+    [leaderboardPeople]
   );
 
-  const uploads = useMemo(
-    () => [
-      { id: "p1", uri: "https://picsum.photos/seed/photome1/300/300" },
-      { id: "p2", uri: "https://picsum.photos/seed/photome2/300/300" },
-      { id: "p3", uri: "https://picsum.photos/seed/photome3/300/300" },
-      { id: "p4", uri: "https://picsum.photos/seed/photome4/300/300" },
-      { id: "p5", uri: "https://picsum.photos/seed/photome5/300/300" },
-      { id: "p6", uri: "https://picsum.photos/seed/photome6/300/300" },
-    ],
-    []
-  );
+  useEffect(() => {
+    const loadUploads = async () => {
+      if (!token) {
+        setLoadingUploads(false);
+        return;
+      }
+
+      try {
+        const API_BASE = "http://192.168.1.173:8000/api/v1";
+        // If using a real phone, replace localhost with your laptop IP.
+
+        const eventsRes = await fetch(`${API_BASE}/events/?my_events=true`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
+
+        if (!eventsRes.ok) {
+          throw new Error(`Failed to fetch events: ${eventsRes.status}`);
+        }
+
+        const eventsData = await eventsRes.json();
+
+        // Some APIs return a raw array, others wrap it.
+        const events: EventItem[] = Array.isArray(eventsData)
+          ? eventsData
+          : eventsData.items || eventsData.results || [];
+
+        const photoResponses = await Promise.all(
+          events.map(async (event) => {
+            const res = await fetch(
+              `${API_BASE}/events/${event.id}/photos/my`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  Accept: "application/json",
+                },
+              }
+            );
+
+            if (!res.ok) {
+              return [];
+            }
+
+            const data = await res.json();
+            return Array.isArray(data) ? data : data.items || data.results || [];
+          })
+        );
+
+        const mergedUploads: UploadPhoto[] = photoResponses
+          .flat()
+          .map((photo: PhotoPublic) => ({
+            id: photo.id,
+            uri: photo.thumbnail_url || photo.url || "",
+            thumbnailUrl: photo.thumbnail_url,
+            eventId: photo.event_id,
+          }))
+          .filter((photo) => !!photo.uri);
+
+        setUploads(mergedUploads);
+      } catch (error) {
+        console.error("Failed to load uploaded pictures:", error);
+      } finally {
+        setLoadingUploads(false);
+      }
+    };
+
+    loadUploads();
+  }, [token]);
+
+  useEffect(() => {
+    const loadUserInfo = async () => {
+      if (!token) {
+        setLoadingTier(false);
+        return;
+      }
+  
+      try {
+        const API_BASE = "http://192.168.1.173:8000/api/v1";
+  
+        const res = await fetch(`${API_BASE}/users/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
+  
+        const data = await res.json();
+  
+        console.log("users/me returned:", data);
+  
+        setUserTier(data.tier);
+        setCurrentUserId(data.id);
+      } catch (error) {
+        console.error("Failed to fetch user info:", error);
+      } finally {
+        setLoadingTier(false);
+      }
+    };
+  
+    loadUserInfo();
+  }, [token]);
+
+  useEffect(() => {
+    const loadFriendsLeaderboard = async () => {
+      if (!token) return;
+  
+      try {
+        const API_BASE = "http://192.168.1.173:8000/api/v1";
+  
+        const res = await fetch(`${API_BASE}/friends/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
+  
+        if (!res.ok) {
+          throw new Error(`Failed to fetch friends: ${res.status}`);
+        }
+  
+        const data = await res.json();
+        const rawFriends = Array.isArray(data)
+          ? data
+          : data.items || data.results || [];
+  
+        const mappedFriends: Person[] = rawFriends.map((friend: any) => ({
+          id: friend.id,
+          name: friend.full_name?.trim() || friend.username,
+          avatarUri: friend.profile_picture_url || undefined,
+          photos:
+            typeof friend.total_uploads === "number"
+              ? friend.total_uploads
+              : typeof friend.upload_count === "number"
+              ? friend.upload_count
+              : 0,
+        }));
+  
+        setLeaderboardPeople(mappedFriends);
+      } catch (error) {
+        console.error("Failed to load leaderboard friends:", error);
+        setLeaderboardPeople([]);
+      }
+    };
+  
+    loadFriendsLeaderboard();
+  }, [token]);
 
   const unreadCount = 5;
-
+  console.log("Account page token:", token);
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
@@ -83,24 +254,43 @@ export default function Account() {
           </View>
 
           {/* Plan row (NEW) */}
-          <PlanRow planLabel="Free" onPress={() => router.push("/subPlans")} />
-          
+          <PlanRow
+            planLabel={displayPlan}
+            onPress={() =>
+              router.push({
+                pathname: "/subPlans",
+                params: {
+                  currentPlan: userTier ?? "",
+                  highlightPlan: nextPlan,
+                },
+              })
+            }
+          />          
           {/* Friends List */}
           <SectionHeader
             title="Friends List"
             onPress={() => router.push("/friends")}
           />
           <View style={[styles.row, { marginBottom: 24 }]}>
-            {friends.map((f) => (
+          {friendsPreview.map((f) =>
+            f.avatarUri ? (
               <Image
                 key={f.id}
-                source={{ uri: f.uri }}
+                source={{ uri: f.avatarUri }}
                 style={styles.friendAvatar}
               />
-            ))}
+            ) : (
+              <View key={f.id} style={styles.friendAvatarFallback}>
+                <Ionicons name="person-outline" size={16} color="#5E35B1" />
+              </View>
+            )
+          )}
+
+          {leaderboardPeople.length > 3 && (
             <View style={styles.morePill}>
-              <Text style={styles.morePillText}>+1</Text>
+              <Text style={styles.morePillText}>+{leaderboardPeople.length - 3}</Text>
             </View>
+          )}
           </View>
 
           {/* Uploaded Pictures */}
@@ -129,7 +319,13 @@ export default function Account() {
 
           {/* Privacy Controls */}
           <Text style={styles.sectionTitlePlain}>Privacy Controls</Text>
-
+          <View style={styles.toggleRow}>
+            <Text style={styles.toggleLabel}>
+            Enable Facial Recognition Automatically
+            </Text>
+            <Switch value={autoTag} onValueChange={setAutoTag} />
+          </View>
+          
           <View style={styles.toggleRow}>
             <Text style={styles.toggleLabel}>
               Enable Facial Recognition Notifications
@@ -137,12 +333,7 @@ export default function Account() {
             <Switch value={faceNotif} onValueChange={setFaceNotif} />
           </View>
 
-          <View style={styles.toggleRow}>
-            <Text style={styles.toggleLabel}>
-              Allow Friends to Tag You{"\n"}Automatically
-            </Text>
-            <Switch value={autoTag} onValueChange={setAutoTag} />
-          </View>
+          
 
           <View style={{ height: 28 }} />
         </ScrollView>
@@ -346,6 +537,18 @@ const styles = StyleSheet.create({
     borderBottomColor: "#E5E7EB",
   },
   toggleLabel: { flex: 1, paddingRight: 12, color: "#111827", fontWeight: "600" },
+
+  friendAvatarFallback: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    marginRight: 8,
+    backgroundColor: "#EDE7F6",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#FFFFFF",
+  },
 
   fab: {
     position: "absolute",

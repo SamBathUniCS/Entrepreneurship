@@ -46,7 +46,7 @@ export const AuthContext = createContext<AuthContextType>({
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzM4Mzg5NzYsInN1YiI6Ijk4MTFhYjIzLTBhYTYtNGVmYi1iMzYzLTQ5ZTdiYjY3MzZmYiJ9.vFDYXJbmjusKPYJPbkKkjLDAjewkzRzGmnkt6aHNHIY");
 
   // Load token on mount
   useEffect(() => {
