@@ -10,7 +10,10 @@ import {
   ScrollView,
 } from "react-native";
 import { router } from "expo-router";
+
+import { Button } from "../components/button";
 import { AuthContext } from "../context/_AuthContext";
+import { COLORS, FONT_SIZES, SPACING } from "../theme";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -40,9 +43,7 @@ export default function Login() {
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.card}>
           <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>
-            Login to continue to PhotoMe
-          </Text>
+          <Text style={styles.subtitle}>Login to continue to PhotoMe</Text>
 
           <TextInput
             placeholder="Email"
@@ -61,9 +62,12 @@ export default function Login() {
             secureTextEntry
           />
 
-          <Pressable style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Login</Text>
-          </Pressable>
+          <Button
+            title="Login"
+            onPress={handleLogin}
+            variant="primary"
+            size="md"
+          />
 
           <Pressable onPress={() => router.push("/signup")}>
             <Text style={styles.registerText}>
@@ -79,14 +83,14 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    backgroundColor: "#f6f6f6",
+    backgroundColor: COLORS.background,
     justifyContent: "center",
-    padding: 24,
+    padding: SPACING.xl,
   },
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: COLORS.surface,
     borderRadius: 20,
-    padding: 24,
+    padding: SPACING.xl,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 12,
@@ -94,41 +98,29 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   title: {
-    fontSize: 26,
+    fontSize: FONT_SIZES.heroTitle,
     fontWeight: "800",
-    color: "#111827",
+    color: COLORS.textPrimary,
   },
   subtitle: {
-    fontSize: 14,
-    color: "#6b7280",
-    marginTop: 6,
-    marginBottom: 24,
+    fontSize: FONT_SIZES.heroSubtitle,
+    color: COLORS.textSecondary,
+    marginTop: SPACING.sm,
+    marginBottom: SPACING.xl,
   },
   input: {
     backgroundColor: "#f3f4f6",
     borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 16,
-    fontSize: 14,
-  },
-  button: {
-    backgroundColor: "#1e88e5",
-    paddingVertical: 14,
-    borderRadius: 14,
-    alignItems: "center",
-    marginTop: 8,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm * 2,
+    marginBottom: SPACING.md,
+    fontSize: FONT_SIZES.cardMeta,
   },
   registerText: {
-    marginTop: 18,
+    marginTop: SPACING.lg,
     textAlign: "center",
-    fontSize: 13,
-    color: "#1e88e5",
+    fontSize: FONT_SIZES.heroSubtitle,
+    color: COLORS.primary,
     fontWeight: "600",
   },
 });

@@ -39,6 +39,32 @@ def _photo_url(photo_id: str, event_id: str, thumb: bool = False) -> str:
     return f"/api/v1/photos/{photo_id}/file{suffix}"
 
 
+def _gallery_photos_query(event: Event, db: Session):
+    """
+    here we filtered the event gallery to show the actual content
+    instead of showing every upload, we are showing the photos uploded by the event every createor 
+    """
+    return (
+
+        db.query(Photo)
+        .outerjoin(
+            EventMember,
+            (EventMember.event_id == Photo.event_id)
+
+            & (EventMember.user_id == Photo.uploader_id),
+        )
+        .filter(
+            Photo.event_id ==  event.id,
+            Photo.is_deleted == False,
+            (
+                (Photo.uploader_id == event.creator_id)
+                | (EventMember.is_photographer == True)
+
+            ),
+        )
+    )
+
+
 def _enrich_photo(photo: Photo, current_user: User) -> dict:
     return {
         "id": str(photo.id),
@@ -57,6 +83,7 @@ def _enrich_photo(photo: Photo, current_user: User) -> dict:
         "tags": [
             {
                 "user_id": str(t.user_id),
+                "username": t.user.username if t.user else str(t.user_id),
                 "confidence": t.confidence,
                 "tag_source": t.tag_source,
                 "confirmed": t.confirmed,
@@ -164,18 +191,23 @@ def list_photos(
     db: Session = Depends(get_db),
 ):
     event, membership = _resolve_event_and_membership(event_id, current_user, db)
+
+    # updated to the user filtered gallery helper function, rather than fetiching all event photos
     photos = (
-        db.query(Photo)
-        .filter(Photo.event_id == event_id, Photo.is_deleted == False)
+        _gallery_photos_query(event, db)
         .order_by(Photo.created_at.desc())
-        .offset(offset).limit(limit).all()
+        .offset(offset)
+        .limit(limit)
+        .all()
     )
     if not membership.has_access and current_user.tier == "basic":
         return [
             {
                 "id": str(p.id),
+                "event_id": str(p.event_id),
+                "uploader_id": str(p.uploader_id),
                 "thumbnail_url": _photo_url(str(p.id), str(p.event_id), thumb=True) if p.s3_key_thumbnail else None,
-                "url": None,
+                "url": _photo_url(str(p.id), str(p.event_id)),
                 "locked": True,
                 "created_at": p.created_at.isoformat(),
             }
@@ -234,4 +266,27 @@ def delete_photo(
     if photo.uploader_id != current_user.id and event.creator_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorised to delete this photo")
     photo.is_deleted = True
+
+# getting the uploader and event membersihp to modify the stats after deleting
+    uploader = db.query(User).filter(User.id == photo.uploader_id).first()
+
+    membership  = db.query(EventMember).filter(
+        EventMember.event_id == event_id,
+
+        EventMember.user_id == photo.uploader_id,
+    ).first()
+
+# reding the count for tthathis event
+    if membership and membership.upload_count > 0:
+
+        membership.upload_count -= 1
+
+        # for a user with basic tier if photos fall blow the threshold then they lose acess and it will get locked
+        if uploader and  uploader.tier == "basic" and membership.upload_count < event.upload_threshold:
+            membership.has_access  = False
+
+# reducing the global count
+    if uploader and uploader.total_uploads > 0:
+        uploader.total_uploads -=  1
+
     db.commit()

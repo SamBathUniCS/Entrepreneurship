@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -8,59 +8,49 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { router } from "expo-router";
 import { AuthContext } from "./context/_AuthContext";
+import { COLORS, FONT_SIZES, SPACING } from "./theme";
+import { apiFetch } from "../api";
 
 export default function Plans() {
-  const { currentPlan, highlightPlan } = useLocalSearchParams<{
-    currentPlan?: string;
-    highlightPlan?: string;
-  }>();
-  const { token } = useContext(AuthContext);
+  const { token, user, refreshUser } = useContext(AuthContext);
   const [upgradingPlan, setUpgradingPlan] = useState<string | null>(null);
-  // const [currentTier, setCurrentTier] = useState<string>(currentPlan ?? "");
-  // const nextTier =
-  // currentTier === "basic"
-  //   ? "pro"
-  //   : currentTier === "pro"
-  //   ? "business"
-  //   : "";
 
+  const currentTier = user?.tier ?? "basic";
+
+  const nextTier = useMemo(() => {
+    if (currentTier === "basic") return "pro";
+    if (currentTier === "pro") return "business";
+    return null;
+  }, [currentTier]);
 
   const handleUpgrade = async (tier: "basic" | "pro" | "business") => {
     if (!token) {
       Alert.alert("Not logged in", "Please log in again.");
       return;
     }
-  
+
+    if (tier === currentTier) return;
+
     try {
       setUpgradingPlan(tier);
-  
-      const API_BASE = "http://192.168.1.173:8000/api/v1";
-      // If using a real phone, replace localhost with your laptop IP.
-  
-      const res = await fetch(
-        `${API_BASE}/admin/users/me/tier?tier=${tier}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        }
+
+      const res = await apiFetch(
+        "POST",
+        `/admin/users/me/tier?tier=${tier}`,
+        token
       );
-  
+
       if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || `Upgrade failed: ${res.status}`);
+        throw new Error(res.data?.detail || "Upgrade failed.");
       }
-      // setCurrentTier(tier);
+
+      await refreshUser();
 
       Alert.alert("Success", `Your plan has been updated to ${tier}.`);
-  
-      router.replace({
-        pathname: "/account",
-      });
+
+      router.replace("/account");
     } catch (error: any) {
       Alert.alert("Upgrade failed", error.message || "Something went wrong.");
     } finally {
@@ -71,18 +61,14 @@ export default function Plans() {
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.container}>
-
         <Text style={styles.header}>Choose Your Plan</Text>
 
         <PlanCard
           title="Basic"
           price="Free"
-          features={[
-            "Download Up To 1080p",
-            "Upload And View Photos",
-          ]}
-          highlighted={highlightPlan === "basic"}
-          current={currentPlan === "basic"}
+          features={["Download Up To 1080p", "Upload And View Photos"]}
+          highlighted={false}
+          current={currentTier === "basic"}
           loading={upgradingPlan === "basic"}
           onPress={() => handleUpgrade("basic")}
         />
@@ -95,8 +81,8 @@ export default function Plans() {
             "Download Up To 4K",
             "Create Private Events With Friends",
           ]}
-          highlighted={highlightPlan === "pro"}
-          current={currentPlan === "pro"}
+          highlighted={nextTier === "pro"}
+          current={currentTier === "pro"}
           loading={upgradingPlan === "pro"}
           onPress={() => handleUpgrade("pro")}
         />
@@ -104,16 +90,12 @@ export default function Plans() {
         <PlanCard
           title="Business"
           price="£14.99 / Month"
-          features={[
-            "All Pro Features",
-            "Create Events With Anyone",
-          ]}
-          highlighted={highlightPlan === "business"}
-          current={currentPlan === "business"}
+          features={["All Pro Features", "Create Events With Anyone"]}
+          highlighted={nextTier === "business"}
+          current={currentTier === "business"}
           loading={upgradingPlan === "business"}
           onPress={() => handleUpgrade("business")}
         />
-
       </ScrollView>
     </SafeAreaView>
   );
@@ -137,17 +119,24 @@ function PlanCard({
   onPress: () => void;
 }) {
   return (
-    <View
-      style={[
-        styles.card,
-        highlighted && styles.highlightCard,
-      ]}
-    >
+    <View style={[styles.card, highlighted && styles.highlightCard]}>
       <View style={styles.cardTop}>
-        <View>
+        <View style={{ flex: 1 }}>
           <Text style={styles.planTitle}>{title}</Text>
           <Text style={styles.price}>{price}</Text>
         </View>
+
+        {highlighted && !current && (
+          <View style={styles.recommendedBadge}>
+            <Text style={styles.recommendedBadgeText}>Recommended</Text>
+          </View>
+        )}
+
+        {current && (
+          <View style={styles.currentBadge}>
+            <Text style={styles.currentBadgeText}>Current</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.features}>
@@ -192,28 +181,24 @@ function PlanCard({
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: "#F9FAFB",
+    backgroundColor: COLORS.background,
   },
   container: {
-    padding: 20,
-    paddingBottom: 40,
-  },
-  back: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 10,
+    padding: SPACING.xl,
+    paddingBottom: SPACING.xxl,
   },
   header: {
-    fontSize: 24,
+    fontSize: FONT_SIZES.sectionTitle,
     fontWeight: "800",
-    marginBottom: 20,
+    marginBottom: SPACING.xl,
+    color: COLORS.textPrimary,
   },
 
   card: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: COLORS.surface,
     borderRadius: 14,
-    padding: 18,
-    marginBottom: 20,
+    padding: SPACING.lg,
+    marginBottom: SPACING.xl,
     shadowColor: "#000",
     shadowOpacity: 0.06,
     shadowRadius: 10,
@@ -223,59 +208,91 @@ const styles = StyleSheet.create({
 
   highlightCard: {
     borderWidth: 2,
-    borderColor: "#5E35B1",
+    borderColor: COLORS.secondary,
+  },
+
+  cardTop: {
+    marginBottom: SPACING.md,
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    gap: SPACING.sm,
+  },
+
+  planTitle: {
+    fontSize: FONT_SIZES.sectionTitle,
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+  },
+
+  price: {
+    fontSize: FONT_SIZES.cardTitle,
+    fontWeight: "700",
+    marginTop: SPACING.xs,
+    color: COLORS.secondary,
+  },
+
+  recommendedBadge: {
+    backgroundColor: COLORS.secondary,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+
+  recommendedBadgeText: {
+    color: COLORS.surface,
+    fontSize: FONT_SIZES.label,
+    fontWeight: "800",
+  },
+
+  currentBadge: {
+    backgroundColor: "#D1D5DB",
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+
+  currentBadgeText: {
+    color: "#4B5563",
+    fontSize: FONT_SIZES.label,
+    fontWeight: "800",
+  },
+
+  features: {
+    marginBottom: SPACING.lg,
+  },
+
+  featureText: {
+    fontSize: FONT_SIZES.cardMeta,
+    marginBottom: SPACING.sm,
+    color: COLORS.textSecondary,
+  },
+
+  selectBtn: {
+    paddingVertical: SPACING.md,
+    borderRadius: 8,
+    backgroundColor: COLORS.textMuted,
+    alignItems: "center",
+  },
+
+  selectBtnHighlight: {
+    backgroundColor: COLORS.secondary,
+  },
+
+  selectBtnText: {
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+  },
+
+  selectBtnTextHighlight: {
+    color: COLORS.surface,
   },
 
   currentPlanBtn: {
     backgroundColor: "#D1D5DB",
   },
-  
+
   currentPlanBtnText: {
     color: "#6B7280",
-  },
-
-  cardTop: {
-    marginBottom: 12,
-  },
-
-  planTitle: {
-    fontSize: 18,
-    fontWeight: "800",
-  },
-
-  price: {
-    fontSize: 16,
-    fontWeight: "700",
-    marginTop: 4,
-    color: "#5E35B1",
-  },
-
-  features: {
-    marginBottom: 16,
-  },
-
-  featureText: {
-    fontSize: 14,
-    marginBottom: 6,
-    color: "#374151",
-  },
-
-  selectBtn: {
-    paddingVertical: 10,
-    borderRadius: 8,
-    backgroundColor: "#E5E7EB",
-    alignItems: "center",
-  },
-
-  selectBtnHighlight: {
-    backgroundColor: "#5E35B1",
-  },
-
-  selectBtnText: {
-    fontWeight: "700",
-  },
-
-  selectBtnTextHighlight: {
-    color: "#FFFFFF",
   },
 });

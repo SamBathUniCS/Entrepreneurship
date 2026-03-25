@@ -1,4 +1,5 @@
 Please read (from Kithmini): To start the frontend you need [npm](https://nodejs.org/en/download) and have expo installed. You also need to install the react navigation and the icon pack
+
 ```
 cd photome-frontend
 npm install -g expo
@@ -7,17 +8,22 @@ npm install @react-navigation/native-stack
 npx expo install react-native-screens react-native-safe-area-context
 npx expo install @expo/vector-icons
 ```
+
 if you run into issues, try installing these if they are not in your template:
+
 ```
 npx expo install react-dom
 npx expo install react-native-web or npx expo install react-native-webview
 npx expo install expo-router
 ```
+
 To run the expo app try either of these commands, the first is default but it was not working for me so if so try the second :)
+
 ```
-npx expo start -c 
+npx expo start -c
 npx expo start --tunnel -c
 ```
+
 # Welcome to your Expo app 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
