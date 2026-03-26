@@ -357,3 +357,28 @@ Action Points:
 side note:
 
 - take pics of presentation and create an event and show live during presenation how easy it is
+
+## 26-03-2026
+
+Overall Discussion:
+- pending tasks
+- update on the law
+
+Discussion Points:
+- 3 ipads at the presentation with the app loaded 
+
+Action Points:
+- create slide deck:
+  problem video/ acting,
+  intro of company + investment amount- gab
+  give ipads - Sam
+  dev, articheture, aws, AI - sushil
+  user testing/ demo - Saniya, Sushil, Nick
+  legal - Sam
+  marketing, why insta + tiktok? - kith
+  pricing - gab
+  forward strategy - saniya
+  
+- poster - saniya
+- remove streaks and fix toggle - saniya
+- test account - sam 
