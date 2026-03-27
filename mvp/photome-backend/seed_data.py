@@ -61,6 +61,7 @@ EVENTS = [
         "event_date": datetime.now() - timedelta(days=7),
         "creator": "sushil",
         "members": ["sushil", "gabriel", "nico", "boff", "kit", "saniya"],
+        "photographers": ["maya"],
     },
     {
         "title": "Mountain Hiking Trip",
@@ -69,6 +70,7 @@ EVENTS = [
         "event_date": datetime.now() - timedelta(days=14),
         "creator": "gabriel",
         "members": ["gabriel", "nico", "kit", "maya", "jordan"],
+        "photographers": ["maya"],
     },
     {
         "title": "Maya's 25th Birthday Bash",
@@ -77,14 +79,16 @@ EVENTS = [
         "event_date": datetime.now() - timedelta(days=3),
         "creator": "alex",
         "members": ["alex", "maya", "saniya", "taylor", "boff"],
-    },
-    {
+        "photographers": ["maya"],
+},
+{
         "title": "Beach Day Vibes",
         "description": "Chill day at the beach with volleyball and music",
         "visibility": "public",
         "event_date": datetime.now() + timedelta(days=5),
         "creator": "nico",
         "members": ["nico", "sushil", "kit", "jordan", "taylor", "gabriel"],
+        "photographers": ["maya"],
     },
     {
         "title": "Concert Night - The Waves",
@@ -93,6 +97,7 @@ EVENTS = [
         "event_date": datetime.now() + timedelta(days=12),
         "creator": "taylor",
         "members": ["taylor", "maya", "boff", "saniya", "alex"],
+        "photographers": ["maya"],
     },
 ]
 
@@ -208,6 +213,7 @@ def create_events(db, user_map):
                 user_id=member.id,
                 has_access=True,  # Give everyone access for testing
                 upload_count=0,
+                is_photographer=True,
             )
             db.add(membership)
             print(f"    → {member_name} joined")
