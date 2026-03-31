@@ -30,6 +30,7 @@ from app.core.config import get_settings
 from app.models.event import Event
 from app.models.event_member import EventMember
 from app.models.friendship import Friendship
+from app.models.photo import Photo
 from app.models.user import User
 from app.services import storage
 
@@ -60,7 +61,8 @@ EVENTS = [
         "visibility": "public",
         "event_date": datetime.now() - timedelta(days=7),
         "creator": "sushil",
-        "members": ["sushil", "gabriel", "nico", "boff", "kit", "saniya"],
+        "members": ["sushil", "gabriel", "nico", "boff", "kit", "saniya", "maya"],
+        "photographers": ["maya"],
     },
     {
         "title": "Mountain Hiking Trip",
@@ -69,6 +71,7 @@ EVENTS = [
         "event_date": datetime.now() - timedelta(days=14),
         "creator": "gabriel",
         "members": ["gabriel", "nico", "kit", "maya", "jordan"],
+        "photographers": ["maya"],
     },
     {
         "title": "Maya's 25th Birthday Bash",
@@ -77,14 +80,16 @@ EVENTS = [
         "event_date": datetime.now() - timedelta(days=3),
         "creator": "alex",
         "members": ["alex", "maya", "saniya", "taylor", "boff"],
-    },
-    {
+        "photographers": ["maya"],
+},
+{
         "title": "Beach Day Vibes",
         "description": "Chill day at the beach with volleyball and music",
         "visibility": "public",
         "event_date": datetime.now() + timedelta(days=5),
         "creator": "nico",
-        "members": ["nico", "sushil", "kit", "jordan", "taylor", "gabriel"],
+        "members": ["nico", "sushil", "kit", "jordan", "taylor", "gabriel", "maya"],
+        "photographers": ["maya"],
     },
     {
         "title": "Concert Night - The Waves",
@@ -93,6 +98,7 @@ EVENTS = [
         "event_date": datetime.now() + timedelta(days=12),
         "creator": "taylor",
         "members": ["taylor", "maya", "boff", "saniya", "alex"],
+        "photographers": ["maya"],
     },
 ]
 
@@ -208,6 +214,7 @@ def create_events(db, user_map):
                 user_id=member.id,
                 has_access=True,  # Give everyone access for testing
                 upload_count=0,
+                is_photographer=True,
             )
             db.add(membership)
             print(f"    → {member_name} joined")
@@ -215,63 +222,64 @@ def create_events(db, user_map):
     db.commit()
     return event_map
 
-
 async def upload_sample_photos(db, user_map, event_map):
-    """Upload sample photos to events."""
-    print("\nUploading sample photos...")
-    
-    # Map of (event_title, uploader_username, photo_url)
-    uploads = [
-        ("Summer BBQ 2026", "sushil", SAMPLE_PHOTOS[0]),
-        ("Summer BBQ 2026", "gabriel", SAMPLE_PHOTOS[1]),
-        ("Summer BBQ 2026", "kit", SAMPLE_PHOTOS[2]),
-        ("Mountain Hiking Trip", "gabriel", SAMPLE_PHOTOS[3]),
-        ("Mountain Hiking Trip", "nico", SAMPLE_PHOTOS[4]),
-        ("Mountain Hiking Trip", "maya", SAMPLE_PHOTOS[0]),
-        ("Maya's 25th Birthday Bash", "alex", SAMPLE_PHOTOS[1]),
-        ("Maya's 25th Birthday Bash", "saniya", SAMPLE_PHOTOS[2]),
-        ("Beach Day Vibes", "nico", SAMPLE_PHOTOS[3]),
-        ("Beach Day Vibes", "taylor", SAMPLE_PHOTOS[4]),
-    ]
-    
-    for event_title, uploader_name, photo_url in uploads:
-        try:
-            event = event_map[event_title]
-            uploader = user_map[uploader_name]
-            
-            print(f"  Downloading {photo_url[:50]}...")
-            image_bytes = await download_image(photo_url)
-            
-            # Save to MinIO
-            photo_id = str(event.id)[:8] + "_" + uploader_name
-            s3_key = storage.build_s3_key(str(event.id), photo_id)
-            storage.upload_file(io.BytesIO(image_bytes), s3_key, "image/jpeg")
-            
-            # Create thumbnail
-            img = Image.open(io.BytesIO(image_bytes))
-            img.thumbnail((400, 400), Image.LANCZOS)
-            thumb_buf = io.BytesIO()
-            img.convert("RGB").save(thumb_buf, format="JPEG", quality=85)
-            thumb_bytes = thumb_buf.getvalue()
-            
-            s3_key_thumb = storage.build_s3_key(str(event.id), photo_id, "_thumb")
-            storage.upload_file(io.BytesIO(thumb_bytes), s3_key_thumb, "image/jpeg")
-            
-            # Update membership upload count
-            membership = db.query(EventMember).filter(
-                EventMember.event_id == event.id,
-                EventMember.user_id == uploader.id,
-            ).first()
-            if membership:
-                membership.upload_count += 1
-            
-            print(f"  ✓ Uploaded to '{event_title}' by {uploader_name}")
-            
-        except Exception as e:
-            print(f"  ✗ Failed to upload: {e}")
-    
-    db.commit()
+    """Upload all sample photos to every event by Maya and create DB records."""
+    from app.models.photo import Photo  # import your Photo model
+    from datetime import datetime
 
+    print("\nUploading sample photos as Maya...")
+
+    uploader = user_map["maya"]
+
+    for event_title, event in event_map.items():
+        # Get Maya's membership
+        membership = db.query(EventMember).filter(
+            EventMember.event_id == event.id,
+            EventMember.user_id == uploader.id,
+        ).first()
+
+        if not membership:
+            print(f"  ✗ Maya is not a member of '{event_title}'")
+            continue
+
+        for idx, photo_url in enumerate(SAMPLE_PHOTOS):
+            try:
+                print(f"  Downloading {photo_url[:50]} for '{event_title}'...")
+                image_bytes = await download_image(photo_url)
+
+                # Save original to MinIO
+                photo_id = f"{str(event.id)[:8]}_maya_{idx}"
+                s3_key = storage.build_s3_key(str(event.id), photo_id)
+                storage.upload_file(io.BytesIO(image_bytes), s3_key, "image/jpeg")
+
+                # Create thumbnail
+                img = Image.open(io.BytesIO(image_bytes))
+                img.thumbnail((400, 400), Image.LANCZOS)
+                thumb_buf = io.BytesIO()
+                img.convert("RGB").save(thumb_buf, format="JPEG", quality=85)
+                thumb_bytes = thumb_buf.getvalue()
+
+                s3_key_thumb = storage.build_s3_key(str(event.id), photo_id, "_thumb")
+                storage.upload_file(io.BytesIO(thumb_bytes), s3_key_thumb, "image/jpeg")
+
+                # Create Photo row in DB
+                photo = Photo(
+                    event_id=event.id,
+                    uploader_id=uploader.id,
+                    s3_key=s3_key,
+                    created_at=datetime.utcnow(),
+                )
+                db.add(photo)
+
+                # Update upload count
+                membership.upload_count += 1
+
+                print(f"  ✓ Uploaded and DB record created for '{event_title}' by Maya")
+
+            except Exception as e:
+                print(f"  ✗ Failed to upload: {e}")
+
+    db.commit()
 
 async def main():
     import argparse, sys

@@ -48,12 +48,32 @@ services:
       - "5001:5000"
     networks:
       - localnet
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:5000/ || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 60s # DeepFace downloads model weights on first boot (~300 MB)
+    volumes:
+      - deepface_weights:/root/.deepface/weights
+    depends_on:
+      deepface-init:
+        condition: service_completed_successfully
+
+  deepface-init:
+    image: docker.io/curlimages/curl:latest
+    container_name: deepface-init
+    volumes:
+      - deepface_weights:/root/.deepface/weights
+    networks:
+      - localnet
+    command: >
+      sh -c "
+        mkdir -p /root/.deepface/weights &&
+        if [ -f /root/.deepface/weights/facenet512_weights.h5 ]; then
+          echo 'Weights already present, skipping.';
+          exit 0;
+        fi;
+        echo 'Downloading facenet512_weights.h5...' &&
+        curl -L --fail --retry 5 --retry-delay 3 \
+          -o /root/.deepface/weights/facenet512_weights.h5 \
+          'https://huggingface.co/serengil/deepface-models/resolve/main/facenet512_weights.h5' &&
+        echo 'Done.'
+      "
 
   # ── PhotoMe Backend ──────────────────────────────────────────────────────────
   backend:
@@ -107,7 +127,7 @@ services:
     environment:
       # Tells the Expo web build where the API lives.
       # From the browser's perspective the backend is on localhost:8000.
-      EXPO_PUBLIC_API_URL: http://localhost:8000/api/v1
+      EXPO_PUBLIC_API_URL: http://172.29.31.71:8000/api/v1
       # Needed for file-watching inside Docker on Linux/Windows
       CHOKIDAR_USEPOLLING: "true"
       WATCHPACK_POLLING: "true"
@@ -119,6 +139,7 @@ services:
 volumes:
   pgdata:
   miniodata:
+  deepface_weights:
 
 networks:
   localnet:
