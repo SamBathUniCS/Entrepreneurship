@@ -51,25 +51,7 @@ interface EventDetail {
   visibility: string;
 }
 
-interface PlaceholderPhoto {
-  id: string;
-  uri: string;
-}
-
 const UPLOAD_ICON = require("../../../assets/images/upload_icon.png") as ImageSourcePropType;
-
-const PLACEHOLDER_COVER =
-  "https://picsum.photos/seed/event-cover/900/600";
-const PLACEHOLDER_GRID: PlaceholderPhoto[] = [
-  { id: "placeholder-1", uri: "https://picsum.photos/seed/event-1/400/400" },
-  { id: "placeholder-2", uri: "https://picsum.photos/seed/event-2/400/400" },
-  { id: "placeholder-3", uri: "https://picsum.photos/seed/event-3/400/400" },
-  { id: "placeholder-4", uri: "https://picsum.photos/seed/event-4/400/400" },
-  { id: "placeholder-5", uri: "https://picsum.photos/seed/event-5/400/400" },
-  { id: "placeholder-6", uri: "https://picsum.photos/seed/event-6/400/400" },
-  { id: "placeholder-7", uri: "https://picsum.photos/seed/event-7/400/400" },
-  { id: "placeholder-8", uri: "https://picsum.photos/seed/event-8/400/400" },
-];
 
 function triggerWebPicker(onPick: (file: File) => void) {
   const input = document.createElement("input");
@@ -84,28 +66,20 @@ function triggerWebPicker(onPick: (file: File) => void) {
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-
-
   const { token } = useContext(AuthContext);
 
   const [event, setEvent] = useState<EventDetail | null>(null);
-
   const [photos, setPhotos] = useState<Photo[]>([]);
-
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState("");
-  const [ lightbox, setLightbox] = useState<Photo | null>(null);
-
-  // getting the event ddetails and photos frmo backend
+  const [lightbox, setLightbox] = useState<Photo | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
 
     const [eventResponse, photosResponse] = await Promise.all([
-
       apiFetch("GET", `/events/${id}`, token),
-
       apiFetch("GET", `/events/${id}/photos/`, token),
     ]);
 
@@ -160,11 +134,7 @@ export default function EventDetailScreen() {
           heic: "image/heic",
         };
         // @ts-ignore React Native FormData file object
-        form.append("file", {
-          uri,
-          name: filename,
-          type: mime[ext] ?? "image/jpeg",
-        });
+        form.append("file", { uri, name: filename, type: mime[ext] ?? "image/jpeg" });
         await uploadOne(form);
       }
     }
@@ -221,8 +191,6 @@ export default function EventDetailScreen() {
   }
 
   const locked = !event.has_access;
-  const firstPhoto = photos[0] ?? null;
-  const galleryHasPhotos = photos.length > 0;
 
   return (
     <>
@@ -235,40 +203,17 @@ export default function EventDetailScreen() {
         }}
       />
 
-
-      {/* here we show the first photo from the event gallery as the main image,
-      but if the user hasnt met the upload condiction, the images will blurred
-      */}
       <View style={styles.screen}>
         <ScrollView contentContainerStyle={styles.content}>
           {locked && (
             <Text style={styles.lockText}>
-
               Upload {event.upload_threshold} Photos To Gain Access
             </Text>
           )}
 
-          <View style={styles.heroWrap}>
-            {firstPhoto ? (
-
-              <AuthImage
-                uri={firstPhoto.thumbnail_url ?? firstPhoto.url}
-                token={token ?? ""}
-
-                style={styles.heroImage}
-                resizeMode="cover"
-                blurRadius={locked ? 18 : 0}
-              />
-            ) : (
-              <Image source={{ uri: PLACEHOLDER_COVER }} style={styles.heroImage} />
-            )}
-
-            {locked && <View style={styles.heroBlurOverlay} />}
-          </View>
-
-          {event.description ? (
+          {event.description && (
             <Text style={styles.description}>{event.description}</Text>
-          ) : null}
+          )}
 
           {uploading && (
             <View style={styles.progressPill}>
@@ -277,66 +222,54 @@ export default function EventDetailScreen() {
             </View>
           )}
 
-
-          {/* if the photos exists then we render teh, otherwise the 
-          event is locked and we apply high blurring onto those image */}
-            <View style={styles.grid}>
-              {galleryHasPhotos
-              ? photos.map((photo) => {
-
-                  const isLockedTile  = locked ||  photo.locked;
-                  const  imageUri = photo.thumbnail_url ??  photo.url;
-                  return (
-                    <TouchableOpacity
-                      key={photo.id}
-                      activeOpacity={0.85}
-
-                      disabled={isLockedTile}
-                      style={styles.gridTile}
-                      onPress={() => setLightbox(photo)}
-
-                    >
-                      {imageUri ? (
-                        <AuthImage
-                          uri={imageUri}
-                          token={token ?? ""}
-
-                          style={styles.gridImage}
-                          resizeMode="cover"
-                          blurRadius={isLockedTile ? 18 : 0}
+          <View style={styles.grid}>
+            {photos.length > 0 ? (
+              photos.map((photo) => {
+                const isLockedTile = locked || photo.locked;
+                const imageUri = photo.thumbnail_url ?? photo.url;
+                return (
+                  <TouchableOpacity
+                    key={photo.id}
+                    activeOpacity={0.85}
+                    disabled={isLockedTile}
+                    style={styles.gridTile}
+                    onPress={() => setLightbox(photo)}
+                  >
+                    {imageUri ? (
+                      <AuthImage
+                        uri={imageUri}
+                        token={token ?? ""}
+                        style={styles.gridImage}
+                        resizeMode="cover"
+                        blurRadius={isLockedTile ? 18 : 0}
+                      />
+                    ) : (
+                      <View style={styles.lockedPlaceholder}>
+                        <Ionicons
+                          name="image-outline"
+                          size={22}
+                          color={COLORS.textMuted}
                         />
-                      ) : (
-                        <View style={styles.lockedPlaceholder}>
-                          <Ionicons
+                      </View>
+                    )}
 
-                            name="image-outline"
-                            size={22}
-                            color={COLORS.textMuted}
+                    {isLockedTile && <View style={styles.gridBlurOverlay} />}
 
-                          />
-                        </View>
-                      )}
-
-                      {isLockedTile && <View style={styles.gridBlurOverlay} />}
-
-                      {(photo.tags?.length ?? 0) > 0 && !isLockedTile && (
-                        <View style={styles.matchBadge}>
-
-                          <Text style={styles.matchText}>
-                            {photo.tags!.length} match
-
-                          </Text>
-                        </View>
-                      )}
-                    </TouchableOpacity>
-                  );
-                })
-              : PLACEHOLDER_GRID.map((photo) => (
-                  <View key={photo.id} style={styles.gridTile}>
-                    <Image source={{ uri: photo.uri }} style={styles.gridImage} />
-                    {locked && <View style={styles.gridBlurOverlay} />}
-                  </View>
-                ))}
+                    {(photo.tags?.length ?? 0) > 0 && !isLockedTile && (
+                      <View style={styles.matchBadge}>
+                        <Text style={styles.matchText}>
+                          {photo.tags!.length} match
+                        </Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })
+            ) : (
+              <View style={styles.center}>
+                <Text style={styles.errorText}>No photos uploaded yet.</Text>
+              </View>
+            )}
           </View>
         </ScrollView>
 
@@ -403,182 +336,30 @@ export default function EventDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  content: {
-    paddingBottom: 144,
-  },
-  center: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: COLORS.background,
-  },
-  errorText: {
-    fontSize: FONT_SIZES.subtitle,
-    color: COLORS.textSecondary,
-  },
-  lockText: {
-    textAlign: "center",
-    color: COLORS.error,
-    fontSize: FONT_SIZES.subtitle,
-    fontWeight: "800",
-    marginTop: SPACING.xl,
-    marginBottom: SPACING.sm,
-    paddingHorizontal: SPACING.xl,
-  },
-  heroWrap: {
-    marginHorizontal: SPACING.xl,
-    borderRadius: 18,
-    overflow: "hidden",
-    height: 200,
-    backgroundColor: COLORS.border,
-  },
-  heroImage: {
-    width: "100%",
-    height: "100%",
-  },
-  heroBlurOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255,255,255,0.2)",
-  },
-  description: {
-    marginHorizontal: SPACING.xl,
-    marginTop: SPACING.md,
-    color: COLORS.textSecondary,
-    fontSize: FONT_SIZES.body,
-    lineHeight: 20,
-    textAlign: "center",
-  },
-  progressPill: {
-    marginTop: SPACING.md,
-    marginHorizontal: SPACING.xl,
-    alignSelf: "center",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: SPACING.sm,
-    backgroundColor: COLORS.secondary,
-    borderRadius: 999,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.sm,
-  },
-  progressText: {
-    color: COLORS.surface,
-    fontSize: FONT_SIZES.body,
-    fontWeight: "700",
-  },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    paddingHorizontal: SPACING.xl,
-    paddingTop: SPACING.lg,
-    gap: SPACING.md,
-  },
-  gridTile: {
-    width: "48%",
-    height: 150,
-    borderRadius: 16,
-    overflow: "hidden",
-    backgroundColor: COLORS.border,
-  },
-  gridImage: {
-    width: "100%",
-    height: "100%",
-  },
-
-  lockedPlaceholder: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: COLORS.inputBg,
-  },
-  gridBlurOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255,255,255,0.22)",
-  },
-  matchBadge: {
-    position: "absolute",
-    right: SPACING.xs,
-    bottom: SPACING.xs,
-    backgroundColor: COLORS.secondary,
-    borderRadius: 6,
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: SPACING.xs,
-  },
-  matchText: {
-    color: COLORS.surface,
-    fontSize: FONT_SIZES.tiny,
-    fontWeight: "800",
-  },
-  fabUpload: {
-    position: "absolute",
-    right: SPACING.xl,
-    bottom: 96,
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: COLORS.secondary,
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
-  },
-  fabDisabled: {
-    opacity: 0.65,
-  },
-  uploadIcon: {
-    width: 40,
-    height: 40,
-    resizeMode: "contain",
-  },
-  lightboxBg: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.92)",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: SPACING.lg,
-  },
-  lightboxClose: {
-    position: "absolute",
-    top: 64,
-    right: 20,
-    zIndex: 10,
-  },
-  lightboxImage: {
-    width: "100%",
-    height: "62%",
-  },
-  lightboxMeta: {
-    width: "100%",
-    marginTop: SPACING.lg,
-  },
-  lightboxFilename: {
-    color: COLORS.surface,
-    fontSize: FONT_SIZES.subtitle,
-    fontWeight: "700",
-  },
-  tagRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: SPACING.sm,
-    marginTop: SPACING.md,
-  },
-  tagPill: {
-    backgroundColor: "rgba(255,255,255,0.12)",
-    borderRadius: 999,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs,
-  },
-  tagText: {
-    color: COLORS.surface,
-    fontSize: FONT_SIZES.body,
-    fontWeight: "600",
-  },
+  screen: { flex: 1, backgroundColor: COLORS.background },
+  content: { paddingBottom: 144 },
+  center: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: COLORS.background },
+  errorText: { fontSize: FONT_SIZES.subtitle, color: COLORS.textSecondary },
+  lockText: { textAlign: "center", color: COLORS.error, fontSize: FONT_SIZES.subtitle, fontWeight: "800", marginTop: SPACING.xl, marginBottom: SPACING.sm, paddingHorizontal: SPACING.xl },
+  description: { marginHorizontal: SPACING.xl, marginTop: SPACING.md, color: COLORS.textSecondary, fontSize: FONT_SIZES.body, lineHeight: 20, textAlign: "center" },
+  progressPill: { marginTop: SPACING.md, marginHorizontal: SPACING.xl, alignSelf: "center", flexDirection: "row", alignItems: "center", gap: SPACING.sm, backgroundColor: COLORS.secondary, borderRadius: 999, paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm },
+  progressText: { color: COLORS.surface, fontSize: FONT_SIZES.body, fontWeight: "700" },
+  grid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", paddingHorizontal: SPACING.xl, paddingTop: SPACING.lg, gap: SPACING.md },
+  gridTile: { width: "48%", height: 150, borderRadius: 16, overflow: "hidden", backgroundColor: COLORS.border },
+  gridImage: { width: "100%", height: "100%" },
+  lockedPlaceholder: { flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: COLORS.inputBg },
+  gridBlurOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(255,255,255,0.22)" },
+  matchBadge: { position: "absolute", right: SPACING.xs, bottom: SPACING.xs, backgroundColor: COLORS.secondary, borderRadius: 6, paddingHorizontal: SPACING.sm, paddingVertical: SPACING.xs },
+  matchText: { color: COLORS.surface, fontSize: FONT_SIZES.tiny, fontWeight: "800" },
+  fabUpload: { position: "absolute", right: SPACING.xl, bottom: 96, width: 64, height: 64, borderRadius: 32, backgroundColor: COLORS.secondary, alignItems: "center", justifyContent: "center", zIndex: 20, shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 6 },
+  fabDisabled: { opacity: 0.65 },
+  uploadIcon: { width: 40, height: 40, resizeMode: "contain" },
+  lightboxBg: { flex: 1, backgroundColor: "rgba(0,0,0,0.92)", alignItems: "center", justifyContent: "center", paddingHorizontal: SPACING.lg },
+  lightboxClose: { position: "absolute", top: 64, right: 20, zIndex: 10 },
+  lightboxImage: { width: "100%", height: "62%" },
+  lightboxMeta: { width: "100%", marginTop: SPACING.lg },
+  lightboxFilename: { color: COLORS.surface, fontSize: FONT_SIZES.subtitle, fontWeight: "700" },
+  tagRow: { flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, marginTop: SPACING.md },
+  tagPill: { backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 999, paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs },
+  tagText: { color: COLORS.surface, fontSize: FONT_SIZES.body, fontWeight: "600" },
 });
