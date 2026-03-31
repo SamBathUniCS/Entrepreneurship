@@ -132,10 +132,6 @@ echo "   • Beach Day Vibes"
 echo "   • Concert Night"
 echo ""
 
-echo "⏳ Note: DeepFace downloads ~300MB of model weights on first boot."
-echo "Face recognition will work after the download finishes."
-echo ""
-
 echo "Watch progress:"
 echo "$COMPOSE logs -f deepface"
 echo ""
