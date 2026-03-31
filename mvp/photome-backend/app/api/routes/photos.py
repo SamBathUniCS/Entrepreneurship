@@ -4,7 +4,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
 from fastapi.responses import StreamingResponse
 from sqlalchemy import func, or_
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 
 from app.api.deps import get_current_user, get_db
 from app.models.event import Event
@@ -45,29 +45,28 @@ def _gallery_photos_query(event: Event, current_user: User, db: Session):
     - photos uploaded by photographers
     - photos where the current user is tagged
     """
+    # alias PhotoTag for join
+    PhotoTagAlias = aliased(PhotoTag)
+
     return (
         db.query(Photo)
         .outerjoin(
             EventMember,
-            (EventMember.event_id == Photo.event_id) & (EventMember.user_id == Photo.uploader_id),
+            (EventMember.event_id == Photo.event_id) & (EventMember.user_id == Photo.uploader_id)
         )
         .outerjoin(
-            PhotoTag,
-            PhotoTag.photo_id == Photo.id,
+            PhotoTagAlias,
+            (PhotoTagAlias.photo_id == Photo.id) & (PhotoTagAlias.user_id == current_user.id)
         )
         .filter(
             Photo.event_id == event.id,
             Photo.is_deleted == False,
             or_(
-                # curated photos
-                (Photo.uploader_id == event.creator_id),
-                (EventMember.is_photographer == True),
-
-                # photos where current user is tagged
-                (PhotoTag.user_id == current_user.id),
-            ),
+                Photo.uploader_id == event.creator_id,
+                EventMember.is_photographer == True,
+                PhotoTagAlias.id.isnot(None)  # user is tagged
+            )
         )
-        .distinct() # avoids duplicates
     )
 
 def _enrich_photo(photo: Photo, current_user: User) -> dict:
