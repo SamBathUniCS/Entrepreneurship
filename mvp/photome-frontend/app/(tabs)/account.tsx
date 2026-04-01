@@ -216,18 +216,44 @@ export default function Account() {
     await refreshUser();
   }
 
+  // async function savePrivacyToggle(
+  //   field: "face_recognition_enabled" | "allow_auto_tagging",
+  //   value: boolean,
+  // ) {
+  //   if (!token) return;
+  //   setSavingPrivacy(true);
+  //   const r = await apiFetch("PATCH", "/users/me", token, { [field]: value });
+  //   if (r.ok) await refreshUser();
+  //   else Alert.alert("Error", "Could not save setting");
+  //   setSavingPrivacy(false);
+  // }
+
   async function savePrivacyToggle(
     field: "face_recognition_enabled" | "allow_auto_tagging",
     value: boolean,
   ) {
-    if (!token) return;
+    if (!token) return false;
+  
     setSavingPrivacy(true);
-    const r = await apiFetch("PATCH", "/users/me", token, { [field]: value });
-    if (r.ok) await refreshUser();
-    else Alert.alert("Error", "Could not save setting");
-    setSavingPrivacy(false);
+  
+    try {
+      const r = await apiFetch("PATCH", "/users/me", token, { [field]: value });
+  
+      if (!r.ok) {
+        Alert.alert("Error", "Could not save setting");
+        return false;
+      }
+  
+      return true;
+    } catch (e) {
+      console.error("savePrivacyToggle failed:", e);
+      Alert.alert("Error", "Could not save setting");
+      return false;
+    } finally {
+      setSavingPrivacy(false);
+    }
   }
-
+  
   async function handleLogout() {
     await logout();
     router.replace("/login");
@@ -290,11 +316,6 @@ export default function Account() {
             <View style={styles.statBox}>
               <Text style={styles.statNum}>{user.total_uploads}</Text>
               <Text style={styles.statLabel}>Uploads</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View style={styles.statBox}>
-              <Text style={styles.statNum}>{user.upload_streak}</Text>
-              <Text style={styles.statLabel}>Streak 🔥</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statBox}>
