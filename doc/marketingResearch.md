@@ -89,8 +89,8 @@ Locket is a photo-sharing app designed for intimate, real-time connection. It sk
 ### Tinder
 
 - Tinder grew to millions of users with campus ambassador campaigns in 2012–2013 (Future.com, 2022).
-- The strategy relied on students hosting "Tinder parties" where attendees had to download the app to enter, which is a direct, event-based activation model.
-- The event based nature of PhotoMe makes it uniquely suited to a similar activation model. Ambassadors could host society events where PhotoMe is the official photo platform, creating an immediate, tangible use case.
+- The strategy relied on students hosting "Tinder parties" where attendees had to download the app to enter, which is a event-based activation model.
+- The event based nature of PhotoMe makes it uniquely suited to a similar activation model. Ambassadors could host society events where PhotoMe is the official photo platform, creating an immediate use case.
 
 ### Spotify
 
@@ -110,11 +110,28 @@ Research across marketing platforms consistently ranks content types by engageme
 | User-Generated Content (UGC)| 4× higher click through rate than brand content | Bazaarvoice, 2023 |
 | Interactive Stories (polls, quizzes) | +20% Story completion retention | Hootsuite, 2025 |
 
+### Optimal Posting Frequency and Posting Times for Student Audiences (SproutSocial)
+| Platform | Recommended Frequency | Best Post Times (UK)|
+|---|---|---|
+| TikTok| 5–7 times/week | Wednesday 3-11pm; Monday- Thursday 4pm–12am|
+| Instagram| 3–5 times/week| 5–9pm Mon-Thurs weekdays|
+| X (Twitter)| 3–4 times/week | Wednesday 4-10pm; Tuesdays 4pm–9am|
+|Facebook | 3–4 times/week | Tuesday-Thursday 3-9pm|
+
+### Leveraging Hashtags
+Hashtags are the primary discoverability mechanism on TikTok and Instagram (Sprout Social, 2025)
+- **TikTok:** Use 3–5 hashtags maximum; mix 1 viral hashtag (#FYP), 1–2 niche hashtags (#EventPhotography, #UniLife), and 1 branded hashtag (#PhotoMe).
+- **Instagram:** Instagram allows users to use up to 30 hashtags, but it is recommended using only 3-5 hashtags per post, at the end of your caption.  Use 10–15 hashtags for Reels. Include a mix of high-volume hashtags (>1M posts) and niche hashtags (<500K posts) tags to balance reach and discoverability.
+  
 ## References
 - Digitaloft (2025) 'Social media engagement rate benchmarks 2025'. Available at: https://digitaloft.co.uk
+- Metricool (2026) https://metricool.com/how-many-hashtags-to-use/ Available at: https://metricool.com/how-many-hashtags-to-use/
 - Forbes(2024) Short-Form Video Content: Capturing Attention In The Digital Age Available at: https://www.forbes.com/councils/forbesagencycouncil/2024/03/19/short-form-video-content-capturing-attention-in-the-digital-age/
 - Sprout Social (2026) 120+ Must-know social media marketing statistics for 2026
 Available at: https://sproutsocial.com/insights/social-media-statistics/
+- Sprout Social (2026) Best times to post on social media in the UK
+Available at: https://sproutsocial.com/insights/best-times-to-post-on-social-media-uk/
+- Sprout Social (2025) 'TikTok Captions To Engage Your Audience'. Available at: https://sproutsocial.com/insights/tiktok-captions/
 - Rivera, M. (2025) 'Short-form video engagement benchmarks: 2025 analysis'. *Content Marketing Institute*.
 - FSB (2024) Which social media platform is right for your business? Available at: https://www.fsb.org.uk/resources/article/which-social-media-platform-is-right-for-your-business-MCTWEGZGJIHJHTFH4H5SP5LAMFPY
 -  House of Marketers (2026) '47 TikTok Statistics: User Demographics & Engagement Data [2026]'. Available at: https://houseofmarketers.com/tiktok-users-statistics-demographic-data
