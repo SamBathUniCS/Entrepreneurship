@@ -238,8 +238,7 @@ Discussion points:
 - we must show that the photos will be visible across 2 different phones rather than your own phone
   Prototyping:
   Backend (Python):
-- Sushil: Backend (he has experience with facial recognition)
-- Gabriel: Database schema setup for storing event data
+- Sushil: Backend (he has experience with facial recognition) + Database schema setup for storing event data
 - Sam: Provide database credentials
   Frontend (Expo):
 - Saniya - Leaderboard page + settings page
@@ -279,7 +278,7 @@ Action Points:
 - tier selection on accounts page - Saniya
 - gallery page per event page (c-d,f) - Nick
 - e - Saniya
-- reels page - Kithmini/ Gabriel
+- reels page - Kithmini
 - montage creation and highlights - kithmini
 - log in (username asked which later used ot add friends) - Sam
 
@@ -324,10 +323,6 @@ Presentation
 
 - Allocate speaking roles for the 10 minute presentation.
 - Plan live skit for the final pitch.
-
-Marketing / Media
-
-- Gabriel – Develop marketing scripts and concepts for promotional content
 
 ## 13-03-2026
 
