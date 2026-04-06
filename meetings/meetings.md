@@ -397,6 +397,7 @@ User Testing plan
   - Everyone should aim to collect feedback from at least 2 participants
     
 Action Points:
+
 Saniya - creates different versions for the poster
 Gabriel - Needs to fix the whole video.
 Everyone - needs to have the scrip/presentation slide done, and collect feedback from participants
