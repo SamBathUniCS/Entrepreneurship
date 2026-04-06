@@ -376,4 +376,30 @@ Action Points:
   
 - poster - saniya
 - remove streaks and fix toggle - saniya
-- test account - sam 
+- test account - sam
+
+
+## 06-04-2026
+
+Overall Discussion:
+- Discussing the for the presenetation and the user testing
+- We reviewed the poster, marketing video
+- There are plans to conduct in person user testing
+
+Discussion Points:
+- Saniya created the PhotoMe poster
+- Multiple versions of that poster is needed
+- Gabriel made the demo video. but second half was very unclear. It needs to show the app's features/
+- Ethics must be completed, if participants agree to take part
+- Photos used for testing will be deleted afterwards to avoid privacy concerns
+User Testing plan
+  - User testing is planned for next week
+  - Everyone should aim to collect feedback from at least 2 participants
+    
+Action Points:
+Saniya - creates different versions for the poster
+Gabriel - Needs to fix the whole video.
+Everyone - needs to have the scrip/presentation slide done, and collect feedback from participants
+
+
+
