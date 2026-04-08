@@ -33,7 +33,7 @@ def _build_montage_payload(photo_urls: list[str]) -> dict:
             "asset": {"type": "image", "src": url},
             "start": round(i * 1.5, 1),
             "length": 1.5,
-            "transition": {"in": "fade", "out": "fade"},
+            "transitions": {"in": {"type": "fade"}, "out": {"type": "fade"}},
         }
         for i, url in enumerate(photo_urls[:12])
     ]
@@ -58,8 +58,8 @@ def _build_reel_payload(photo_urls: list[str], music_key: str) -> dict:
             "asset": {"type": "image", "src": url},
             "start": round(i * 3.0, 1),
             "length": 3.0,
-            "effect": "zoomIn",
-            "transition": {"in": "fade", "out": "fade"},
+            "effects": [{"type": "zoomIn"}],
+            "transitions": {"in": {"type": "fade"}, "out": {"type": "fade"}},
         }
         for i, url in enumerate(photo_urls[:20])
     ]
@@ -92,7 +92,7 @@ async def create_render(render_type: str, photo_urls: list[str], music: str = "c
         else _build_reel_payload(photo_urls, music)
     )
 
-    url = f"{SHOTSTACK_BASE}/{settings.SHOTSTACK_ENV}/render"
+    url = f"{SHOTSTACK_BASE}/edit/{settings.SHOTSTACK_ENV}/render"
     async with httpx.AsyncClient(timeout=30) as client:
         r = await client.post(url, json=payload, headers=_headers())
         if r.status_code not in (200, 201):
@@ -108,7 +108,7 @@ async def poll_render(render_id: str) -> dict:
     if not settings.SHOTSTACK_API_KEY:
         raise RuntimeError("SHOTSTACK_API_KEY is not configured")
 
-    url = f"{SHOTSTACK_BASE}/{settings.SHOTSTACK_ENV}/render/{render_id}"
+    url = f"{SHOTSTACK_BASE}/edit/{settings.SHOTSTACK_ENV}/render/{render_id}"
     async with httpx.AsyncClient(timeout=15) as client:
         r = await client.get(url, headers=_headers())
         r.raise_for_status()
