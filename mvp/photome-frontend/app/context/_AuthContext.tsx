@@ -63,7 +63,9 @@ export const AuthContext = createContext<AuthContextType>({
   refreshUser: async () => {},
 });
 
-// ── Provider ──────────────────────────────────────────────────────────────────
+// Dev-only: paste a JWT here to bypass the login screen.
+// Leave empty in production.
+const DEV_BYPASS_TOKEN = "";
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -75,6 +77,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (savedToken) {
         setToken(savedToken);
         await loadUser(savedToken);
+        return;
+      }
+
+      if (DEV_BYPASS_TOKEN) {
+        setToken(DEV_BYPASS_TOKEN);
+        await Storage.setItem("token", DEV_BYPASS_TOKEN);
+        await loadUser(DEV_BYPASS_TOKEN);
       }
     })();
   }, []);

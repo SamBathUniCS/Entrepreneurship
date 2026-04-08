@@ -105,7 +105,7 @@ Weddings, festivals, corporate events. By this stage, the platform has proven re
 ## Summary of Key Decisions
 
 | Decision                | Recommendation                                                          | Rationale                                                                          |
-| ----------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ----------------------- |
+| ----------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
 | Cloud provider          | AWS, single-region at launch with failover plan                         | Ecosystem depth, Rekognition maturity, GDPR compliance                             |
 | Facial recognition      | AWS Rekognition at MVP; proprietary model post-Series A                 | Speed to market vs. long-term cost and accuracy control                            |
 | Payment processing      | Stripe with webhook-driven tier provisioning                            | Subscription lifecycle management, PCI compliance, lower fixed fee                 |
@@ -113,4 +113,4 @@ Weddings, festivals, corporate events. By this stage, the platform has proven re
 | DPO appointment         | External DPO service from day one                                       | UK GDPR Article 37 likely requires formal designation for biometric processing     |
 | MVP scope               | Core gallery, upload-to-unlock, facial recognition, Stripe billing only | Concentration of effort on core value proposition                                  |
 | Go-to-market            | Phase 1 university only; Phase 2 Business tier; Phase 3 public events   | Network effects strongest in dense communities; avoid premature scaling            |
-| Customer support        | Structured FAQ and monitored inbox with defined SLA at launch           | Biometric data and financial subscriptions require responsive support from day one | y Operational Decisions |
+| Customer support        | Structured FAQ and monitored inbox with defined SLA at launch           | Biometric data and financial subscriptions require responsive support from day one |

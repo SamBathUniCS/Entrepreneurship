@@ -44,6 +44,12 @@ export default function TabLayout() {
             ),
           }}
         />
+        <Tabs.Screen
+          name="events/[id]"
+          options={{
+            href: null,
+          }}
+        />
 
         <Tabs.Screen
           name="scan"
