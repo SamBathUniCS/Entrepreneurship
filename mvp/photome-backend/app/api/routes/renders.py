@@ -15,8 +15,9 @@ router = APIRouter(prefix="/events/{event_id}/renders", tags=["renders"])
 
 
 class RenderRequest(BaseModel):
-    type: str        # "montage" | "reel"
-    music: str = "chill"  # "chill" | "upbeat" | "cinematic" (reel only)
+    type: str                          # "montage" | "reel"
+    music: str = "chill"               # "chill" | "upbeat" | "cinematic" (reel only)
+    photo_ids: list[str] | None = None # specific photo IDs to include; None = all
 
 
 @router.post("/", status_code=202)
@@ -47,15 +48,26 @@ async def create_render(
         raise HTTPException(status_code=403, detail="You are not a member of this event")
 
     max_photos = 12 if req.type == "montage" else 20
-    photos = (
-        db.query(Photo)
-        .filter(Photo.event_id == event_id, Photo.is_deleted == False)
-        .order_by(Photo.created_at.desc())
-        .limit(max_photos)
-        .all()
-    )
+
+    if req.photo_ids:
+        from uuid import UUID as _UUID
+        ids = [_UUID(pid) for pid in req.photo_ids[:max_photos]]
+        photos = (
+            db.query(Photo)
+            .filter(Photo.id.in_(ids), Photo.event_id == event_id, Photo.is_deleted == False)
+            .all()
+        )
+    else:
+        photos = (
+            db.query(Photo)
+            .filter(Photo.event_id == event_id, Photo.is_deleted == False)
+            .order_by(Photo.created_at.desc())
+            .limit(max_photos)
+            .all()
+        )
+
     if not photos:
-        raise HTTPException(status_code=400, detail="No photos in this event yet")
+        raise HTTPException(status_code=400, detail="No photos selected or available in this event")
 
     # Download each photo from MinIO, then upload to Shotstack's media library.
     # This avoids needing a publicly accessible MinIO URL.
