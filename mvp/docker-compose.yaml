@@ -49,31 +49,7 @@ services:
     networks:
       - localnet
     volumes:
-      - deepface_weights:/root/.deepface/weights
-    depends_on:
-      deepface-init:
-        condition: service_completed_successfully
-
-  deepface-init:
-    image: docker.io/curlimages/curl:latest
-    container_name: deepface-init
-    volumes:
-      - deepface_weights:/root/.deepface/weights
-    networks:
-      - localnet
-    command: >
-      sh -c "
-        mkdir -p /root/.deepface/weights &&
-        if [ -f /root/.deepface/weights/facenet512_weights.h5 ]; then
-          echo 'Weights already present, skipping.';
-          exit 0;
-        fi;
-        echo 'Downloading facenet512_weights.h5...' &&
-        curl -L --fail --retry 5 --retry-delay 3 \
-          -o /root/.deepface/weights/facenet512_weights.h5 \
-          'https://huggingface.co/serengil/deepface-models/resolve/main/facenet512_weights.h5' &&
-        echo 'Done.'
-      "
+      - ./photome-backend/weights:/root/.deepface/weights
 
   # ── PhotoMe Backend ──────────────────────────────────────────────────────────
   backend:
