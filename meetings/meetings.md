@@ -404,5 +404,32 @@ Action Points:
 
 - Everyone - needs to have the scrip/presentation slide done, and collect feedback from participants
 
+## 09-04-2026
+
+Overall Discussion: 
+- progress on the video - screenrecord added to video but need ot refilm the videos
+- live demo unguided but will have pre-screenrecorded demo video to be taked thorugh
+- user testing template complete
+
+Action Points: 
+- complete user testing for individuals and socieities
+- complete video by EOD
+- fix the weights of deepface
+- change user testing to side by side
+- everyone refine slides and scripts
+- modify timeline to match whats in github
+- user testing done by Monday - require 10 individuals + 2 societies 
+
+Timings:
+problem video + intro  - 1min 
+demo + implementation - 2mins 
+user testing - 3mins 
+legal - 1min
+marking - 1min
+pricing - 1min
+forward strategy - 1min
+
+Meeting on Monday to discuss changes 
+Meeting next Friday with script and presentation done + have changes complete 
 
 
