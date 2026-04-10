@@ -30,29 +30,53 @@ def _headers() -> dict:
     }
 
 
-def _base() -> str:
+def _edit_base() -> str:
     return f"{SHOTSTACK_BASE}/edit/{settings.SHOTSTACK_ENV}"
+
+
+def _ingest_base() -> str:
+    return f"{SHOTSTACK_BASE}/ingest/{settings.SHOTSTACK_ENV}"
 
 
 # ── Asset upload ──────────────────────────────────────────────────────────────
 
 async def upload_asset(image_bytes: bytes, filename: str = "photo.jpg") -> str:
     """
-    Upload image bytes to Shotstack's media library.
-    Returns a Shotstack-hosted URL safe to use as a clip src.
+    Upload image bytes to Shotstack's Ingest API via a two-step presigned upload:
+      1. POST /ingest/{env}/sources/upload  → { url, id }
+      2. PUT {presigned_url} with the raw bytes
+    Returns the Shotstack-hosted CDN URL for use as a clip src.
     """
-    url = f"{_base()}/assets"
+    ingest_url = f"{_ingest_base()}/sources/upload"
     async with httpx.AsyncClient(timeout=60) as client:
+        # Step 1: request a presigned upload slot
         r = await client.post(
-            url,
-            headers=_headers(),
-            files={"file": (filename, io.BytesIO(image_bytes), "image/jpeg")},
+            ingest_url,
+            headers={**_headers(), "Content-Type": "application/json"},
+            json={"inputs": [{"filename": filename}]},
         )
         if r.status_code not in (200, 201):
-            raise RuntimeError(f"Shotstack asset upload error {r.status_code}: {r.text}")
-        data = r.json()
-        # Response: {"data": {"attributes": {"url": "..."}}}
-        return data["data"]["attributes"]["url"]
+            raise RuntimeError(
+                f"Shotstack ingest upload-slot error {r.status_code}: {r.text}"
+            )
+        resp = r.json()
+        # Response shape: {"data": [{"id": "...", "attributes": {"url": "...", "cdn": "..."}}]}
+        item = resp["data"][0]["attributes"]
+        presigned_url: str = item["url"]
+        cdn_url: str = item["cdn"]
+
+        # Step 2: PUT the raw bytes to the presigned S3 URL
+        put_r = await client.put(
+            presigned_url,
+            content=image_bytes,
+            headers={"Content-Type": "image/jpeg"},
+        )
+        if put_r.status_code not in (200, 204):
+            raise RuntimeError(
+                f"Shotstack S3 presigned PUT error {put_r.status_code}: {put_r.text}"
+            )
+
+        return cdn_url
 
 
 # ── Payload builders ──────────────────────────────────────────────────────────
@@ -129,7 +153,7 @@ async def create_render(
         else _build_reel_payload(src_urls, music)
     )
 
-    url = f"{_base()}/render"
+    url = f"{_edit_base()}/render"
     async with httpx.AsyncClient(timeout=30) as client:
         r = await client.post(
             url,
@@ -149,7 +173,7 @@ async def poll_render(render_id: str) -> dict:
     if not settings.SHOTSTACK_API_KEY:
         raise RuntimeError("SHOTSTACK_API_KEY is not configured")
 
-    url = f"{_base()}/render/{render_id}"
+    url = f"{_edit_base()}/render/{render_id}"
     async with httpx.AsyncClient(timeout=15) as client:
         r = await client.get(url, headers=_headers())
         r.raise_for_status()
