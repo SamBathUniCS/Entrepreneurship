@@ -2,12 +2,19 @@
 Shotstack API client — renders image montages (GIF) and reels (MP4 with music).
 
 Key design: photos are downloaded from MinIO by the backend, then uploaded to
-Shotstack's own media library. This means Shotstack never needs to reach our
-private MinIO — no public URL required.
+Shotstack's Ingest API. This means Shotstack never needs to reach our private
+MinIO — no public MinIO URL required.
+
+Upload flow (per Shotstack docs):
+  1. POST /ingest/{env}/upload  → presigned S3 URL + upload id
+  2. PUT {presigned_url} with raw bytes  (ACL is public-read)
+  3. Strip query params from presigned URL → permanent public S3 URL
+     (no polling needed; the object is public-read immediately after PUT)
 
 Docs: https://shotstack.io/docs/api/
 """
 import io
+from urllib.parse import urlparse, urlunparse
 import httpx
 
 from app.core.config import get_settings
@@ -42,30 +49,25 @@ def _ingest_base() -> str:
 
 async def upload_asset(image_bytes: bytes, filename: str = "photo.jpg") -> str:
     """
-    Upload image bytes to Shotstack's Ingest API via a two-step presigned upload:
-      1. POST /ingest/{env}/sources/upload  → { url, id }
-      2. PUT {presigned_url} with the raw bytes
-    Returns the Shotstack-hosted CDN URL for use as a clip src.
+    Upload image bytes to Shotstack via the Ingest API:
+      1. POST /ingest/{env}/upload  → presigned S3 URL + upload id
+      2. PUT {presigned_url} with raw bytes
+      3. Return the public S3 URL (strip query params — bucket ACL is public-read)
     """
-    ingest_url = f"{_ingest_base()}/sources/upload"
     async with httpx.AsyncClient(timeout=60) as client:
-        # Step 1: request a presigned upload slot
+        # Step 1: request a presigned upload URL
         r = await client.post(
-            ingest_url,
-            headers={**_headers(), "Content-Type": "application/json"},
-            json={"inputs": [{"filename": filename}]},
+            f"{_ingest_base()}/upload",
+            headers=_headers(),
         )
         if r.status_code not in (200, 201):
             raise RuntimeError(
-                f"Shotstack ingest upload-slot error {r.status_code}: {r.text}"
+                f"Shotstack upload-slot error {r.status_code}: {r.text}"
             )
-        resp = r.json()
-        # Response shape: {"data": [{"id": "...", "attributes": {"url": "...", "cdn": "..."}}]}
-        item = resp["data"][0]["attributes"]
-        presigned_url: str = item["url"]
-        cdn_url: str = item["cdn"]
+        data = r.json()["data"]
+        presigned_url: str = data["attributes"]["url"]
 
-        # Step 2: PUT the raw bytes to the presigned S3 URL
+        # Step 2: PUT raw bytes to the presigned S3 URL
         put_r = await client.put(
             presigned_url,
             content=image_bytes,
@@ -73,10 +75,13 @@ async def upload_asset(image_bytes: bytes, filename: str = "photo.jpg") -> str:
         )
         if put_r.status_code not in (200, 204):
             raise RuntimeError(
-                f"Shotstack S3 presigned PUT error {put_r.status_code}: {put_r.text}"
+                f"Shotstack S3 PUT error {put_r.status_code}: {put_r.text}"
             )
 
-        return cdn_url
+        # Step 3: strip query params → permanent public URL (public-read ACL)
+        parsed = urlparse(presigned_url)
+        public_url = urlunparse((parsed.scheme, parsed.netloc, parsed.path, "", "", ""))
+        return public_url
 
 
 # ── Payload builders ──────────────────────────────────────────────────────────
