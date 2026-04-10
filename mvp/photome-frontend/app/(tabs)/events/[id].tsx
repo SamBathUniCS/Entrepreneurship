@@ -12,7 +12,7 @@ import {
   Image,
   ImageSourcePropType,
 } from "react-native";
-import { useLocalSearchParams, Stack } from "expo-router";
+import { useLocalSearchParams, Stack, router } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 
@@ -273,20 +273,31 @@ export default function EventDetailScreen() {
           </View>
         </ScrollView>
 
-        {event.status === "active" && (
-          <TouchableOpacity
-            style={[styles.fabUpload, uploading && styles.fabDisabled]}
-            onPress={pickAndUpload}
-            disabled={uploading}
-            activeOpacity={0.85}
-          >
-            {uploading ? (
-              <ActivityIndicator size="small" color={COLORS.surface} />
-            ) : (
-              <Image source={UPLOAD_ICON} style={styles.uploadIcon} />
-            )}
-          </TouchableOpacity>
-        )}
+        <View style={styles.fabGroup}>
+          {photos.length >= 2 && (
+            <TouchableOpacity
+              style={styles.fabCreate}
+              onPress={() => router.push(`/create/${id}`)}
+              activeOpacity={0.85}
+            >
+              <Ionicons name="sparkles" size={24} color={COLORS.surface} />
+            </TouchableOpacity>
+          )}
+          {event.status === "active" && (
+            <TouchableOpacity
+              style={[styles.fabUpload, uploading && styles.fabDisabled]}
+              onPress={pickAndUpload}
+              disabled={uploading}
+              activeOpacity={0.85}
+            >
+              {uploading ? (
+                <ActivityIndicator size="small" color={COLORS.surface} />
+              ) : (
+                <Image source={UPLOAD_ICON} style={styles.uploadIcon} />
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
 
       {lightbox && (
@@ -351,7 +362,9 @@ const styles = StyleSheet.create({
   gridBlurOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(255,255,255,0.22)" },
   matchBadge: { position: "absolute", right: SPACING.xs, bottom: SPACING.xs, backgroundColor: COLORS.secondary, borderRadius: 6, paddingHorizontal: SPACING.sm, paddingVertical: SPACING.xs },
   matchText: { color: COLORS.surface, fontSize: FONT_SIZES.tiny, fontWeight: "800" },
-  fabUpload: { position: "absolute", right: SPACING.xl, bottom: 96, width: 64, height: 64, borderRadius: 32, backgroundColor: COLORS.secondary, alignItems: "center", justifyContent: "center", zIndex: 20, shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 6 },
+  fabGroup: { position: "absolute", right: SPACING.xl, bottom: 96, alignItems: "center", gap: SPACING.md, zIndex: 20 },
+  fabCreate: { width: 56, height: 56, borderRadius: 28, backgroundColor: "#5E35B1", alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 10, shadowOffset: { width: 0, height: 4 }, elevation: 5 },
+  fabUpload: { width: 64, height: 64, borderRadius: 32, backgroundColor: COLORS.secondary, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 12, shadowOffset: { width: 0, height: 6 }, elevation: 6 },
   fabDisabled: { opacity: 0.65 },
   uploadIcon: { width: 40, height: 40, resizeMode: "contain" },
   lightboxBg: { flex: 1, backgroundColor: "rgba(0,0,0,0.92)", alignItems: "center", justifyContent: "center", paddingHorizontal: SPACING.lg },

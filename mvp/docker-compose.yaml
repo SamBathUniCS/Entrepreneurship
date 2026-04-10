@@ -77,6 +77,8 @@ services:
       APP_NAME: PhotoMe
       DEBUG: "true"
       UPLOAD_THRESHOLD: "5"
+      SHOTSTACK_API_KEY: ${SHOTSTACK_API_KEY:-}
+      SHOTSTACK_ENV: ${SHOTSTACK_ENV:-stage}
     depends_on:
       postgres:
         condition: service_healthy
