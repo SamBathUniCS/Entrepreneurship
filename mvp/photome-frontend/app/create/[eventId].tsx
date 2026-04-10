@@ -8,14 +8,13 @@ import {
   ScrollView,
   Linking,
   Image,
-  FlatList,
   Dimensions,
 } from "react-native";
 import { useLocalSearchParams, Stack } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../context/_AuthContext";
-import { apiFetch, imgUrl } from "../../api";
-import { COLORS, FONT_SIZES, SPACING } from "../_theme";
+import { apiFetch } from "../../api";
+import { COLORS, FONT_SIZES, SPACING } from "../theme";
 import AuthImage from "../../AuthImage";
 
 const SCREEN_W = Dimensions.get("window").width;
