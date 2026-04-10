@@ -71,10 +71,8 @@ async def create_render(
 
     # Download each photo from MinIO, then upload to Shotstack's media library.
     # This avoids needing a publicly accessible MinIO URL.
-    import logging
-    logger = logging.getLogger(__name__)
-
     src_urls: list[str] = []
+    upload_errors: list[str] = []
     for i, photo in enumerate(photos):
         if not photo.s3_key:
             continue
@@ -85,13 +83,13 @@ async def create_render(
             )
             src_urls.append(shotstack_url)
         except Exception as e:
-            logger.error("Failed to upload photo %s to Shotstack: %s", photo.s3_key, e)
+            upload_errors.append(str(e))
             continue
 
     if not src_urls:
         raise HTTPException(
             status_code=400,
-            detail="Could not upload any photos to Shotstack. Check SHOTSTACK_API_KEY.",
+            detail=f"Could not upload any photos to Shotstack. Errors: {upload_errors}",
         )
 
     try:
