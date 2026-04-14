@@ -150,18 +150,11 @@ export default function Home() {
               <Text style={styles.recentTitle} numberOfLines={1}>
                 {current.title}
               </Text>
-              
-              <View style={{ padding: SPACING.lg, paddingBottom: SPACING.xs }}>
-                <Text style={styles.metaRow}>
-                  👥 {current.member_count} · 📷 {current.photo_count}{" "}
-                  {current.mutual_friends > 0 && (
-                    <Text style={styles.socialBadge}>
-                      {" "}• 🔥 {current.mutual_friends} friend
-                      {current.mutual_friends > 1 ? "s" : ""}
-                    </Text>
-                  )}
-                </Text>
-              </View>
+
+              <Text style={styles.recentMeta}>
+                👥 {current.member_count} members · 📷 {current.photo_count}{" "}
+                photos
+              </Text>
               </Pressable>
             {recentEvents.length > 1 && (
               <View style={styles.carouselControls}>
