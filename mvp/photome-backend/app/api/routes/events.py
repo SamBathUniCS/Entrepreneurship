@@ -11,10 +11,38 @@ from app.models.event import Event
 from app.models.event_member import EventMember
 from app.models.photo import Photo, PhotoTag
 from app.models.user import User
+from app.models.friendship import Friendship
 from app.schemas.event import EventCreate, EventJoinResponse, EventPublic, EventUpdate
+
 
 router = APIRouter(prefix="/events", tags=["events"])
 settings = get_settings()
+
+def _mutual_friends_count(event: Event, db: Session, current_user: User) -> int:
+    if not current_user:
+        return 0
+
+    return (
+        db.query(func.count(EventMember.user_id))
+        .join(
+            Friendship,
+            or_(
+                # Case 1: current_user sent request
+                (Friendship.requester_id == current_user.id) &
+                (Friendship.addressee_id == EventMember.user_id),
+
+                # Case 2: current_user received request
+                (Friendship.addressee_id == current_user.id) &
+                (Friendship.requester_id == EventMember.user_id),
+            )
+        )
+        .filter(
+            Friendship.status == "accepted",
+            EventMember.event_id == event.id,
+        )
+        .scalar()
+        or 0
+    )
 
 
 def _gallery_photo_count(event: Event, db: Session) -> int:
@@ -63,6 +91,8 @@ def _event_to_public(event: Event, db: Session, current_user: User | None = None
         if membership:
             is_member = True
             has_access = membership.has_access
+
+    mutual_friends = _mutual_friends_count(event, db, current_user)
     
     return {
         "id": str(event.id),
@@ -78,6 +108,7 @@ def _event_to_public(event: Event, db: Session, current_user: User | None = None
         "created_at": event.created_at.isoformat(),
         "member_count": member_count,
         "photo_count": photo_count,
+        "mutual_friends": mutual_friends,
         "is_member": is_member,
         "has_access": has_access,
     }
