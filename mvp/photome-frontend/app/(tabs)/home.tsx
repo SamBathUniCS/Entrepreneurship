@@ -23,6 +23,7 @@ interface Event {
   photo_count: number;
   member_count: number;
   is_member: boolean;
+  mutual_friends: number;
   status: string;
   created_at: string;
 }
@@ -96,9 +97,17 @@ export default function Home() {
                   <Text style={styles.discoverTitle} numberOfLines={1}>
                     {event.title}
                   </Text>
-                  <Text style={styles.discoverMeta}>
-                    👥 {event.member_count} · 📷 {event.photo_count}
+
+                  <Text style={styles.metaRow}>
+                    👥 {event.member_count} · 📷 {event.photo_count}{" "}
+                    {event.mutual_friends > 0 && (
+                      <Text style={styles.socialBadge}>
+                        {" "}• 🔥 {event.mutual_friends} friend
+                        {event.mutual_friends > 1 ? "s" : ""}
+                      </Text>
+                    )}
                   </Text>
+
                   {event.description ? (
                     <Text style={styles.discoverDesc} numberOfLines={1}>
                       {event.description}
@@ -141,11 +150,19 @@ export default function Home() {
               <Text style={styles.recentTitle} numberOfLines={1}>
                 {current.title}
               </Text>
-              <Text style={styles.recentMeta}>
-                👥 {current.member_count} members · 📷 {current.photo_count}{" "}
-                photos
-              </Text>
-            </Pressable>
+              
+              <View style={{ padding: SPACING.lg, paddingBottom: SPACING.xs }}>
+                <Text style={styles.metaRow}>
+                  👥 {current.member_count} · 📷 {current.photo_count}{" "}
+                  {current.mutual_friends > 0 && (
+                    <Text style={styles.socialBadge}>
+                      {" "}• 🔥 {current.mutual_friends} friend
+                      {current.mutual_friends > 1 ? "s" : ""}
+                    </Text>
+                  )}
+                </Text>
+              </View>
+              </Pressable>
             {recentEvents.length > 1 && (
               <View style={styles.carouselControls}>
                 <Pressable
@@ -345,5 +362,13 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 6,
+  },
+  metaRow: {
+    fontSize: 13,
+    color: "#6B7280",
+  },
+  socialBadge: {
+    color: "#2563EB",
+    fontWeight: "600",
   },
 });
