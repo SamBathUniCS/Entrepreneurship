@@ -25,6 +25,7 @@ interface Event {
   description: string | null;
   photo_count: number;
   member_count: number;
+  mutual_friends: number;
   is_member: boolean;
   has_access: boolean;
   status: string;
@@ -162,9 +163,17 @@ export default function Search() {
                   {item.description}
                 </Text>
               )}
-              <Text style={styles.cardMeta}>
-                👥 {item.member_count} · 📷 {item.photo_count}
-              </Text>
+              <View style={{ marginTop: SPACING.xs }}>
+                <Text style={styles.metaRow}>
+                  👥 5 · 📷 5{" "}
+                  {item.mutual_friends > 0 && (
+                    <Text style={styles.socialBadge}>
+                      {" "}• 🔥 {item.mutual_friends} friend
+                      {item.mutual_friends > 1 ? "s" : ""}
+                    </Text>
+                  )}
+                </Text>
+              </View>
             </View>
             <View style={styles.cardAction}>
               {item.is_member ? (
@@ -296,5 +305,15 @@ const styles = StyleSheet.create({
     color: COLORS.successText,
     fontWeight: "700",
     fontSize: FONT_SIZES.label,
+  },
+  metaRow: {
+    fontSize: 13,
+    color: "#6B7280",
+    paddingBottom: SPACING.xs,
+  },
+
+  socialBadge: {
+    color: "#2563EB",
+    fontWeight: "600",
   },
 });
