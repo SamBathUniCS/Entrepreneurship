@@ -33,7 +33,7 @@ interface Event {
 }
 
 export default function Search() {
-  const { token } = useContext(AuthContext);
+  const { token , user} = useContext(AuthContext);
   const [q, setQ] = useState("");
   const [results, setResults] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
@@ -58,10 +58,13 @@ export default function Search() {
     const r = await apiFetch("POST", `/events/${event.id}/join`, token);
     setJoiningId(null);
     if (r.ok) {
-      Alert.alert(
-        "Joined!",
-        `You've joined "${event.title}". Upload 5 photos to unlock the gallery.`,
-      );
+      const tier = user?.tier ?? "basic";
+      const message =
+        tier === "basic"
+          ? `You've joined "${event.title}". Upload 5 photos to unlock the gallery.`
+          : `You've joined "${event.title}". You can view the gallery immediately with your ${tier} plan.`;
+    
+      Alert.alert("Joined!", message);
       doSearch();
     } else {
       Alert.alert("Error", r.data?.detail ?? "Could not join event");

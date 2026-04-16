@@ -142,6 +142,7 @@ export default function FriendsScreen() {
           title: "Friends",
           headerStyle: { backgroundColor: "#1677ff" },
           headerTintColor: "#fff",
+          headerBackTitle: "Account",
         }}
       />
       <SafeAreaView style={styles.safe}>
