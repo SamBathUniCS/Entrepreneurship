@@ -19,6 +19,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { AuthContext } from "../context/_AuthContext";
 import { apiFetch } from "../../api";
 import { COLORS, FONT_SIZES, SPACING } from "../theme";
+import ShareModal from "../components/ShareModal";
 
 const { width } = Dimensions.get("window");
 const H_PAD = SPACING.md,
@@ -42,6 +43,7 @@ export default function EventsTab() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
+  const [shareEvent, setShareEvent] = useState<{ id: string; title: string } | null>(null);
 
   useEffect(() => {
     if (token) load();
@@ -127,11 +129,21 @@ export default function EventsTab() {
         token={token!}
         tier={user?.tier ?? "basic"}
         onClose={() => setShowCreate(false)}
-        onCreated={() => {
+        onCreated={(eventId, eventTitle) => {
           setShowCreate(false);
           load();
+          setShareEvent({ id: eventId, title: eventTitle });
         }}
       />
+
+      {shareEvent && (
+        <ShareModal
+          visible
+          eventId={shareEvent.id}
+          eventTitle={shareEvent.title}
+          onClose={() => setShareEvent(null)}
+        />
+      )}
     </View>
   );
 }
@@ -180,7 +192,7 @@ function CreateEventModal({
   token: string;
   tier: string;
   onClose: () => void;
-  onCreated: () => void;
+  onCreated: (eventId: string, eventTitle: string) => void;
 }) {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
@@ -205,10 +217,12 @@ function CreateEventModal({
     });
     setSaving(false);
     if (r.ok) {
+      const eventId = r.data?.id ?? "";
+      const eventTitle = title.trim();
       setTitle("");
       setDesc("");
       setVisibility("public");
-      onCreated();
+      onCreated(eventId, eventTitle);
     } else {
       const detail = Array.isArray(r.data?.detail)
         ? r.data.detail.map((e: any) => e.msg).join("\n")

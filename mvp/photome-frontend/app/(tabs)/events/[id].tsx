@@ -20,6 +20,13 @@ import { AuthContext } from "../../context/_AuthContext";
 import { apiFetch } from "../../../api";
 import AuthImage from "../../../AuthImage";
 import { COLORS, FONT_SIZES, SPACING } from "../../theme";
+import ShareModal from "../../components/ShareModal";
+
+interface MutualFriend {
+  id: string;
+  username: string;
+  upload_count: number;
+}
 
 interface PhotoTag {
   username: string;
@@ -53,6 +60,13 @@ interface EventDetail {
 
 const UPLOAD_ICON = require("../../../assets/images/upload_icon.png") as ImageSourcePropType;
 
+const AVATAR_COLORS = ["#5E35B1","#1E88E5","#43A047","#FB8C00","#E53935","#00897B","#8E24AA"];
+function avatarColor(username: string) {
+  let hash = 0;
+  for (let i = 0; i < username.length; i++) hash = username.charCodeAt(i) + ((hash << 5) - hash);
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
 function triggerWebPicker(onPick: (file: File) => void) {
   const input = document.createElement("input");
   input.type = "file";
@@ -74,17 +88,21 @@ export default function EventDetailScreen() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState("");
   const [lightbox, setLightbox] = useState<Photo | null>(null);
+  const [showShare, setShowShare] = useState(false);
+  const [mutualFriends, setMutualFriends] = useState<MutualFriend[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
 
-    const [eventResponse, photosResponse] = await Promise.all([
+    const [eventResponse, photosResponse, mutualsResponse] = await Promise.all([
       apiFetch("GET", `/events/${id}`, token),
       apiFetch("GET", `/events/${id}/photos/`, token),
+      apiFetch("GET", `/friends/mutual/${id}`, token),
     ]);
 
     if (eventResponse.ok) setEvent(eventResponse.data);
     if (photosResponse.ok) setPhotos(photosResponse.data ?? []);
+    if (mutualsResponse.ok) setMutualFriends(mutualsResponse.data ?? []);
 
     setLoading(false);
   }, [id, token]);
@@ -201,6 +219,11 @@ export default function EventDetailScreen() {
           headerStyle: { backgroundColor: COLORS.primary },
           headerTintColor: COLORS.surface,
           headerTitleStyle: { fontWeight: "700" },
+          headerRight: () => (
+            <TouchableOpacity onPress={() => setShowShare(true)} style={{ marginRight: 8 }}>
+              <Ionicons name="share-outline" size={24} color={COLORS.surface} />
+            </TouchableOpacity>
+          ),
         }}
       />
 
@@ -214,6 +237,26 @@ export default function EventDetailScreen() {
 
           {event.description && (
             <Text style={styles.description}>{event.description}</Text>
+          )}
+
+          {mutualFriends.length > 0 && (
+            <View style={styles.mutualsRow}>
+              {mutualFriends.slice(0, 6).map((f) => (
+                <View key={f.id} style={[styles.avatar, { backgroundColor: avatarColor(f.username) }]}>
+                  <Text style={styles.avatarText}>{f.username[0].toUpperCase()}</Text>
+                </View>
+              ))}
+              {mutualFriends.length > 6 && (
+                <View style={[styles.avatar, { backgroundColor: COLORS.border }]}>
+                  <Text style={styles.avatarText}>+{mutualFriends.length - 6}</Text>
+                </View>
+              )}
+              <Text style={styles.mutualsLabel}>
+                {mutualFriends.length === 1
+                  ? `${mutualFriends[0].username} is here`
+                  : `${mutualFriends.length} friends are here`}
+              </Text>
+            </View>
           )}
 
           {uploading && (
@@ -301,6 +344,13 @@ export default function EventDetailScreen() {
         </View>
       </View>
 
+      <ShareModal
+        visible={showShare}
+        eventId={id ?? ""}
+        eventTitle={event.title}
+        onClose={() => setShowShare(false)}
+      />
+
       {lightbox && (
         <Modal
           visible
@@ -376,4 +426,8 @@ const styles = StyleSheet.create({
   tagRow: { flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, marginTop: SPACING.md },
   tagPill: { backgroundColor: "rgba(255,255,255,0.12)", borderRadius: 999, paddingHorizontal: SPACING.md, paddingVertical: SPACING.xs },
   tagText: { color: COLORS.surface, fontSize: FONT_SIZES.body, fontWeight: "600" },
+  mutualsRow: { flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: SPACING.xs, paddingHorizontal: SPACING.xl, marginTop: SPACING.md },
+  avatar: { width: 32, height: 32, borderRadius: 16, alignItems: "center", justifyContent: "center" },
+  avatarText: { color: "#fff", fontSize: 13, fontWeight: "700" },
+  mutualsLabel: { fontSize: FONT_SIZES.label, color: COLORS.textSecondary, fontWeight: "600", marginLeft: SPACING.xs },
 });
