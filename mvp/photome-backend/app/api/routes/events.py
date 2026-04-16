@@ -90,7 +90,13 @@ def _event_to_public(event: Event, db: Session, current_user: User | None = None
         ).first()
         if membership:
             is_member = True
+            if current_user.tier in ("pro", "business") and not membership.has_access:
+                membership.has_access = True
+                db.commit()
             has_access = membership.has_access
+        # if membership:
+        #     is_member = True
+        #     has_access = membership.has_access or current_user.tier in ("pro", "business")
 
     mutual_friends = _mutual_friends_count(event, db, current_user)
     
@@ -120,13 +126,25 @@ def create_event(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Create a new event. Auto-upgrades Basic → Pro."""
+    """Create a new event based on subscription tier."""
+    
     if current_user.tier == "basic":
-        current_user.tier = "pro"
-        db.flush()
+        raise HTTPException(
+            status_code=403,
+            detail="Basic users cannot create events. Upgrade to Pro or Business."
+        )
+
+    if current_user.tier == "pro" and payload.visibility != "private":
+        raise HTTPException(
+            status_code=403,
+            detail="Pro users can only create private events."
+        )
 
     if current_user.tier not in ("pro", "business"):
-        raise HTTPException(status_code=403, detail="Pro or Business tier required")
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid subscription tier for event creation."
+        )
 
     max_attendees = 500 if current_user.tier == "business" else 50
 
@@ -148,7 +166,6 @@ def create_event(
     db.add(event)
     db.flush()
 
-    # Creator auto-joins
     membership = EventMember(
         event_id=event.id,
         user_id=current_user.id,
@@ -261,13 +278,20 @@ def join_event(
     membership = EventMember(
         event_id=event_id,
         user_id=current_user.id,
-        has_access=False,  # Need to upload photos to unlock
+        has_access=current_user.tier in ("pro", "business"),
+        # has_access=False,  # Need to upload photos to unlock
     )
     db.add(membership)
     db.commit()
     
+    message = (
+        "Joined event! You can view the gallery immediately."
+        if current_user.tier in ("Pro", "business")
+        else f"Joined event! Upload {event.upload_threshold} photos to unlock the gallery."
+    )
+
     return EventJoinResponse(
-        message=f"Joined event! Upload {event.upload_threshold} photos to unlock the gallery.",
+        message=message,
         already_member=False,
     )
 

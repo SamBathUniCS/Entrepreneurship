@@ -66,7 +66,7 @@ function triggerWebPicker(onPick: (file: File) => void) {
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { token } = useContext(AuthContext);
+  const { token, user } = useContext(AuthContext);
 
   const [event, setEvent] = useState<EventDetail | null>(null);
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -190,7 +190,8 @@ export default function EventDetailScreen() {
     );
   }
 
-  const locked = !event.has_access;
+  const isBasic = (user?.tier ?? "basic") === "basic";
+  const locked = isBasic && !event.has_access;
 
   return (
     <>
@@ -225,7 +226,7 @@ export default function EventDetailScreen() {
           <View style={styles.grid}>
             {photos.length > 0 ? (
               photos.map((photo) => {
-                const isLockedTile = locked || photo.locked;
+                const isLockedTile = isBasic && (locked || !!photo.locked);
                 const imageUri = photo.thumbnail_url ?? photo.url;
                 return (
                   <TouchableOpacity

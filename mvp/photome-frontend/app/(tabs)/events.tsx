@@ -38,7 +38,7 @@ interface Event {
 }
 
 export default function EventsTab() {
-  const { token } = useContext(AuthContext);
+  const { token , user} = useContext(AuthContext);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
@@ -112,17 +112,20 @@ export default function EventsTab() {
       </ScrollView>
 
       {/* Create event FAB */}
-      <TouchableOpacity
-        style={styles.fab}
-        onPress={() => setShowCreate(true)}
-        activeOpacity={0.85}
-      >
-        <Ionicons name="add" size={28} color={COLORS.surface} />
-      </TouchableOpacity>
+      {user?.tier !== "basic" && (
+        <TouchableOpacity
+          style={styles.fab}
+          onPress={() => setShowCreate(true)}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="add" size={28} color={COLORS.surface} />
+        </TouchableOpacity>
+      )}
 
       <CreateEventModal
         visible={showCreate}
         token={token!}
+        tier={user?.tier ?? "basic"}
         onClose={() => setShowCreate(false)}
         onCreated={() => {
           setShowCreate(false);
@@ -169,17 +172,21 @@ function EventCard({ event, style }: { event: Event; style: any }) {
 function CreateEventModal({
   visible,
   token,
+  tier,
   onClose,
   onCreated,
 }: {
   visible: boolean;
   token: string;
+  tier: string;
   onClose: () => void;
   onCreated: () => void;
 }) {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
-  const [visibility, setVisibility] = useState<"public" | "private">("public");
+  const [visibility, setVisibility] = useState<"public" | "private">(
+    tier === "business" ? "public" : "private"
+  );
   const [saving, setSaving] = useState(false);
 
   async function create() {
@@ -247,7 +254,7 @@ function CreateEventModal({
 
           <Text style={modal.label}>Visibility</Text>
           <View style={modal.toggleRow}>
-            {(["public", "private"] as const).map((v) => (
+            {(tier === "business" ? (["public", "private"] as const) : (["private"] as const)).map((v) => (
               <TouchableOpacity
                 key={v}
                 style={[
