@@ -433,3 +433,27 @@ Meeting on Monday to discuss changes
 Meeting next Friday with script and presentation done + have changes complete 
 
 
+## 17-04-2026
+
+Iterations that are completed:
+- Mutual friends done (Sam)
+- Tier system fixed + UI on plan page (Saniya)
+- Delete and download photos needs doing (Sushil)
+- Remove old events needs doing ()
+- Privacy on signup (Gabriel)
+- Showing all friends photos not just the ones you are in - if privacy is opted in (just talk about it)
+
+QR Code - Kit to give updates - done just needs to be pushed
+
+Get a figma design for a like/comment system for photos (Gabriel)
+Top rated photos from an event would be shown at the top
+
+Monday is a rough practise - everyone be ready with full scripts
+
+
+
+
+
+
+
+
