@@ -1,7 +1,9 @@
 from uuid import UUID
+import io
 import logging
+import zipfile
 
-from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, UploadFile, File
 from fastapi.responses import StreamingResponse
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, aliased
@@ -254,6 +256,75 @@ async def upload_photo(
         "faces_detected": len(photo.detected_faces or []),
         "tagged_users": [u.username for u, _ in tagged_users],
     }
+
+
+@router.post("/bulk-download")
+def bulk_download_photos(
+    event_id: UUID,
+    photo_ids: list[str] = Body(..., embed=True),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Download multiple photos as a single ZIP archive.
+    Accepts a JSON body: { "photo_ids": ["uuid1", "uuid2", ...] }
+    Members can only download photos they can see in the gallery.
+    """
+    event, membership = _resolve_event_and_membership(event_id, current_user, db)
+
+    if not photo_ids:
+        raise HTTPException(status_code=400, detail="No photo IDs provided")
+
+    if len(photo_ids) > 100:
+        raise HTTPException(status_code=400, detail="Cannot download more than 100 photos at once")
+
+    # Fetch only photos the user is allowed to see
+    visible_ids = {
+        str(p.id)
+        for p in _gallery_photos_query(event, current_user, db).all()
+    }
+
+    zip_buffer = io.BytesIO()
+    added = 0
+
+    with zipfile.ZipFile(zip_buffer, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for raw_id in photo_ids:
+            if raw_id not in visible_ids:
+                continue  # skip photos user can't access
+
+            photo = db.query(Photo).filter(
+                Photo.id == raw_id,
+                Photo.event_id == event_id,
+                Photo.is_deleted == False,
+            ).first()
+
+            if not photo:
+                continue
+
+            try:
+                file_bytes = storage.download_file(photo.s3_key)
+            except Exception:
+                logger.warning(f"bulk-download: failed to fetch s3_key={photo.s3_key}")
+                continue
+
+            ext = (photo.original_filename or "photo.jpg").rsplit(".", 1)[-1].lower()
+            filename = photo.original_filename or f"{photo.id}.{ext}"
+            # Deduplicate filenames inside the zip
+            zf.writestr(f"{added + 1:04d}_{filename}", file_bytes)
+            added += 1
+
+    if added == 0:
+        raise HTTPException(status_code=404, detail="No accessible photos found for the given IDs")
+
+    zip_buffer.seek(0)
+    safe_title = "".join(c if c.isalnum() or c in " _-" else "_" for c in event.title)
+    zip_filename = f"{safe_title}_photos.zip"
+
+    return StreamingResponse(
+        zip_buffer,
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{zip_filename}"'},
+    )
 
 
 @router.delete("/{photo_id}", status_code=204)

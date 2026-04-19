@@ -9,14 +9,19 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Alert,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Stack } from "expo-router";
+import * as FileSystem from "expo-file-system";
+import * as MediaLibrary from "expo-media-library";
+import * as Sharing from "expo-sharing";
 
 import { AuthContext } from "./context/_AuthContext";
 import { apiFetch } from "../api";
 import AuthImage from "../AuthImage";
 import { COLORS, FONT_SIZES, SPACING } from "./theme";
+import { API_BASE_URL } from "../config";
 
 
 interface UploadedPhoto {
@@ -32,11 +37,50 @@ interface UploadedPhoto {
   thumbnail_url: string | null;
 }
 
+/** Download a single photo from the backend. Works on web + native. */
+async function downloadPhoto(photo: UploadedPhoto, token: string) {
+  const fullUrl = photo.url.startsWith("http")
+    ? photo.url
+    : `${API_BASE_URL.replace("/api/v1", "")}${photo.url}`;
+
+  const filename = photo.original_filename ?? `photo_${photo.id}.jpg`;
+
+  if (Platform.OS === "web") {
+    const res = await fetch(fullUrl, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) { Alert.alert("Download failed"); return; }
+    const blob = await res.blob();
+    const objUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objUrl;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(objUrl);
+    return;
+  }
+
+  // Native
+  const { status } = await MediaLibrary.requestPermissionsAsync();
+  if (status !== "granted") {
+    Alert.alert("Permission needed", "Allow photo library access to save photos.");
+    return;
+  }
+
+  const destUri = `${FileSystem.cacheDirectory}${filename}`;
+  await FileSystem.downloadAsync(fullUrl, destUri, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  await MediaLibrary.saveToLibraryAsync(destUri);
+  Alert.alert("Saved", "Photo saved to your library.");
+}
+
 export default function MyUploadsScreen() {
   const { token, refreshUser } = useContext(AuthContext);
   const [uploads, setUploads] = useState<UploadedPhoto[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   // getting the full upload hisotry frmo backend
   const load = useCallback(async () => {
@@ -96,6 +140,18 @@ export default function MyUploadsScreen() {
     );
   }
 
+  async function handleDownload(photo: UploadedPhoto) {
+    if (!token) return;
+    setDownloadingId(photo.id);
+    try {
+      await downloadPhoto(photo, token);
+    } catch {
+      Alert.alert("Error", "Could not download photo.");
+    } finally {
+      setDownloadingId(null);
+    }
+  }
+
   return (
     <>
 
@@ -152,11 +208,31 @@ export default function MyUploadsScreen() {
                   </Text>
                   <Text style = {styles.date}>{formatDate(item.created_at)}</Text>
                 </View>
+
+                {/* Download button */}
+                <TouchableOpacity
+                  style={styles.actionBtn}
+                  onPress={() => handleDownload(item)}
+                  disabled={downloadingId === item.id || deletingId === item.id}
+                  activeOpacity={0.75}
+                >
+                  {downloadingId === item.id ? (
+                    <ActivityIndicator size="small" color={COLORS.primary} />
+                  ) : (
+                    <Ionicons
+                      name="download-outline"
+                      size={20}
+                      color={COLORS.primary}
+                    />
+                  )}
+                </TouchableOpacity>
+
+                {/* Delete button */}
                 <TouchableOpacity
 
-                  style = {styles.deleteBtn}
+                  style = {styles.actionBtn}
                   onPress ={() => handleDelete(item)}
-                  disabled ={deletingId === item.id}
+                  disabled ={deletingId === item.id || downloadingId === item.id}
                   activeOpacity={0.75}
                 >
                   {deletingId === item.id ? (
@@ -234,7 +310,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  deleteBtn: {
+  actionBtn: {
     padding: SPACING.sm,
   },
 });
