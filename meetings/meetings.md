@@ -451,6 +451,30 @@ Top rated photos from an event would be shown at the top
 Monday is a rough practise - everyone be ready with full scripts
 
 
+## 20-04-2026
+Nico had a shit accent
+Nico told a story for the first 15 minutes, wasting times
+gabriel told nico he was sorry
+
+Saniyaa doesn't want to participate in the acting "she is the laptop person"
+We will go to the room this week to check how the intro will work
+
+Sam took a dig at Saniyaa, she didn't get it first time
+20 minutes passed by ......
+Then Nico left and couldn't find a room
+
+Nico then messed around for another 15 minutes
+
+Did acting at the start
+Nico and Sush chest bump -> talk about party and pictures -> Say Saniyaa has them -> Gabe comes in
+Demo -> Still needs practicing and testing
+Go through the slides
+
+
+
+
+
+
 
 
 
