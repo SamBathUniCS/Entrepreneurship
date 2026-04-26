@@ -1,1 +1,2 @@
 # Entrepreneurship
+This repository contains the codebase, research and supplementary material for the app PhotoMe. The code for the frontend and backend can be found under the folder `mvp`. Legal, ethical and marketing research can be found under `docs`. Further marketing material and social media account information used in the marketing campaign can be found under `marketing`. Ethics forms and consent forms used in iterations of user testing can be found under `ethics`.  
